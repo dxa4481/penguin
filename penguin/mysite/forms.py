@@ -18,3 +18,10 @@ class Login(forms.Form):
 class LoggedIn(forms.Form):
 	def clean(self):
 		return self.cleaned_data
+
+class ToolEditor(forms.Form):
+	
+
+class BrowseSearch(forms.Form):
+
+

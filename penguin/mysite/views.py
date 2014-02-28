@@ -4,25 +4,12 @@ from django.http import HttpResponse
 from forms import UserEditor, Login, LoggedIn
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
-from tools.models import User
 
-def userEditor(request):
-	form = UserEditor()
-	if request.method == 'POST':
-		form = UserEditor(request.POST)
-		if form.is_valid():
-			userExists, user = findUser(request.POST['username'])
-			if userExists:
-				if user.password != request.POST['password']:
-					return HttpResponse("This is an existing username and it has a different password than the one you entered!")
-				user.areaCode = request.POST['areaCode']
-			else:
-				user = User(username=request.POST['username'], password=request.POST['password'], areaCode=request.POST['areaCode'])
-			user.save()
-			request.session['username'] = user.username
-			return HttpResponseRedirect('/loggedIn')
-	html = render(request, 'userEditor.html', {"action":"Register!", "form":form})
-	return HttpResponse(html)
+
+
+from models import User, Tool, BorrowTransaction
+
+
 
 
 def login(request):
@@ -44,7 +31,28 @@ def login(request):
 	return HttpResponse(html)
 
 
-def loggedIn(request):
+
+
+def register(request):
+	form = UserEditor()
+	if request.method == 'POST':
+		form = UserEditor(request.POST)
+		if form.is_valid():
+			userExists, user = findUser(request.POST['username'])
+			if userExists:
+				if user.password != request.POST['password']:
+					return HttpResponse("This is an existing username and it has a different password than the one you entered!")
+				user.areaCode = request.POST['areaCode']
+			else:
+				user = User(username=request.POST['username'], password=request.POST['password'], areaCode=request.POST['areaCode'])
+			user.save()
+			request.session['username'] = user.username
+			return HttpResponseRedirect('/loggedIn')
+	html = render(request, 'userEditor.html', {"action":"Register!", "form":form})
+	return HttpResponse(html)
+
+
+def user_homepage(request):
 	if 'username' not in request.session:
 		return HttpResponseRedirect('/login')
 	if request.method == 'POST':
@@ -55,9 +63,20 @@ def loggedIn(request):
 	return HttpResponse(html)
 
 
-def findUser(username):
-	try:
-		user = User.objects.get(username=username)
-		return True, user
-	except:
-		return False, {}
+def user_editor(request):
+	return HttpResponse()
+
+def user_tools(request):
+	return HttpResponse()
+
+def tool_editor(request):
+	return HttpResponse()
+
+def browse(request):
+	return HttpResponse()
+
+
+
+
+
+
