@@ -75,7 +75,9 @@ class User(models.Model):
 	""" Returns an array(?) of all user's tools
 	"""
 	def get_all_user_tools(self):
-		return self.tool_set.all()
+		ot = OwnTool.objects.filter(owner=self)
+		tools = ot.tool_set
+		return tools
 	
 	""" Deletes a user
 	"""
@@ -83,27 +85,34 @@ class User(models.Model):
 		self.tool_set.all().delete()
 		self.delete()
 
-		
+	"""Add a new tool to tools, then relate it to this user
+	:param n: name of tool
+	:param d: description of tool
+	:param t: type of tool
+	"""
+	def add_new_tool_(self, n, d, t)
+		t = Tool.add_new_tool(n, d, t)
+		OwnTool.add_new_tool_ownership(self, t)
 	
 
 class Tool(models.Model):
 	id = models.AutoField(primary_key=True)
 	name = models.CharField(max_length=30)
-	owner = models.ForeignKey('User')
+	#owner = models.ForeignKey('User')
 	is_available = models.BooleanField(default=True)
 	description = models.CharField(max_length=250)
-	type = models.CharField(max_length=30)
+	tool_type = models.CharField(max_length=30)
 	
 	""" Constructor to add a new tool
 	:param n: name of tool
-	:param o: owner ID
 	:param d: description of tool
 	:param t: type of tool
+	:return The tool that was just added
 	"""
-	def add_new_tool(self, n, o, d, t):
-		t = Tool(owner=User.objects.get(pk=o), name=n,
-		description=d, type=t)
+	def add_new_tool(self, n, d, tt):
+		t = Tool(name=n, description=d, tool_type=tt)
 		t.save()
+		return t
 	
 	""" Deletes the given tool
 	"""
@@ -135,7 +144,7 @@ class Tool(models.Model):
 	:return owner's id
 	"""
 	def get_tool_owner(self):
-		return owner.get_user_id()
+		return OwnTool.filter(tool=self.id).owner
 	
 	""" Return tool's ID
 	"""
@@ -146,8 +155,8 @@ class Tool(models.Model):
 	"""
 	def get_tool(toolID):
 		return Tool.objects.filter(pk=toolID)
-		
-		
+
+
 class OwnTool(models.Model):
 	id = models.AutoField(primary_key=True)
 	owner = models.ForeignKey('User')
@@ -157,7 +166,7 @@ class OwnTool(models.Model):
 	:param o: owner object
 	:param t: tool object
 	"""
-	def add_new_tool_ownership(self, o, t):
+	def add_new_tool_ownership(o, t):
 		own = OwnTool(owner=User.get_user(o),
 		tool=Tool.get_tool(t))
 		own.save()
