@@ -82,14 +82,15 @@ class User(models.Model):
 	def delete_user(self):
 		self.tool_set.all().delete()
 		self.delete()
-	
+
+		
 	
 
 class Tool(models.Model):
 	id = models.AutoField(primary_key=True)
 	name = models.CharField(max_length=30)
 	owner = models.ForeignKey('User')
-	is_available = models.BooleanField(default=False)
+	is_available = models.BooleanField(default=True)
 	description = models.CharField(max_length=250)
 	type = models.CharField(max_length=30)
 	
@@ -101,7 +102,7 @@ class Tool(models.Model):
 	"""
 	def add_new_tool(self, n, o, d, t):
 		t = Tool(owner=User.objects.get(pk=o), name=n,
-		description=d, type=t, is_available=False)
+		description=d, type=t)
 		t.save()
 	
 	""" Deletes the given tool
@@ -130,7 +131,7 @@ class Tool(models.Model):
 		else
 			return False
 
-	""" Get tool's owner
+	""" Get tool's owner's id
 	:return owner's id
 	"""
 	def get_tool_owner(self):
@@ -146,12 +147,45 @@ class Tool(models.Model):
 	def get_tool(toolID):
 		return Tool.objects.filter(pk=toolID)
 		
+		
+class OwnTool(models.Model):
+	id = models.AutoField(primary_key=True)
+	owner = models.ForeignKey('User')
+	tool = models.ForeignKey('Tool')
+	
+	"""Create a new tool ownership
+	:param o: owner object
+	:param t: tool object
+	"""
+	def add_new_tool_ownership(self, o, t):
+		own = OwnTool(owner=User.get_user(o),
+		tool=Tool.get_tool(t))
+		own.save()
+	
+	""" Remove a tool ownership
+	"""
+	def remove_tool_ownership(self):
+		self.delete()
+		
+	""" Return a tool ownership by id
+	"""
+	#Not implemented. What should this return?	
+	def get_tool_ownership(id):
+		return null
+	
+	"""Get a tool ownership's id
+	:return id of tool ownership
+	"""
+	def get_tool_ownership_id(self):
+		return self.id
+		
 class BorrowTransaction(models.Model):
 	id = models.AutoField(primary_key=True)
 	owner = models.ForeignKey('User')
 	borrower = models.ForeignKey('User')
 	tool = models.ForeignKey('Tool')
 	is_current = models.BooleanField(default=True)
+	in_community_shed = models.BooleanField(default=False)
 	
 	""" Create a new borrow transaction
 	:param o: owner user ID
