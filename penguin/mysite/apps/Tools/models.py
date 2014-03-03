@@ -1,6 +1,7 @@
 from django.db import models
 
-from ..Users.models import User
+User = models.ForeignKey('Users.User')
+
 
 class Tool(models.Model):
 	id = models.AutoField(primary_key=True)
@@ -90,8 +91,8 @@ class Tool(models.Model):
 
 class OwnTool(models.Model):
 	id = models.AutoField(primary_key=True)
-	owner = models.ForeignKey(User, on_delete=models.DO_NOTHING)
-	tool = models.ForeignKey(Tool)
+	owner = models.ForeignKey("Users.User", on_delete=models.DO_NOTHING)
+	tool = models.ForeignKey("Tools.Tool")
 
 	def __str__(self):
 		return (str(self.id) + ' o:' + str(self.owner) + ' t:' + str(self.tool))

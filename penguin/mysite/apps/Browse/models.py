@@ -1,13 +1,12 @@
 from django.db import models
 
-from ..Users.models import User
-from ..Tools.models import Tool
-
 class BorrowTransaction(models.Model):
+	user = models.ForeignKey('Users.User')
+	tool = models.ForeignKey('Tools.Tool')
         id = models.AutoField(primary_key=True)
-        owner = models.ForeignKey(User, related_name='borrowtransaction_owner')
-        borrower = models.ForeignKey(User, related_name='borrowtransaction_borrower')
-        tool = models.ForeignKey(Tool)
+        owner = models.ForeignKey('Users.User', related_name='borrowtransaction_owner')
+        borrower = models.ForeignKey('Users.User', related_name='borrowtransaction_borrower')
+        tool = models.ForeignKey('Tools.Tool')
         is_current = models.BooleanField(default=True)
         in_community_shed = models.BooleanField(default=False)
 
@@ -17,9 +16,9 @@ class BorrowTransaction(models.Model):
         :param t: tool ID
         """
         def add_new_borrow_transaction(self, o, b, t):
-                bt = BorrowTransaction(owner=User.get_user(o),
-                borrower=User.get_user(b),
-                tool=Tool.get_tool(t))
+                bt = BorrowTransaction(owner=user.get_user(o),
+                borrower=user.get_user(b),
+                tool=tool.get_tool(t))
                 bt.tool.set_tool_unavailable()
                 bt.tool.save()
                 bt.save()
