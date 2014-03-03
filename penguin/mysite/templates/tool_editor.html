@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html> 
+<head>
+<title>Tool Editor</title> 
+</head>
+<body> 
+
+
+<table border="1" cellspacing="1" cellpadding="5">
+  <tr>
+    <td>Tool Name</td>
+    <td>Description</td>
+    <td>Tool Type</td>
+    <td>Edit Tool</td>
+  </tr>
+
+
+
+{% for(int i = 0; i < 3; i++) %} 
+  <tr>
+     <td>row 1, column 0</td>
+     <td>row 1, column 1</td>
+     <td>row 1, column 2</td>
+     <td><input type="submit" value="Edit"></td>
+  </tr> 
+{% endfor %}
+
+</table>
+
+
+
+</body> 
+</html>
