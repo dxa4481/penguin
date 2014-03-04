@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>Browse Tools!</title>
+</head>
+
+<body>
+
+<table border="1" cellspacing="1" cellpadding="5">
+	<tr>
+		<td>Tool Name</td>
+		<td>Tool Owner</td>
+		<td>Availability</td>
+	</tr>
+
+	{% for user in community %}
+	{% for tool in tools %}
+	<tr>
+		<td>name</td>
+		<td>owner</td>
+		<td>available</td>
+	</tr>
+	{% endfor %}
+	{% endfor %}
+</table>
+
+</body>
+</html>
