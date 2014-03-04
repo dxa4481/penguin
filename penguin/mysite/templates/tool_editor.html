@@ -16,13 +16,17 @@
 
 
 
-{% for(int i = 0; i < 3; i++) %} 
+{% for tool in Tools %} 
   <tr>
-     <td>row 1, column 0</td>
-     <td>row 1, column 1</td>
-     <td>row 1, column 2</td>
-     <td><input type="submit" value="Edit"></td>
-  </tr> 
+     <td>{{tool.name}}</td>
+     <td>{{tool.description}}</td>
+     <td>{{tool.tool_type}}</td>
+     <td>
+       <FORM ACTION="post">
+         <INPUT TYPE="submit" VALUE="Edit!" NAME="{{tool.id}}">
+       </FORM>
+     </td>
+
 {% endfor %}
 
 </table>
