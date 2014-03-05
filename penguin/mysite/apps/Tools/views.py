@@ -10,6 +10,6 @@ from django.shortcuts import render
 def user_tools(request):
 	
 	context = {'tool_list': ['hammer','chisel','toothbrush'] }
-	#return render(request, 'Tools/user_tools.html', context)
-	return HttpResponse("This is a test of the User Tools page. Quack.")
+	return render(request, 'user_tools.html', context)
+	#return HttpResponse("This is a test of the User Tools page. Quack.")
 

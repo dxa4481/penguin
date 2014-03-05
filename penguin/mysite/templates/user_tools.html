@@ -7,10 +7,12 @@
 			Testing User Tools page. Meow.
 			
 			<table>
-				// loop should display all tools in tool table, which
-				// I think gets passed in somehow?
+				<!-- loop should display all tools in tool
+				table, which I think gets passed in somehow? 
+				-->
 				{% for tool in tool_list %}
-					<tr><td>{{ tool.name }}</td></tr>
+					<tr><td>{{ tool }}</td></tr>
+				{% endfor %}
 			</table>
 			
         </form>
