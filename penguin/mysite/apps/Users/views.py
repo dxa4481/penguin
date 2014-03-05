@@ -47,6 +47,20 @@ def register(request):
 	return HttpResponse(html)
 
 
+
+def user_editor(request):
+	if 'username' not in request.session:
+		return HttpResponseRedirect('/')
+	form = UserEditor(initial={'username': request.session['username'], 'email': request.session['email'], 'areaCode': request.session['area_code'], 'phoneNumber': request.session['phone_number']})
+	form.disable_register_things()
+	if request.method == 'POST':
+		print(None)
+	html = render(request, 'userEditor.html', {"action" : "Save!", "form": form})
+	return HttpResponse(html)
+
+
+
+
 def user_page(request):
 	if 'username' not in request.session:
 		return HttpResponseRedirect('/')

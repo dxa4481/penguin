@@ -1,5 +1,5 @@
 from django.conf.urls import patterns, include, url
-from .views import login, register, user_page, logout
+from .views import login, register, user_page, logout, user_editor
 from django.contrib import admin
 admin.autodiscover()
 
@@ -13,6 +13,7 @@ urlpatterns = patterns('',
     url(r'^register/$', register),
     url(r'^user/$', user_page),
     url(r'^logout/$', logout),
+    url(r'^user/edit/$', user_editor),
     #url(r'^user/edit/$', user_editor),
 
 )

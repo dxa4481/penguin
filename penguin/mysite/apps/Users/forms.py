@@ -13,6 +13,13 @@ class UserEditor(forms.Form):
 		if password and password != confirmPassword:
 			raise forms.ValidationError("passwords don't match")
 		return self.cleaned_data
+	def disable_register_things(self):
+		self.fields['username'].widget.attrs['readonly'] = True
+		self.fields['password'].widget.attrs['readonly'] = True
+		self.fields['confirmPassword'].widget.attrs['readonly'] = True
+
+
+
 class Login(forms.Form):
 	username = forms.CharField()
 	password = forms.CharField(widget=forms.PasswordInput)
