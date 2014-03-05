@@ -54,7 +54,17 @@ class User(models.Model):
 	@staticmethod
 	def get_user(userID):
 		return User.objects.get(pk=userID)
-		
+	
+
+	@staticmethod
+	def get_user_by_username(username_lookup):
+		users = User.objects.filter(username=username_lookup)
+		if(users.count() != 1):
+			return False
+			
+		return users[0]	
+
+
 	""" Promotes user object to admin status
 	STATIC METHOD
 	:param userID: user's ID

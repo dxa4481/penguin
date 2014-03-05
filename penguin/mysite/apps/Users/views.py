@@ -10,22 +10,21 @@ from .forms import Login, UserEditor, LoggedIn
 
 
 def login(request):
-        if 'username' in request.session:
-                return HttpResponseRedirect('/user')
-        if request.method == 'POST':
-                form = Login(request.POST)
-                if form.is_valid():
-                        user = User.get_user(request.POST['username'])
-                        if userExists:
-                                if user.password == request.POST['password']:
-                                        request.session['username'] = user.username
-                                        return HttpResponseRedirect("/loggedIn")
-                return HttpResponse("Invalid username/password")
+	if 'username' in request.session:
+		return HttpResponseRedirect('/user')
+	if request.method == 'POST':
+		form = Login(request.POST)
+		if form.is_valid():
+			user = User.get_user_by_username(request.POST['username'])
+			if user != False and user.password == request.POST['password']:
+				request.session['username'] = user.username
+				return HttpResponseRedirect("/loggedIn")
+			return HttpResponse("Invalid username/password")
 
-
-        form = Login()
-        html = render(request, 'login.html', {'form':form})
-        return HttpResponse(html)
+               
+	form = Login()
+	html = render(request, 'login.html', {'form':form})
+	return HttpResponse(html)
 
 
 
