@@ -17,8 +17,9 @@ def login(request):
 		if form.is_valid():
 			user = User.get_user_by_username(request.POST['username'])
 			if user != False and user.password == request.POST['password']:
-				for key in user:
-					request.session[key] = user[key]
+				for key in user.__dict__:
+					if key != '_state':
+						request.session[key] = user.__dict__[key]
 				return HttpResponseRedirect("/user")
 			return HttpResponse("Invalid username/password")
 
@@ -52,7 +53,9 @@ def user_page(request):
 	html = render(request, 'user_homepage.html', {"username": request.session['username']})
 	return HttpResponse(html)
 
-
+def logout(request):
+	request.session.flush()
+	return HttpResponseRedirect('/')
 
 
 # Create your views here.
