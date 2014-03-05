@@ -1,21 +1,29 @@
 <!DOCTYPE html>
 <html>
 <body>
-        <div>
-		<form method="POST">
+    <div>
+	<form method="POST">
+		
+		<h1>{{ username }}'s Tools</h1>
+		
+		<table>
+			<!-- loop should display all tools in tool table, which I think   
+			gets passed in somehow? -->
+				<tr>
+					<td><b>Name</b></td>
+					<td><b>Type</b></td>
+					<td><b>Description</b></td>
+				</tr>
+			{% for tool in tool_list %}
+				<tr>
+					<td>{{ tool.name }}</td>
+					<td>{{ tool.tool_type }}</td>
+					<td>{{ tool.description }}</td>
+				</tr>
+			{% endfor %}
+		</table>
 			
-			Testing User Tools page. Meow.
-			
-			<table>
-				<!-- loop should display all tools in tool
-				table, which I think gets passed in somehow? 
-				-->
-				{% for tool in tool_list %}
-					<tr><td>{{ tool }}</td></tr>
-				{% endfor %}
-			</table>
-			
-        </form>
-        </div>
+    </form>
+    </div>
 </body>
 </html>
