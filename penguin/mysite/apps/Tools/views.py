@@ -4,5 +4,12 @@ from django.http import HttpResponse
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 
+# from models import Tool
 
-# Create your views here.
+# Display a list of tools
+def user_tools(request):
+	
+	context = {'tool_list': ['hammer','chisel','toothbrush'] }
+	return render(request, 'Tools/user_tools.html', context)
+	#return HttpResponse("This is a test of the User Tools page. Quack.")
+

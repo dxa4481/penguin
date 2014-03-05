@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<body>
+        <div>
+		<form method="POST">
+			
+			Testing User Tools page. Meow.
+			
+			<table>
+				// loop should display all tools in tool table, which
+				// I think gets passed in somehow?
+				{% for tool in tool_list %}
+					<tr><td>{{ tool.name }}</td></tr>
+			</table>
+			
+        </form>
+        </div>
+</body>
+</html>
