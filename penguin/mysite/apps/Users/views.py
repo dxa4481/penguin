@@ -6,7 +6,7 @@ from django.shortcuts import render
 
 from ..Tools.models import User
 
-from forms import Login, UserEditor, LoggedIn
+from .forms import Login, UserEditor, LoggedIn
 
 
 def login(request):
@@ -16,7 +16,6 @@ def login(request):
                 form = Login(request.POST)
                 if form.is_valid():
                         user = User.get_user(request.POST['username'])
-			print(user)
                         if userExists:
                                 if user.password == request.POST['password']:
                                         request.session['username'] = user.username
