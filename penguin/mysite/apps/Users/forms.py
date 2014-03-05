@@ -5,6 +5,8 @@ class UserEditor(forms.Form):
 	password = forms.CharField(widget=forms.PasswordInput)
 	confirmPassword = forms.CharField(widget=forms.PasswordInput)
 	areaCode = forms.CharField()
+	email = forms.CharField()
+	phoneNumber = forms.CharField()
 	def clean(self):
 		password=self.cleaned_data.get('password')
 		confirmPassword = self.cleaned_data.get('confirmPassword')
@@ -19,4 +21,6 @@ class LoggedIn(forms.Form):
 	def clean(self):
 		return self.cleaned_data
 
-	
+
+
+

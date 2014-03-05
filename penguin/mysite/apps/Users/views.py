@@ -17,8 +17,9 @@ def login(request):
 		if form.is_valid():
 			user = User.get_user_by_username(request.POST['username'])
 			if user != False and user.password == request.POST['password']:
-				request.session['username'] = user.username
-				return HttpResponseRedirect("/loggedIn")
+				for key in user:
+					request.session[key] = user[key]
+				return HttpResponseRedirect("/user")
 			return HttpResponse("Invalid username/password")
 
                
@@ -30,21 +31,28 @@ def login(request):
 
 
 def register(request):
-        form = UserEditor()
-        if request.method == 'POST':
-                form = UserEditor(request.POST)
-                if form.is_valid():
-                        userExists, user = findUser(request.POST['username'])
-                        if userExists:
-                                if user.password != request.POST['password']:
-                                        return HttpResponse("This is an existing username and it has a different password than the one you entered!")
-                                user.areaCode = request.POST['areaCode']
-                        else:
-                                user = User(username=request.POST['username'], password=request.POST['password'], areaCode=request.POST['areaCode'])
-                        user.save()
-                        request.session['username'] = user.username
-                        return HttpResponseRedirect('/loggedIn')
-        html = render(request, 'userEditor.html', {"action":"Register!", "form":form})
-        return HttpResponse(html)
+	form = UserEditor()
+	if request.method == 'POST':
+		form = UserEditor(request.POST)
+		if form.is_valid():
+			user = User.get_user_by_username(request.POST['username'])
+			if user != False:
+				return HttpResponse("This is an existing username!")
+			else:
+				User.create_new_user(request.POST['username'], request.POST['password'], request.POST['areaCode'], request.POST['email'], request.POST['phoneNumber'])
+			request.session['username'] = request.POST['username']
+			return HttpResponseRedirect('/user')
+	html = render(request, 'userEditor.html', {"action":"Register!", "form":form})
+	return HttpResponse(html)
+
+
+def user_page(request):
+	if 'username' not in request.session:
+		return HttpResponseRedirect('/')
+	html = render(request, 'user_homepage.html', {"username": request.session['username']})
+	return HttpResponse(html)
+
+
+
 
 # Create your views here.
