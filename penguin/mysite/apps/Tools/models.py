@@ -45,7 +45,21 @@ class User(models.Model):
 		is_community_shed=True)
 		cs.save()
 		
-		
+	""" Updates a user's phone number, area code, and email 
+	based on their username
+	:param username_lookup: username to search for
+	:param phone_number_new: new phone number to save
+	:param area_code_new: new area code to save
+	:param email_new: new email to save
+	"""
+	@staticmethod
+	def update_user(username_lookup, phone_number_new, area_code_new, email_new):
+	    u = get_user_by_username(username_lookup)
+	    u.phone_number = phone_number_new
+	    u.area_code = area_code_new
+	    u.email = email_new
+	    u.save()
+	    
 	""" Returns a user based on user's ID
 	STATIC METHOD
 	:param userID: user's ID
@@ -55,7 +69,11 @@ class User(models.Model):
 	def get_user(userID):
 		return User.objects.get(pk=userID)
 	
-
+	""" Gets a user by searching for username
+    STATIC METHOD
+    :param username_lookup: username to match in database
+    :return User if exists, False otherwise
+    """
 	@staticmethod
 	def get_user_by_username(username_lookup):
 		users = User.objects.filter(username=username_lookup)
@@ -119,7 +137,7 @@ class User(models.Model):
 	:param userID: user's ID
 	"""
 	@staticmethod
-	def is_user_admin(userID):
+	def is_user_shed_coordinator(userID):
 		u = User.get_user(userID)
 		return u.is_shed_coordinator
 	
@@ -243,7 +261,15 @@ class Tool(models.Model):
 	def get_tool_owner(toolID):
 		t = Tool.get_tool(toolID)
 		return t.owner
-
+		
+	""" Get the tool list in a certain area code
+	:param ac: area code to search in
+	:return list of tools in that area
+	"""
+	@staticmethod
+	def get_tool_by_area_code(ac):
+		return Tool.objects.filter(owner__area_code__exact=ac)
+        
 class BorrowTransaction(models.Model):
 	id = models.AutoField(primary_key=True)
 	owner = models.ForeignKey('User', related_name='borrowtransaction_owner')
