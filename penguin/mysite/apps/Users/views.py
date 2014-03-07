@@ -40,8 +40,11 @@ def register(request):
 			if user != False:
 				return HttpResponse("This is an existing username!")
 			else:
-				User.create_new_user(request.POST['username'], request.POST['password'], request.POST['areaCode'], request.POST['email'], request.POST['phoneNumber'])
-			request.session['username'] = request.POST['username']
+				User.create_new_user(request.POST['username'], request.POST['password'], request.POST['area_code'], request.POST['email'], request.POST['phone_number'])
+			for user_attribute in request.POST:
+				print(user_attribute)
+				if user_attribute != 'csrfmiddlewaretoken':
+					request.session[user_attribute] = request.POST[user_attribute] 
 			return HttpResponseRedirect('/user')
 	html = render(request, 'userEditor.html', {"action":"Register!", "form":form})
 	return HttpResponse(html)
@@ -51,10 +54,11 @@ def register(request):
 def user_editor(request):
 	if 'username' not in request.session:
 		return HttpResponseRedirect('/')
-	form = UserEditor(initial={'username': request.session['username'], 'email': request.session['email'], 'areaCode': request.session['area_code'], 'phoneNumber': request.session['phone_number']})
+	form = UserEditor(initial={'username': request.session['username'], 'email': request.session['email'], 'areaCode': request.session['area_code'], 'phone_number': request.session['phone_number']})
 	form.disable_register_things()
 	if request.method == 'POST':
 		print(None)
+#User.
 	html = render(request, 'userEditor.html', {"action" : "Save!", "form": form})
 	return HttpResponse(html)
 

@@ -3,20 +3,20 @@ from django import forms
 class UserEditor(forms.Form):
 	username = forms.CharField()
 	password = forms.CharField(widget=forms.PasswordInput)
-	confirmPassword = forms.CharField(widget=forms.PasswordInput)
-	areaCode = forms.CharField()
+	confirm_password = forms.CharField(widget=forms.PasswordInput)
+	area_code = forms.CharField()
 	email = forms.CharField()
-	phoneNumber = forms.CharField()
+	phone_number = forms.CharField()
 	def clean(self):
 		password=self.cleaned_data.get('password')
-		confirmPassword = self.cleaned_data.get('confirmPassword')
-		if password and password != confirmPassword:
+		confirm_password = self.cleaned_data.get('confirm_password')
+		if password and password != confirm_password:
 			raise forms.ValidationError("passwords don't match")
 		return self.cleaned_data
 	def disable_register_things(self):
 		self.fields['username'].widget.attrs['readonly'] = True
 		self.fields['password'].widget.attrs['readonly'] = True
-		self.fields['confirmPassword'].widget.attrs['readonly'] = True
+		self.fields['confirm_password'].widget.attrs['readonly'] = True
 
 
 
