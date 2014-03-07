@@ -1,37 +1,41 @@
 <!DOCTYPE html>
-<html> 
+
+<html>
+
 <head>
-<title>Tool Editor</title> 
+
+<title>Edit Tool</title> 
+
 </head>
-<body> 
 
+<body>
 
-<table border="1" cellspacing="1" cellpadding="5">
-  <tr>
-    <td>Tool Name</td>
-    <td>Description</td>
-    <td>Tool Type</td>
-    <td>Edit Tool</td>
-  </tr>
+ 
 
+ 
 
+<form method="POST">
 
-{% for tool in Tools %} 
-  <tr>
-     <td>{{tool.name}}</td>
-     <td>{{tool.description}}</td>
-     <td>{{tool.tool_type}}</td>
-     <td>
-       <FORM ACTION="post">
-         <INPUT TYPE="submit" VALUE="Edit!" NAME="{{tool.id}}">
-       </FORM>
-     </td>
+    <table>
 
-{% endfor %}
+         {{form.as_table}}
 
-</table>
+    </table>
 
+        {% csrf_token %}
 
+    <input type="submit" value="Edit Tool">
 
-</body> 
+ 
+
+</form>
+
+ 
+
+ 
+
+ 
+
+</body>
+
 </html>

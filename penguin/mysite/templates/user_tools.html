@@ -6,23 +6,53 @@
 		
 		<h1>{{ username }}'s Tools</h1>
 		
-		<table>
-			<!-- loop should display all tools in tool table, which I think   
-			gets passed in somehow? -->
-				<tr>
-					<td><b>Name</b></td>
-					<td><b>Type</b></td>
-					<td><b>Description</b></td>
-				</tr>
-			{% for tool in tool_list %}
-				<tr>
-					<td>{{ tool.name }}</td>
-					<td>{{ tool.tool_type }}</td>
-					<td>{{ tool.description }}</td>
-				</tr>
-			{% endfor %}
-		</table>
-			
+	<table border="1" cellspacing="1" cellpadding="5">
+
+  		<tr>
+
+   			 <td>Tool Name</td>
+
+    			<td>Description</td>
+
+   			 <td>Tool Type</td>
+
+    			<td>Edit Tool</td>
+
+ 		 </tr>
+
+ 
+
+		{% csrf_token %} 
+
+ 
+
+		{% for tool in Tools %}
+
+  		<tr>
+
+    			 <td>{{tool.name}}</td>
+
+    			 <td>{{tool.description}}</td>
+
+    			 <td>{{tool.tool_type}}</td>
+
+    			 <td>
+
+    			   <FORM ACTION="post">
+
+        	 		<INPUT TYPE="submit" VALUE="Edit!" NAME="{{tool.id}}">
+	
+      		 		</FORM>
+
+    		 	</td>
+
+ 
+
+		{% endfor %}
+
+ 
+
+</table>			
     </form>
     </div>
 </body>

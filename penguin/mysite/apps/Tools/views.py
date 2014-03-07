@@ -18,13 +18,24 @@ def user_tools(request):
 	#user_id = request.session['id']
 	username = request.session['username']
 	user_id = User.get_user_by_username(username).id
-	context = { 'tool_list': User.get_all_user_tools(user_id),
+	context = { 'Tools': User.get_all_user_tools(user_id),
 				#'tool_list': Tool.objects.all(),
 				'username': username,
 			  }
-	
+
+
 	return render(request, 'user_tools.html', context)
-	#return HttpResponse("This is a test of the User Tools page. Quack.")
+
+        #return HttpResponse("This is a test of the User Tools page. Quack.")
+
+	if(request.action == 'POST'):
+                form = CreateTool(request.POST)
+			return HttpResponseRedirect('/user/tools/edit/')
+			return render(request,'tool_editor.html', {'form':form}) 
+
+
+	
+
 
 
 def new_tool(request):
