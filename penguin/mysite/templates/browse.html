@@ -5,6 +5,8 @@
 	<title>Browse Tools!</title>
 </head>
 
+<h1>Tools in {{ user_ac }}!</h1>
+
 <body>
 
 <table border="1" cellspacing="1" cellpadding="5">
@@ -14,14 +16,12 @@
 		<td>Availability</td>
 	</tr>
 
-	{% for user in community %}
-	{% for tool in tools %}
+	{% for tool in tool_list %}
 	<tr>
 		<td>{{tool.name}}</td>
 		<td>{{tool.owner}}</td>
-		<td>{{tool.available}}</td>
+		<td>{{tool.is_available}}</td>
 	</tr>
-	{% endfor %}
 	{% endfor %}
 </table>
 
