@@ -73,10 +73,10 @@ class User(models.Model):
 		return User.objects.get(pk=userID)
 	
 	""" Gets a user by searching for username
-    STATIC METHOD
-    :param username_lookup: username to match in database
-    :return User if exists, False otherwise
-    """
+	STATIC METHOD
+	:param username_lookup: username to match in database
+	:return User if exists, False otherwise
+	"""
 	@staticmethod
 	def get_user_by_username(username_lookup):
 		users = User.objects.filter(username=username_lookup)
@@ -163,8 +163,8 @@ class User(models.Model):
 	"""Add a new tool to tools, then relate it to this user
 	:param userID: user's ID
 	:param toolname: name of tool
-    :param tooldescription: description of tool
-    :param tooltype: type of tool
+	:param tooldescription: description of tool
+	:param tooltype: type of tool
 	"""
 	@staticmethod
 	def create_new_tool(userID, toolname, tooldescription, tooltype, shed):
@@ -194,12 +194,12 @@ class Tool(models.Model):
 
 	""" Constructor to add a new tool
 	STATIC METHOD
-    :param toolname: name of tool
+	:param toolname: name of tool
 	:param toolowner: owner of the tool
-    :param tooldescription: description of tool
-    :param tooltype: type of tool
-    :return The tool that was just added
-    """
+	:param tooldescription: description of tool
+	:param tooltype: type of tool
+	:return The tool that was just added
+	"""
 	@staticmethod
 	def create_new_tool(toolname, toolowner, tooldescription, tooltype, toolshed):
 		t = Tool(name=toolname, owner=toolowner, description=tooldescription, tool_type=tooltype, shed=toolshed)
@@ -207,6 +207,21 @@ class Tool(models.Model):
 		t.save()
 		return t
 		
+	""" Updates a tool's information
+	STATIC METHOD
+	:param toolID: tool's ID
+	:param toolname: name of tool
+	:param tooldescription: description of tool
+	:param tooltype: type of tool
+	"""
+	@staticmethod
+	def update_tool(toolID, toolname, tooldescription, tooltype):
+		t = Tool.get_tool(toolID)
+		t.name = toolname
+		t.description = tooldescription
+		t.tool_type = tooltype
+		t.save()
+	
 	""" Deletes the given tool
 	STATIC METHOD
 	:param toolID: tool's ID
@@ -271,7 +286,7 @@ class Tool(models.Model):
 	@staticmethod
 	def get_tool_by_area_code(ac):
 		return Tool.objects.filter(owner__area_code__exact=ac)
-        
+
 class BorrowTransaction(models.Model):
 	id = models.AutoField(primary_key=True)
 	owner = models.ForeignKey('User', related_name='borrowtransaction_owner')
