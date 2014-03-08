@@ -61,12 +61,19 @@ def new_tool(request):
 	return HttpResponse(html)
 
 
+
+
 def tool_editor(request):
 	if 'username' not in request.session or 'currently_editing' not in request.session:
 		return HttpResponseRedirect('/')
 	currently_editing = Tool.get_tool(request.session['currently_editing'])
+	
+	form = tool.name(initial={'tool_name': request.session['tool_name'], 'owner': request.session['owner'], 'shed': request.session['shed']})
+	form.disable_register_things()
+	if request.method == 'POST':
+		print(None)
 	del request.session['currently_editing']
 	
-	html = render(request, 'tool_editor.html', {})
+	html = render(request, 'add_tool.html', {'action':'Save!', 'form':form})
 
 	return HttpResponse(html)
