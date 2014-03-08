@@ -33,7 +33,7 @@
     			<td>Being borrowed</td>
 			{% endif %}
     			 <td>
-    			   <FORM ACTION="post">
+    			   <FORM METHOD="post">
 				 {% csrf_token %}  
         	 		<INPUT TYPE="submit"  VALUE="Edit!" NAME="{{tool.id}}">
       		 	   </FORM>

@@ -4,7 +4,7 @@ from django.http import HttpResponse
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 
-from .forms import CreateTool
+from .forms import CreateTool, ToolEditor
 
 from .models import *
 
@@ -28,7 +28,7 @@ def user_tools(request):
 		borrowing.append(borrow_transaction.tool)
 	context = { 'Tools': tools, 'username': username, 'borrowing': borrowing}
 
-	if(request.method == 'POST'):
+	if(request.method == "POST"):
 		form = CreateTool(request.POST)
 		for key in request.POST:
 			if request.POST[key] == 'Edit!':	
@@ -70,14 +70,20 @@ def new_tool(request):
 def tool_editor(request):
 	if 'username' not in request.session or 'currently_editing' not in request.session:
 		return HttpResponseRedirect('/')
-	currently_editing = Tool.get_tool(request.session['currently_editing'])
-	
-	form = tool.name(initial={'tool_name': request.session['tool_name'], 'owner': request.session['owner'], 'shed': request.session['shed']})
-	form.disable_register_things()
-	if request.method == 'POST':
-		print(None)
-	del request.session['currently_editing']
-	
-	html = render(request, 'add_tool.html', {'action':'Save!', 'form':form})
+	u_tool = Tool.get_tool(request.session['currently_editing'])
 
+	form = ToolEditor(initial={'toolname': u_tool.name, 
+		'description': u_tool.description,
+		'tooltype': u_tool.tool_type})
+	print(request.method)
+	if request.method == 'POST':
+		Tool.update_tool(request.session['currently_editing'],
+			request.POST['toolname'],
+			request.POST['description'],
+			request.POST['tooltype'])
+		print("hello world")
+		del request.session['currently_editing']
+		return HttpResponseRedirect('/user/tools/')
+#	del request.session['currently_editing']
+	html = render(request, 'tool_editor.html', {'action':'Save Changes!', 'form':form})
 	return HttpResponse(html)

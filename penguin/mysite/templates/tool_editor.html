@@ -1,41 +1,20 @@
 <!DOCTYPE html>
 
 <html>
-
 <head>
-
-<title>Edit Tool</title> 
-
+	<title>Edit Tool</title> 
 </head>
-
 <body>
 
- 
-
- 
-
-<form method="POST">
-
-    <table>
-
-         {{form.as_table}}
-
-    </table>
-
-        {% csrf_token %}
-
-    <input type="submit" value="Edit Tool">
-
- 
-
-</form>
-
- 
-
- 
-
- 
+	<div>
+		<form method="POST">
+			<table>
+				{{ form.as_table }}
+			</table>
+			{% csrf_token %}
+			<input type="submit" value={{action}}>
+		</form>
+	</div>
 
 </body>
-
 </html>
