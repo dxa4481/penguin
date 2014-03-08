@@ -19,6 +19,8 @@
 
 			<td>Shed</td>
 
+			<td>Availability</td>
+
     			<td>Edit Tool</td>
  		 </tr>
 
@@ -39,6 +41,16 @@
     			 <td>{{tool.tool_type}}</td>
 
 			 <td>{{tool.shed}}</td>
+			
+			{% if tool.is_available %}
+
+    			<td>In shed</td>
+
+			{% else %}
+
+    			<td>Being borrowed</td>
+
+			{% endif %}
 
     			 <td>
 

@@ -19,7 +19,10 @@ def user_tools(request):
 
 	#user_id = request.session['id']
 	username = request.session['username']
-	context = { 'Tools': User.get_all_user_tools(request.session['id']), 'username': username,}
+	tools = User.get_all_user_tools(request.session['id'])
+	for tool in tools:
+                tool.is_available = Tool.is_tool_available(tool.id)
+	context = { 'Tools': tools, 'username': username,}
 
 	if(request.method == 'POST'):
 		form = CreateTool(request.POST)
