@@ -11,10 +11,10 @@ from ..Tools.models import User, Tool
 def browse_tools(request):
 	if 'username' not in request.session:
 		return HttpResponseRedirect('/')
-	username = request.session['username']
-	user_ac = User.get_user_by_username(username).area_code
-	context = { 'tool_list': Tool.get_tool_by_area_code(user_ac),
-		'user_ac': user_ac,
+	area_code = request.session['area_code']
+	tools =  Tool.get_tool_by_area_code(area_code)
+	context = { 'tool_list': tools,
+		'user_ac': area_code,
 	}
 	html = render(request, 'browse.html', context)
 	return HttpResponse(html)
