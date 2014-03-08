@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+
+<html>
+
+<body>
+		<div style='text-align: center;'>
+ 			<p>Borrow {{tool.name}} for <span id=range> 1 </span> day(s)</p>
+		</div>
+                <form method="POST" style='text-align: center;' name='slider'>
+			<input id=bla type="hidden", name="days", value='1'>
+			<input type='range' min='1' max='100' value='1' step='1' onchange='showValue(this.value)'>
+                        <input type="submit" value="Login!">
+			{% csrf_token %}
+                </form>
+
+        <script>
+
+            function showValue(newValue){
+
+                document.getElementById("range").innerHTML=newValue;
+
+                document.getElementById("bla").value=newValue;
+
+            }
+	</script>
+
+ 
+</body>
+
+</html>

@@ -23,7 +23,26 @@
 	<tr>
 		<td>{{tool.name}}</td>
 		<td>{{tool.owner}}</td>
-		<td>{{tool.is_available}}</td>
+                {% if tool.is_available %}
+
+                <td>
+
+                   <FORM method="POST">
+
+			{% csrf_token %}
+                       <INPUT TYPE="submit"  VALUE="Borrow!" NAME="{{tool.id}}">
+
+                   </FORM>
+ 
+
+                </td>
+
+                {% else %}
+
+                <td>Being borrowed</td>
+
+		{% endif %}
+
 		<td>{{tool.shed}}</td>
 	</tr>
 	{% endfor %}

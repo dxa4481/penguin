@@ -289,14 +289,13 @@ class Tool(models.Model):
 
 class BorrowTransaction(models.Model):
 	id = models.AutoField(primary_key=True)
-	owner = models.ForeignKey('User', related_name='borrowtransaction_owner')
 	borrower = models.ForeignKey('User', related_name='borrowtransaction_borrower')
 	tool = models.ForeignKey('Tool')
 	is_current = models.BooleanField(default=True)
 	in_community_shed = models.BooleanField(default=False)
 
 	def __str__(self):
-		return (str(self.id) + ' owner:' + self.owner.username + ', borrower: ' + self.borrower.username + ', tool: ' + self.tool.name)
+		return (str(self.id) + ' borrower: ' + self.borrower.username + ', tool: ' + self.tool.name)
 	
 	""" Create a new borrow transaction
 	STATIC METHOD
@@ -305,11 +304,9 @@ class BorrowTransaction(models.Model):
 	:param t: tool
 	"""
 	@staticmethod
-	def create_new_borrow_transaction(o, b, t):
-			bt = BorrowTransaction(owner=o,
-			borrower=b, tool=t)
-			Tool.set_tool_unavailable(t.get_tool_id())
-			bt.save()
+	def create_new_borrow_transaction(b, t):
+		bt = BorrowTransaction(borrower=b, tool=t)
+		bt.save()
 
 	""" Ends a borrow transaction
 	STATIC METHOD
@@ -337,27 +334,32 @@ class BorrowTransaction(models.Model):
 	"""
 	@staticmethod
 	def get_borrow_transaction(btID):
-			return BorrowTransaction.objects.get(pk=btID)
+		return BorrowTransaction.objects.get(pk=btID)
 
 	""" Gets a borrow transaction's ID
 	:return borrow transaction's ID
 	"""
 	def get_borrow_transaction_id(self):
-			return self.id
-
-	""" Gets a tool owner's borrow transactions
-	STATIC METHOD
-	:param ownerID ID for owner of tool
-	"""
-	@staticmethod
-	def get_owner_borrow_transactions(ownerID):
-		return BorrowTransaction.objects.filter(owner=User.get_user(ownerID))
+		return self.id
 
 	""" Gets a tool borrower's borrow transactions
 	STATIC METHOD
 	"""
 	@staticmethod
 	def get_borrower_borrow_transactions(borrowerID):
-		return BorrowTransaction.objects.filter(borrower=User.get_user(borrowerID))
+		transactions = BorrowTransaction.objects.filter(borrower=User.get_user(borrowerID))
+		return_transactions = []
+		for transaction in transactions:
+			print(transaction)
+			if BorrowTransaction.is_current(transaction):
+				return_transactions.append(transaction)
+			else:
+				transaction.is_current=False
+				transaction.save()
+		return return_transactions
+
+	@staticmethod
+	def is_current(transaction):
+		return not Tool.is_tool_available(transaction.tool.id)
 
 

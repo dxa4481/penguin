@@ -3,74 +3,82 @@
 <body>
 	<a href="/logout">Logout!</a></p>
     <div>
-	<form method="POST">
 		
-		<h1>{{ username }}'s Tools</h1>
+	<h1>{{ username }}'s Tools</h1>
 		
 	<table border="1" cellspacing="1" cellpadding="5">
 
   		<tr>
-
-   			 <td>Tool Name</td>
-
+   			<td>Tool Name</td>
     			<td>Description</td>
-
-   			 <td>Tool Type</td>
-
+   			<td>Tool Type</td>
 			<td>Shed</td>
-
 			<td>Availability</td>
-
     			<td>Edit Tool</td>
  		 </tr>
 
- 
-
 		{% csrf_token %} 
-
- 
 
 		{% for tool in Tools %}
 
   		<tr>
-
     			 <td>{{tool.name}}</td>
-
     			 <td>{{tool.description}}</td>
-
     			 <td>{{tool.tool_type}}</td>
-
 			 <td>{{tool.shed}}</td>
 			
 			{% if tool.is_available %}
-
     			<td>In shed</td>
-
 			{% else %}
-
     			<td>Being borrowed</td>
-
 			{% endif %}
-
     			 <td>
-
     			   <FORM ACTION="post">
-
+				 {% csrf_token %}  
         	 		<INPUT TYPE="submit"  VALUE="Edit!" NAME="{{tool.id}}">
-	
-      		 		</FORM>
-
+      		 	   </FORM>
     		 	</td>
-
- 
-
+		</tr>
 		{% endfor %}
 
-		<p><a href="new">Add a new tool!</a></p>
 
-</table>			
-    </form>
+	</table>			
+
+
+	<p><a href="new">Add a new tool!</a></p>
+
+
     </div>
-	<p><a href="/user">Return to home</a></p>
+
+	<div>
+		<h1>Tools you're borrowing!</h1>
+
+ 
+        	<table border="1" cellspacing="1" cellpadding="5">
+                <tr>
+                        <td>Tool Name</td>
+                        <td>Description</td>
+                        <td>Tool Type</td>
+                        <td>Shed</td>
+                        <td>Due Date</td>
+                 </tr>                                                                                                                                                                             
+
+                {% for tool in borrowing %}                                                                                                                                                            
+
+                <tr>                                                                                                                                                                               
+                         <td>{{tool.name}}</td>                                                                                                                                                    
+                         <td>{{tool.description}}</td>                                                                                                                                             
+                         <td>{{tool.tool_type}}</td>                                                                                                                                               
+                         <td>{{tool.shed}}</td>                                                                                                                                                    
+                         <td>{{tool.available_date}}</td>                                                                                                                                                    
+                </tr>
+
+                {% endfor %}
+
+        </table>
+	</div>
+
+<p><a href="/user">Return to home</a></p>
+
 </body>
 </html>

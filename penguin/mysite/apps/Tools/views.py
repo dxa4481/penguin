@@ -22,7 +22,11 @@ def user_tools(request):
 	tools = User.get_all_user_tools(request.session['id'])
 	for tool in tools:
                 tool.is_available = Tool.is_tool_available(tool.id)
-	context = { 'Tools': tools, 'username': username,}
+	borrow_transactions = BorrowTransaction.get_borrower_borrow_transactions(request.session['id'])
+	borrowing = []
+	for borrow_transaction in borrow_transactions:
+		borrowing.append(borrow_transaction.tool)
+	context = { 'Tools': tools, 'username': username, 'borrowing': borrowing}
 
 	if(request.method == 'POST'):
 		form = CreateTool(request.POST)
