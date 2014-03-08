@@ -58,10 +58,14 @@ def register(request):
 def user_editor(request):
 	if 'username' not in request.session:
 		return HttpResponseRedirect('/')
-	form = UserEditor(initial={'username': request.session['username'], 'email': request.session['email'], 'areaCode': request.session['area_code'], 'phone_number': request.session['phone_number']})
+	form = UserEditor(initial={'username': request.session['username'], 'email': request.session['email'], 'area_code': request.session['area_code'], 'phone_number': request.session['phone_number']})
 	form.disable_register_things()
 	if request.method == 'POST':
-		print(None)
+		User.update_user(request.session['username'], request.POST['phone_number'], request.POST['area_code'], request.POST['email'])
+		request.session['phone_number'] = request.POST['phone_number']
+		request.session['area_code'] = request.POST['area_code']
+		request.session['email'] = request.POST['email']
+		return HttpResponseRedirect('/user')
 #User.
 	html = render(request, 'userEditor.html', {"action" : "Save!", "form": form})
 	return HttpResponse(html)
