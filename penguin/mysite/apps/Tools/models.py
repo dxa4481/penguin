@@ -18,7 +18,7 @@ class User(models.Model):
 	is_community_shed = models.BooleanField(default=False)
 	
 	def __str__(self):
-		return (str(self.id) + ':' + self.username)
+		return (self.username)
 
 		
 	""" Constructor for a user entry
@@ -190,7 +190,7 @@ class Tool(models.Model):
 	shed = models.CharField(max_length=30)
 	
 	def __str__(self):
-		return (str(self.id) + ':' + self.name)
+		return (self.name)
 
 	""" Constructor to add a new tool
 	STATIC METHOD
