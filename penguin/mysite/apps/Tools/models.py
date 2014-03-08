@@ -203,7 +203,7 @@ class Tool(models.Model):
 	@staticmethod
 	def create_new_tool(toolname, toolowner, tooldescription, tooltype, toolshed):
 		t = Tool(name=toolname, owner=toolowner, description=tooldescription, tool_type=tooltype, shed=toolshed)
-		t.available_date = datetime.datetime.now() - datetime.timedelta(days=5)
+		t.available_date = timezone.now() - datetime.timedelta(days=5)
 		t.save()
 		return t
 		
@@ -252,7 +252,7 @@ class Tool(models.Model):
 	@staticmethod
 	def set_tool_unavailable(toolID, numDays):
 		t = Tool.get_tool(toolID)
-		t.available_date = datetime.datetime.now() + datetime.timedelta(days=numDays)
+		t.available_date = timezone.now() + datetime.timedelta(days=numDays)
 		t.save()
 
 	""" Checks if a tool is available now
@@ -263,7 +263,7 @@ class Tool(models.Model):
 	@staticmethod
 	def is_tool_available(toolID):
 		t = Tool.get_tool(toolID)
-		if (t.available_date<datetime.datetime.now()):
+		if (t.available_date < timezone.now()):
 			return True
 		else:
 			return False

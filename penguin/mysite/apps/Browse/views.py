@@ -13,6 +13,8 @@ def browse_tools(request):
 		return HttpResponseRedirect('/')
 	area_code = request.session['area_code']
 	tools =  Tool.get_tool_by_area_code(area_code)
+	for tool in tools:
+		tool.is_available = Tool.is_tool_available(tool.id)
 	context = { 'tool_list': tools,
 		'user_ac': area_code,
 	}
