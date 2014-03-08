@@ -9,19 +9,21 @@ from .forms import CreateTool
 from .models import *
 
 # Display a list of tools
+
+
 def user_tools(request):
 	
 	#context = {'tool_list': ['hammer','chisel','toothbrush'] }
 	if 'username' not in request.session:
 		return HttpResponseRedirect('/')
-		
+"""		
 	#user_id = request.session['id']
 	username = request.session['username']
 	user_id = User.get_user_by_username(username).id
 	context = { 'Tools': User.get_all_user_tools(user_id),
-				#'tool_list': Tool.objects.all(),
-				'username': username,
-			  }
+			#'tool_list': Tool.objects.all(),
+			'username': username,
+		}
 
 
 	return render(request, 'user_tools.html', context)
@@ -29,12 +31,11 @@ def user_tools(request):
         #return HttpResponse("This is a test of the User Tools page. Quack.")
 
 	if(request.action == 'POST'):
-                form = CreateTool(request.POST)
+		form = CreateTool(request.POST)
 			return HttpResponseRedirect('/user/tools/edit/')
-			return render(request,'tool_editor.html', {'form':form}) 
 
+"""
 
-	
 
 
 
@@ -61,6 +62,6 @@ def tool_editor(request):
 	username = request.session['username']
 	user_id = User.get_user_by_username(username).id
 	fields = {'Tool': User.get_all_user_tools(user_id)}
-                  	
+          	
 	html = render(request, 'tool_editor.html', fields)
 	return HttpResponse(html)
