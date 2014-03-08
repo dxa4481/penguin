@@ -1,4 +1,6 @@
 from django.db import models
+import datetime
+from django.utils import timezone
 
 #User = models.ForeignKey('Users.User')
 
@@ -55,7 +57,7 @@ class User(models.Model):
 	"""
 	@staticmethod
 	def update_user(username_lookup, phone_number_new, area_code_new, email_new):
-	    u = get_user_by_username(username_lookup)
+	    u = User.get_user_by_username(username_lookup)
 	    u.phone_number = phone_number_new
 	    u.area_code = area_code_new
 	    u.email = email_new
@@ -181,7 +183,8 @@ class Tool(models.Model):
 	id = models.AutoField(primary_key=True)
 	name = models.CharField(max_length=30)
 	owner = models.ForeignKey('User')
-	is_available = models.BooleanField(default=True)
+	available_date = models.DateTimeField()
+	#is_available = models.BooleanField(default=True)
 	description = models.CharField(max_length=250)
 	tool_type = models.CharField(max_length=30)
 	shed = models.CharField(max_length=30)
@@ -200,6 +203,7 @@ class Tool(models.Model):
 	@staticmethod
 	def create_new_tool(toolname, toolowner, tooldescription, tooltype, toolshed):
 		t = Tool(name=toolname, owner=toolowner, description=tooldescription, tool_type=tooltype, shed=toolshed)
+		t.available_date = datetime.datetime.now() - datetime.timedelta(days=5)
 		t.save()
 		return t
 		
@@ -223,36 +227,32 @@ class Tool(models.Model):
 	"""
 	def get_tool_id(self):
 		return self.id
-
-	"""Sets a tool as unavailable
+	
+	""" Sets a tool as unavailable for a given number of days
 	STATIC METHOD
 	:param toolID: tool's ID
+	:param numDays: number of days unavailable
+	take an int of days, turn it into a timedelta and add it to now, save it as availability
 	"""
 	@staticmethod
-	def set_tool_unavailable(toolID):
+	def set_tool_unavailable(toolID, numDays):
 		t = Tool.get_tool(toolID)
-		t.is_available = False
+		t.available_date = datetime.datetime.now() + datetime.timedelta(days=numDays)
 		t.save()
 
-	""" Sets a tool as available
+	""" Checks if a tool is available now
 	STATIC METHOD
 	:param toolID: tool's ID
-	"""
-	@staticmethod
-	def set_tool_available(toolID):
-		t = Tool.get_tool(toolID)
-		t.is_available = True
-		t.save()
-
-	"""Checks if tool is available
-	STATIC METHOD
-	:param toolID: tool's ID
-	:return true if available, false otherwise
+	if the availabledate is < now, it's available. otherwise unavailable
 	"""
 	@staticmethod
 	def is_tool_available(toolID):
 		t = Tool.get_tool(toolID)
-		return t.is_available
+		if (t.available_date<datetime.datetime.now()):
+			return True
+		else:
+			return False
+
 
 	""" Get tool's owner's id
 	STATIC METHOD
