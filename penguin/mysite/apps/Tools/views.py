@@ -16,25 +16,24 @@ def user_tools(request):
 	#context = {'tool_list': ['hammer','chisel','toothbrush'] }
 	if 'username' not in request.session:
 		return HttpResponseRedirect('/')
-"""		
+
 	#user_id = request.session['id']
 	username = request.session['username']
-	user_id = User.get_user_by_username(username).id
-	context = { 'Tools': User.get_all_user_tools(user_id),
-			#'tool_list': Tool.objects.all(),
-			'username': username,
-		}
+	context = { 'Tools': User.get_all_user_tools(request.session['id']), 'username': username,}
+
+	if(request.method == 'POST'):
+		form = CreateTool(request.POST)
+		for key in request.POST:
+			if request.POST[key] == 'Edit!':	
+				request.session['currently_editing'] = key
+		return HttpResponseRedirect('/user/tools/edit/')
 
 
 	return render(request, 'user_tools.html', context)
 
-        #return HttpResponse("This is a test of the User Tools page. Quack.")
+	#return HttpResponse("This is a test of the User Tools page. Quack.")
 
-	if(request.action == 'POST'):
-		form = CreateTool(request.POST)
-			return HttpResponseRedirect('/user/tools/edit/')
 
-"""
 
 
 
@@ -45,11 +44,14 @@ def new_tool(request):
 	if request.method == 'POST':
 		form = CreateTool(request.POST)
 		if form.is_valid():
-                        username = request.session['username']
-                        user_id = User.get_user_by_username(username).id
-                        User.create_new_tool(user_id, request.POST['toolname'],request.POST['description'],request.POST['tooltype'])
+			print(request.POST)
+			if request.POST['shed'] != '1':
+				shed = "community"
+			else:
+				shed = request.session['username']
+			User.create_new_tool(request.session['id'], request.POST['toolname'],request.POST['description'],request.POST['tooltype'], shed)
                     
-                        return HttpResponseRedirect('/user/tools/')
+			return HttpResponseRedirect('/user/tools/')
 	
 	form = CreateTool()			
 	html = render(request, 'add_tool.html', {'form':form})
@@ -57,11 +59,11 @@ def new_tool(request):
 
 
 def tool_editor(request):
-	if 'username' not in request.session:
+	if 'username' not in request.session or 'currently_editing' not in request.session:
 		return HttpResponseRedirect('/')
-	username = request.session['username']
-	user_id = User.get_user_by_username(username).id
-	fields = {'Tool': User.get_all_user_tools(user_id)}
-          	
-	html = render(request, 'tool_editor.html', fields)
+	currently_editing = Tool.get_tool(request.session['currently_editing'])
+	del request.session['currently_editing']
+	
+	html = render(request, 'tool_editor.html', {})
+
 	return HttpResponse(html)

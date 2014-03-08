@@ -3,8 +3,7 @@ from django.contrib import admin
 admin.autodiscover()
 
 urlpatterns = patterns('',
-    url(r'^', include('mysite.apps.Users.urls')),
-    url(r'^register/', include('mysite.apps.Users.urls')),
-    url(r'^user/tools/', include('mysite.apps.Tools.urls')),
-    url(r'^browse/', include('mysite.apps.Browse.urls')),
+	url(r'^', include('mysite.apps.Users.urls')),
+	url(r'^', include('mysite.apps.Tools.urls')),
+	url(r'^', include('mysite.apps.Browse.urls')),
 )

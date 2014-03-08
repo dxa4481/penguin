@@ -16,8 +16,9 @@
 
    			 <td>Tool Type</td>
 
-    			<td>Edit Tool</td>
+			<td>Shed</td>
 
+    			<td>Edit Tool</td>
  		 </tr>
 
  
@@ -36,11 +37,13 @@
 
     			 <td>{{tool.tool_type}}</td>
 
+			 <td>{{tool.shed}}</td>
+
     			 <td>
 
     			   <FORM ACTION="post">
 
-        	 		<INPUT TYPE="submit" VALUE="Edit!" NAME="{{tool.id}}">
+        	 		<INPUT TYPE="submit"  VALUE="Edit!" NAME="{{tool.id}}">
 	
       		 		</FORM>
 
@@ -50,7 +53,7 @@
 
 		{% endfor %}
 
- 
+		<p><a href="new">Add a new tool!</a></p>
 
 </table>			
     </form>

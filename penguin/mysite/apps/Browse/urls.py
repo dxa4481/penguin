@@ -4,5 +4,6 @@ from .views import browse_tools
 
 
 urlpatterns = patterns('',
-	url(r'^$', browse_tools)
+	url(r'^browse/$', browse_tools),
 )
+

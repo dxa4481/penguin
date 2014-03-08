@@ -29,10 +29,11 @@ class User(models.Model):
 	"""
 	@staticmethod
 	def create_new_user(u, p, ac, e, pn):
-		newuser = User(username=u, password=p,
+		new_user = User(username=u, password=p,
 		area_code=ac, email=e, 
 		phone_number=pn)
-		newuser.save()
+		new_user.save()
+		return new_user
 		
 	""" Constructor for a community shed entry
 	STATIC METHOD
@@ -164,9 +165,9 @@ class User(models.Model):
     :param tooltype: type of tool
 	"""
 	@staticmethod
-	def create_new_tool(userID, toolname, tooldescription, tooltype):
+	def create_new_tool(userID, toolname, tooldescription, tooltype, shed):
 		u = User.get_user(userID)
-		t = Tool.create_new_tool(toolname, u, tooldescription, tooltype)
+		t = Tool.create_new_tool(toolname, u, tooldescription, tooltype, shed)
 		
 	""" Returns an array(?) of all user's tools
 	:param userID: user's ID
@@ -183,6 +184,7 @@ class Tool(models.Model):
 	is_available = models.BooleanField(default=True)
 	description = models.CharField(max_length=250)
 	tool_type = models.CharField(max_length=30)
+	shed = models.CharField(max_length=30)
 	
 	def __str__(self):
 		return (str(self.id) + ':' + self.name)
@@ -196,8 +198,8 @@ class Tool(models.Model):
     :return The tool that was just added
     """
 	@staticmethod
-	def create_new_tool(toolname, toolowner, tooldescription, tooltype):
-		t = Tool(name=toolname, owner=toolowner, description=tooldescription, tool_type=tooltype)
+	def create_new_tool(toolname, toolowner, tooldescription, tooltype, toolshed):
+		t = Tool(name=toolname, owner=toolowner, description=tooldescription, tool_type=tooltype, shed=toolshed)
 		t.save()
 		return t
 		

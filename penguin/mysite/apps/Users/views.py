@@ -40,11 +40,15 @@ def register(request):
 			if user != False:
 				return HttpResponse("This is an existing username!")
 			else:
-				User.create_new_user(request.POST['username'], request.POST['password'], request.POST['area_code'], request.POST['email'], request.POST['phone_number'])
-			for user_attribute in request.POST:
+				new_user = User.create_new_user(request.POST['username'], request.POST['password'], request.POST['area_code'], request.POST['email'], request.POST['phone_number'])
+			print(new_user)
+			print(new_user.__dict__)
+			print(request.session)
+			request.session.clear()
+			for user_attribute in new_user.__dict__:
 				print(user_attribute)
-				if user_attribute != 'csrfmiddlewaretoken':
-					request.session[user_attribute] = request.POST[user_attribute] 
+				if user_attribute != '_state':
+					request.session[user_attribute] = new_user.__dict__[user_attribute] 
 			return HttpResponseRedirect('/user')
 	html = render(request, 'userEditor.html', {"action":"Register!", "form":form})
 	return HttpResponse(html)
