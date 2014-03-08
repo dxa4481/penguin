@@ -14,6 +14,8 @@
 <table border="1" cellspacing="1" cellpadding="5">
 	<tr>
 		<td>Tool Name</td>
+		<td>Tool Type</td>
+		<td>Tool Description</td>
 		<td>Tool Owner</td>
 		<td>Availability</td>
 		<td>Shed</td>
@@ -22,6 +24,8 @@
 	{% for tool in tool_list %}
 	<tr>
 		<td>{{tool.name}}</td>
+		<td>{{tool.tool_type}}</td>
+		<td>{{tool.description}}</td>
 		<td>{{tool.owner}}</td>
                 {% if tool.is_available %}
 
