@@ -13,9 +13,12 @@ class User(models.Model):
 	area_code = models.CharField(max_length=5)
 	email = models.CharField(max_length=30)
 	phone_number = models.CharField(max_length=10)
+	default_pickup_arrangements = models.CharField(max_length=50)
 	is_shed_coordinator = models.BooleanField(default=False)
 	is_admin = models.BooleanField(default=False)
 	is_community_shed = models.BooleanField(default=False)
+
+
 	
 	def __str__(self):
 		return (self.username)
@@ -30,10 +33,10 @@ class User(models.Model):
 	:param pn: phone number string
 	"""
 	@staticmethod
-	def create_new_user(u, p, ac, e, pn):
+	def create_new_user(u, p, ac, e, pn, pa):
 		new_user = User(username=u, password=p,
 		area_code=ac, email=e, 
-		phone_number=pn)
+		phone_number=pn, default_pickup_arrangements=pa)
 		new_user.save()
 		return new_user
 		
@@ -56,12 +59,13 @@ class User(models.Model):
 	:param email_new: new email to save
 	"""
 	@staticmethod
-	def update_user(username_lookup, phone_number_new, area_code_new, email_new):
-	    u = User.get_user_by_username(username_lookup)
-	    u.phone_number = phone_number_new
-	    u.area_code = area_code_new
-	    u.email = email_new
-	    u.save()
+	def update_user(username_lookup, phone_number_new, area_code_new, email_new, new_pickup_arrangements):
+		u = User.get_user_by_username(username_lookup)
+		u.phone_number = phone_number_new
+		u.area_code = area_code_new
+		u.email = email_new
+		u.default_pickup_arrangements = new_pickup_arrangements
+		u.save()
 	    
 	""" Returns a user based on user's ID
 	STATIC METHOD
@@ -167,9 +171,9 @@ class User(models.Model):
 	:param tooltype: type of tool
 	"""
 	@staticmethod
-	def create_new_tool(userID, toolname, tooldescription, tooltype, shed):
+	def create_new_tool(userID, toolname, tooldescription, tooltype, shed, pickup_arrangements):
 		u = User.get_user(userID)
-		t = Tool.create_new_tool(toolname, u, tooldescription, tooltype, shed)
+		t = Tool.create_new_tool(toolname, u, tooldescription, tooltype, shed, pickup_arrangements)
 		
 	""" Returns an array(?) of all user's tools
 	:param userID: user's ID
@@ -188,6 +192,9 @@ class Tool(models.Model):
 	description = models.CharField(max_length=250)
 	tool_type = models.CharField(max_length=30)
 	shed = models.CharField(max_length=30)
+	tool_pickup_arrangements = models.CharField(max_length=250)
+
+
 	
 	def __str__(self):
 		return (self.name)
@@ -201,8 +208,8 @@ class Tool(models.Model):
 	:return The tool that was just added
 	"""
 	@staticmethod
-	def create_new_tool(toolname, toolowner, tooldescription, tooltype, toolshed):
-		t = Tool(name=toolname, owner=toolowner, description=tooldescription, tool_type=tooltype, shed=toolshed)
+	def create_new_tool(toolname, toolowner, tooldescription, tooltype, toolshed, pickup_info):
+		t = Tool(name=toolname, owner=toolowner, description=tooldescription, tool_type=tooltype, shed=toolshed, tool_pickup_arrangements=pickup_info)
 		t.available_date = timezone.now() - datetime.timedelta(days=5)
 		t.save()
 		return t
@@ -215,11 +222,13 @@ class Tool(models.Model):
 	:param tooltype: type of tool
 	"""
 	@staticmethod
-	def update_tool(toolID, toolname, tooldescription, tooltype):
+	def update_tool(toolID, toolname, tooldescription, tooltype, shed, pickup_info):
 		t = Tool.get_tool(toolID)
 		t.name = toolname
 		t.description = tooldescription
 		t.tool_type = tooltype
+		t.shed = shed
+		t.tool_pickup_arrangements = pickup_info
 		t.save()
 	
 	""" Deletes the given tool

@@ -7,6 +7,7 @@ class UserEditor(forms.Form):
 	area_code = forms.CharField()
 	email = forms.CharField()
 	phone_number = forms.CharField()
+	default_pickup_arrangements = forms.CharField()
 	def clean(self):
 		password=self.cleaned_data.get('password')
 		confirm_password = self.cleaned_data.get('confirm_password')

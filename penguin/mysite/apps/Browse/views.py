@@ -43,7 +43,7 @@ def borrow_tool(request):
 		BorrowTransaction.create_new_borrow_transaction(user, currently_editing)
 		return HttpResponseRedirect('/browse')
 
-	html = render(request, 'borrow.html', {'tool': currently_editing})
+	html = render(request, 'borrow.html', {'tool': currently_editing, 'tool_pickup_arrangements': currently_editing.tool_pickup_arrangements})
 	return HttpResponse(html)
 
 

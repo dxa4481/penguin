@@ -4,7 +4,7 @@ from django.http import HttpResponse
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 
-from .forms import CreateTool, ToolEditor
+from .forms import CreateTool
 
 from .models import *
 
@@ -56,11 +56,11 @@ def new_tool(request):
 				shed = "community"
 			else:
 				shed = request.session['username']
-			User.create_new_tool(request.session['id'], request.POST['toolname'],request.POST['description'],request.POST['tooltype'], shed)
+			User.create_new_tool(request.session['id'], request.POST['toolname'],request.POST['description'],request.POST['tooltype'], shed, request.POST['tool_pickup_arrangements'])
                     
 			return HttpResponseRedirect('/user/tools/')
 	
-	form = CreateTool()			
+	form = CreateTool(initial={'tool_pickup_arrangements': request.session['default_pickup_arrangements']})
 	html = render(request, 'add_tool.html', {'form':form})
 	return HttpResponse(html)
 
@@ -72,18 +72,36 @@ def tool_editor(request):
 		return HttpResponseRedirect('/')
 	u_tool = Tool.get_tool(request.session['currently_editing'])
 
-	form = ToolEditor(initial={'toolname': u_tool.name, 
+	form = CreateTool(initial={'toolname': u_tool.name, 
 		'description': u_tool.description,
-		'tooltype': u_tool.tool_type})
-	print(request.method)
+		'tooltype': u_tool.tool_type,
+		'tool_pickup_arrangements':u_tool.tool_pickup_arrangements})
+	
+	form.disable_create_things(u_tool.id)
 	if request.method == 'POST':
-		Tool.update_tool(request.session['currently_editing'],
-			request.POST['toolname'],
-			request.POST['description'],
-			request.POST['tooltype'])
-		print("hello world")
-		del request.session['currently_editing']
-		return HttpResponseRedirect('/user/tools/')
+		form = CreateTool(request.POST)
+		form.disable_create_things(u_tool.id)
+
+		if form.is_valid():
+			if(Tool.is_tool_available(u_tool.id)):
+				if request.POST['shed'] != '1':
+					shed = "community"
+				else:
+					shed = request.session['username']
+				pickup_arrangements = request.POST['tool_pickup_arrangements']
+			else:
+				shed = u_tool.shed
+				pickup_arrangements = u_tool.tool_pickup_arrangements
+		
+			Tool.update_tool(request.session['currently_editing'],
+				request.POST['toolname'],
+				request.POST['description'],
+				request.POST['tooltype'],
+				shed,
+				pickup_arrangements)
+			print("hello world")
+			del request.session['currently_editing']
+			return HttpResponseRedirect('/user/tools/')
 #	del request.session['currently_editing']
 	html = render(request, 'tool_editor.html', {'action':'Save Changes!', 'form':form})
 	return HttpResponse(html)
