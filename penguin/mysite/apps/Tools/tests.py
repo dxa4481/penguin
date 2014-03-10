@@ -1,7 +1,10 @@
 from django.test import TestCase
+import datetime
+from django.utils import timezone
+
 from .models import *
 
-""" Test the creation and usage of users and tools. """
+""" Test the creation and usage of users, independent of tools."""
 class UserTestCase(TestCase):
         def setUp(self):
                 # Assume all usernames are unique, use them for lookup.
@@ -51,8 +54,35 @@ class UserTestCase(TestCase):
 ##                User.create_new_tool(42, "sledgehammer", "a sturdy sledgehammer", "hammer", "03545", "come captchalogue it.")
 ##                hammer = Tool.objects.get()
 ##                print(hammer)
+
+""" Test the creation and usage of tools, independent of users."""                
+class ToolTestCase(TestCase):
+
+        def setUp(self):
+                # Tools require an Owner, so let's add a user:
+                parrot = User(pk=42, username='Parrot', password = 'password', area_code = '03545', email = 'polly@python.org', phone_number = '1234567890', default_pickup_arrangements = 'Pining for the fjords.')
+                parrot.save()
                 
-##class ToolTestCase(TestCase):
+                # Remember you can always identify a tool by its private key though.
+                today = timezone.now()
+                sledge = Tool(pk=20, name="sledgehammer", owner=parrot, description="A sturdy sledgehammer.", tool_type="hammer", shed="03545", tool_pickup_arrangements="If you can lift it, you can have it.", available_date = today)
+                sledge.save()
+
+        def test_create_new_tool(self):
+                parrot = User.objects.get(pk=42)
+                zillyhoo0 = Tool.create_new_tool("Warhammer of Zillyhoo", parrot, "Its majesty makes you weep.", "hammer", "03545", "Some time travel required.")
+                # slight hack here: the create_new_tool() method doesn't allow you
+                # to manually set the private key, so I'm just trusting that the
+                # name is unique enough.
+                zillyhoo = Tool.objects.get(name="Warhammer of Zillyhoo")
+                self.assertEqual(zillyhoo.name, "Warhammer of Zillyhoo")
+                self.assertEqual(zillyhoo.owner, parrot)
+                self.assertEqual(zillyhoo.description, "Its majesty makes you weep.")
+                self.assertEqual(zillyhoo.tool_type, "hammer")
+                self.assertEqual(zillyhoo.shed, "03545")
+                self.assertEqual(zillyhoo.tool_pickup_arrangements, "Some time travel required.")
+                self.assertEqual(zillyhoo0, zillyhoo)                
+                
 
 ##	""" Try to retrieve some objects from the database. """
 ##	def test_query(self):
