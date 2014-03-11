@@ -48,8 +48,22 @@ class UserTestCase(TestCase):
 		self.assertEqual(guy.id, 42)
 		self.assertEqual(guy.username, "Parrot")
 
-#	def test_create_new_tool(self):
-#	def test_get_all_user_tools(self):
+	def test_create_new_tool(self):
+		parrot = User.objects.get(username="Parrot")
+		User.create_new_tool(parrot.id, "Coconut Threader", "For tying a length of thread between two coconuts", "needle", "parrot", "Stop by anytime.")
+		coco = Tool.objects.get(name="Coconut Threader")
+		self.assertEqual(coco.owner, parrot)
+		self.assertEqual(coco.name, "Coconut Threader")
+		self.assertEqual(coco.description, "For tying a length of thread between two coconuts")
+		self.assertEqual(coco.tool_type, "needle")
+		self.assertEqual(coco.shed, "parrot")
+		self.assertEqual(coco.tool_pickup_arrangements, "Stop by anytime.")
+		
+	def test_get_all_user_tools(self):
+		parrot = User.objects.get(username="Parrot")
+		User.create_new_tool(parrot.id, "Coconut Threader", "For tying a length of thread between two coconuts", "needle", "parrot", "Stop by anytime.")
+		parrotTools = User.get_all_user_tools(parrot.id)
+		self.assertTrue(parrotTools.filter(name="Coconut Threader").exists())
 
 """ Test the creation and usage of tools. """                
 class ToolTestCase(TestCase):
