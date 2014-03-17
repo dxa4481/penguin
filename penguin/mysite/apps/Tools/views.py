@@ -99,7 +99,6 @@ def tool_editor(request):
 				request.POST['tooltype'],
 				shed,
 				pickup_arrangements)
-			print("hello world")
 			del request.session['currently_editing']
 			return HttpResponseRedirect('/user/tools/')
 #	del request.session['currently_editing']
