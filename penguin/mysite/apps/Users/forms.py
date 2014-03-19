@@ -15,10 +15,7 @@ class UserEditor(forms.Form):
 			raise forms.ValidationError("passwords don't match")
 		return self.cleaned_data
 	def disable_register_things(self):
-		self.fields['username'].widget.attrs['readonly'] = True
-		self.fields['password'].widget.attrs['readonly'] = True
-		self.fields['confirm_password'].widget.attrs['readonly'] = True
-
+		self.fields.pop('username')
 
 
 class Login(forms.Form):

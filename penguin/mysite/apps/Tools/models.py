@@ -59,12 +59,14 @@ class User(models.Model):
 	:param email_new: new email to save
 	"""
 	@staticmethod
-	def update_user(username_lookup, phone_number_new, area_code_new, email_new, new_pickup_arrangements):
+	def update_user(username_lookup, password_new, phone_number_new, area_code_new, email_new, new_pickup_arrangements):
 		u = User.get_user_by_username(username_lookup)
+		u.password = password_new
 		u.phone_number = phone_number_new
 		u.area_code = area_code_new
 		u.email = email_new
 		u.default_pickup_arrangements = new_pickup_arrangements
+		print("New password is " + u.password)
 		u.save()
 	    
 	""" Returns a user based on user's ID

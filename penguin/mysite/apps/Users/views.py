@@ -43,11 +43,11 @@ def register(request):
 				new_user = User.create_new_user(request.POST['username'], request.POST['password'], request.POST['area_code'], request.POST['email'], request.POST['phone_number'], request.POST['default_pickup_arrangements'])
 			request.session.clear()
 			for user_attribute in new_user.__dict__:
-				print(user_attribute)
+#				print(user_attribute)
 				if user_attribute != '_state':
 					request.session[user_attribute] = new_user.__dict__[user_attribute]
-			print('username' in request.session)
-			print('default_pickup_arrangements' in request.session)
+#			print('username' in request.session)
+#			print('default_pickup_arrangements' in request.session)
 			return HttpResponseRedirect('/user')
 	html = render(request, 'userEditor.html', {"action":"Register!", "form":form})
 	return HttpResponse(html)
@@ -60,7 +60,13 @@ def user_editor(request):
 	form = UserEditor(initial={'username': request.session['username'], 'email': request.session['email'], 'area_code': request.session['area_code'], 'phone_number': request.session['phone_number'], 'default_pickup_arrangements': request.session['default_pickup_arrangements']})
 	form.disable_register_things()
 	if request.method == 'POST':
-		User.update_user(request.session['username'], request.POST['phone_number'], request.POST['area_code'], request.POST['email'], request.POST['default_pickup_arrangements'])
+
+#		form = UserEditor(request.POST)
+#		if form.is_valid():
+
+#		print(request.POST)
+		User.update_user(request.session['username'], request.POST['password'], request.POST['phone_number'], request.POST['area_code'], request.POST['email'], request.POST['default_pickup_arrangements'])
+		request.session['password'] = request.POST['password']
 		request.session['phone_number'] = request.POST['phone_number']
 		request.session['area_code'] = request.POST['area_code']
 		request.session['email'] = request.POST['email']
