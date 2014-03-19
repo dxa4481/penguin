@@ -4,7 +4,9 @@ from django.http import HttpResponse
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 
-from ..Tools.models import User, Tool, BorrowTransaction
+from ..Users.models import User
+from ..Tools.models import Tool
+from .models import BorrowTransaction
 
 # Create your views here.
 

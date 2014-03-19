@@ -6,7 +6,9 @@ from django.shortcuts import render
 
 from .forms import CreateTool
 
-from .models import *
+from .models import Tool
+from ..Users.models import User
+from ..Browse.models import BorrowTransaction
 
 # Display a list of tools
 
