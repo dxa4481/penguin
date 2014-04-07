@@ -1,5 +1,5 @@
 from django.conf.urls import patterns, include, url
-from .views import login, register, user_page, logout, user_editor
+from .api_routes import user, login
 from django.contrib import admin
 admin.autodiscover()
 
@@ -9,11 +9,8 @@ urlpatterns = patterns('',
     # url(r'^$', 'mysite.views.home', name='home'),
     # url(r'^blog/', include('blog.urls')),
 
-    url(r'^$', login),
-    url(r'^register/$', register),
-    url(r'^user/$', user_page),
-    url(r'^logout/$', logout),
-    url(r'^user/edit/$', user_editor),
+    url(r'^api/user', user),
+    url(r'^api/login', login),
     #url(r'^user/edit/$', user_editor),
 
 )
