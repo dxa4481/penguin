@@ -1,10 +1,13 @@
-from django.conf.urls import patterns, url
-from .views import user_tools, new_tool, tool_editor
+from django.conf.urls import patterns, include, url
+from .api_routes import *
+from django.contrib import admin
+admin.autodiscover()
+
 
 urlpatterns = patterns('',
-	url(r'^user/tools/$', user_tools, name='user_tools'),
-	url(r'^user/tools/new/$', new_tool),
-	url(r'^user/tools/edit/$', tool_editor),
+	#url(r'^user/tools/$', user_tools, name='user_tools'),
+	#url(r'^user/tools/new/$', new_tool),
+	#url(r'^user/tools/edit/$', tool_editor),
 )
 
 

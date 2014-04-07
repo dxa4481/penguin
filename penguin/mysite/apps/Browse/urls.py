@@ -1,10 +1,12 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import patterns, include, url
+from .api_routes import *                                                                                                                                                                          
+from django.contrib import admin
+admin.autodiscover()
 
-from .views import browse_tools, borrow_tool
-
+ 
 
 urlpatterns = patterns('',
-	url(r'^browse/$', browse_tools),
-	url(r'^browse/borrow/$', borrow_tool),
+        #url(r'^user/tools/$', user_tools, name='user_tools'),
+        #url(r'^user/tools/new/$', new_tool),
+        #url(r'^user/tools/edit/$', tool_editor),
 )
-
