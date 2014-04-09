@@ -1,9 +1,9 @@
-import datetime
+import datetime, time
 
 
+def dt_to_milliseconds(dt):
+	return time.mktime(dt.timetuple())*1000
 
-dthandler = lambda obj: (
-        obj.isoformat()                                                                                                                                                              
-        if isinstance(obj, datetime.datetime)                                                                                                                                        
-        or isinstance(obj, datetime.date)                                                                                                                                            
-        else None)
+	
+def milliseconds_to_dt(milliseconds):
+	return datetime.datetime.fromtimestamp(milliseconds/1000.0)

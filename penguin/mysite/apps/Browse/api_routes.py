@@ -4,4 +4,4 @@ from django.views.decorators.csrf import csrf_exempt
 import json
 import datetime
 from .models import User
-from ...json_datetime import dthandler
+from ...json_datetime import dt_to_milliseconds, milliseconds_to_dt
