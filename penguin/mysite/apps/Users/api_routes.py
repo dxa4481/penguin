@@ -30,8 +30,11 @@ def login(request):
 		post_data = json.loads(request.body.decode("utf-8"))
 		user = User.get_user_by_username(post_data['username'])
 		return_user = {"id": user.id, "username" : user.username, "area_code": user.area_code, "email": user.email, "phone_number": user.phone_number, "default_pickup_arrangements": user.default_pickup_arrangements, "is_shed_coordinator": user.is_shed_coordinator, "is_admin":user.is_admin}
-		request.session.user = return_user
+		request.session['user'] = return_user
 		return HttpResponse(json.dumps(return_user), content_type="application/json")
+
+
+
 
 """
 Request a JSON array of all the tools owned by the logged in user.
