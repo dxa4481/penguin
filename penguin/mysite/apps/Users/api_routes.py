@@ -99,17 +99,3 @@ def login(request):
 		print(request.session['user'])
 		return HttpResponse(json.dumps(return_user), content_type="application/json")
 
-
-
-
-"""
-Request a JSON array of all the tools owned by the logged in user.
-"""
-@csrf_exempt
-def get_user_tools(request):
-	if request.method == "POST":
-		post_data = json.loads(request.body.decode("utf-8"))
-		user = User.get_user_by_username(post_data['username'])
-		tools = User.get_all_user_tools(user.id)
-		return HttpResponse(json.dumps(tools, default),content_type="application/json")
-		
