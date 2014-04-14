@@ -1,7 +1,5 @@
 from django.db import models
 
-Tool = models.ForeignKey('Tools.Tool')
-
 """ User object
 """
 class User(models.Model):
@@ -162,23 +160,12 @@ class User(models.Model):
 	def delete_user(userID):
 		u = User.get_user(userID)
 		u.delete()
-
 		
-	"""Add a new tool to tools, then relate it to this user
-	:param userID: user's ID
-	:param toolname: name of tool
-	:param tooldescription: description of tool
-	:param tooltype: type of tool
+	
+	""" Returns all users in a certain areacode
+	:param ac: Area code to search for
+	:return List of all users in the area code
 	"""
 	@staticmethod
-	def create_new_tool(userID, toolname, tooldescription, tooltype, shed, pickup_arrangements):
-		u = User.get_user(userID)
-		t = Tool.create_new_tool(toolname, u, tooldescription, tooltype, shed, pickup_arrangements)
-		
-	""" Returns an array(?) of all user's tools
-	:param userID: user's ID
-	"""
-	def get_all_user_tools(userID):
-		u = User.get_user(userID)
-		tools = u.tool_set.all()
-		return tools
+	def get_user_by_area_code(ac):
+		return User.objects.filter(area_code=ac)

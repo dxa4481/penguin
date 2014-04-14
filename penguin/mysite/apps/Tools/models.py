@@ -1,19 +1,19 @@
 from django.db import models
 import datetime
 from django.utils import timezone
-
-User = models.ForeignKey('Users.User')
+from ..Users.models import User
 
 
 class Tool(models.Model):
 	id = models.AutoField(primary_key=True)
 	name = models.CharField(max_length=30)
-	owner = User
+	owner = models.ForeignKey(User)
 	available_date = models.DateTimeField()
 	#is_available = models.BooleanField(default=True)
 	description = models.CharField(max_length=250)
 	tool_type = models.CharField(max_length=30)
-	shed = models.CharField(max_length=30)
+	#shed = models.CharField(max_length=30)
+	in_community_shed = models.BooleanField(default=False)
 	tool_pickup_arrangements = models.CharField(max_length=250)
 
 
@@ -27,11 +27,13 @@ class Tool(models.Model):
 	:param toolowner: owner of the tool
 	:param tooldescription: description of tool
 	:param tooltype: type of tool
+	:param toolshed: true if tool is in community shed, false otherwise
+	:param pickup_info: the tool's pickup arrangements
 	:return The tool that was just added
 	"""
 	@staticmethod
 	def create_new_tool(toolname, toolowner, tooldescription, tooltype, toolshed, pickup_info):
-		t = Tool(name=toolname, owner=toolowner, description=tooldescription, tool_type=tooltype, shed=toolshed, tool_pickup_arrangements=pickup_info)
+		t = Tool(name=toolname, owner=toolowner, description=tooldescription, tool_type=tooltype, in_community_shed=toolshed, tool_pickup_arrangements=pickup_info)
 		t.available_date = timezone.now() - datetime.timedelta(days=5)
 		t.save()
 		return t
@@ -42,6 +44,8 @@ class Tool(models.Model):
 	:param toolname: name of tool
 	:param tooldescription: description of tool
 	:param tooltype: type of tool
+	:param toolshed: true if tool is in community shed, false otherwise
+	:param pickup_info: the tool's pickup arrangements
 	"""
 	@staticmethod
 	def update_tool(toolID, toolname, tooldescription, tooltype, shed, pickup_info):
@@ -63,6 +67,8 @@ class Tool(models.Model):
 		t.delete()
 
 	""" Returns tool based on ID
+	STATIC METHOD
+	:param toolID: tool's ID
 	"""
 	@staticmethod
 	def get_tool(toolID):
@@ -116,3 +122,12 @@ class Tool(models.Model):
 	@staticmethod
 	def get_tool_by_area_code(ac):
 		return Tool.objects.filter(owner__area_code__exact=ac)
+
+	"""Get all tools belonging to an owner
+	STATIC METHOD
+	:param ownerID: owner's ID
+	:returns list of tools belonging to that owner
+	"""
+	@staticmethod
+	def get_tool_by_owner(ownerID):
+		return Tool.objects.filter(owner__id__exact=ownerID)
