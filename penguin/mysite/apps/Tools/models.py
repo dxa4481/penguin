@@ -24,7 +24,7 @@ class Tool(models.Model):
 	""" Constructor to add a new tool
 	STATIC METHOD
 	:param toolname: name of tool
-	:param toolowner: owner of the tool
+	:param toolownerID: ID of owner of the tool
 	:param tooldescription: description of tool
 	:param tooltype: type of tool
 	:param toolshed: true if tool is in community shed, false otherwise
@@ -32,8 +32,8 @@ class Tool(models.Model):
 	:return The tool that was just added
 	"""
 	@staticmethod
-	def create_new_tool(toolname, toolowner, tooldescription, tooltype, toolshed, pickup_info):
-		t = Tool(name=toolname, owner=toolowner, description=tooldescription, tool_type=tooltype, in_community_shed=toolshed, tool_pickup_arrangements=pickup_info)
+	def create_new_tool(toolname, toolownerID, tooldescription, tooltype, toolshed, pickup_info):
+		t = Tool(name=toolname, owner=User.get_user(toolownerID), description=tooldescription, tool_type=tooltype, in_community_shed=toolshed, tool_pickup_arrangements=pickup_info)
 		t.available_date = timezone.now() - datetime.timedelta(days=5)
 		t.save()
 		return t
@@ -53,7 +53,7 @@ class Tool(models.Model):
 		t.name = toolname
 		t.description = tooldescription
 		t.tool_type = tooltype
-		t.shed = shed
+		t.in_community_shed = shed
 		t.tool_pickup_arrangements = pickup_info
 		t.save()
 	
@@ -91,6 +91,17 @@ class Tool(models.Model):
 		t.available_date = timezone.now() + datetime.timedelta(days=numDays)
 		t.save()
 
+	
+	"""Sets a tool as available
+	STATIC METHOD
+	:param toolID: tool's ID
+	"""
+	@staticmethod
+	def set_tool_available(toolID):
+		t = Tool.get_tool(toolID)
+		t.available_date = timezone.now() - datetime.timedelta(seconds=1)
+		t.save()
+	
 	""" Checks if a tool is available now
 	STATIC METHOD
 	:param toolID: tool's ID
