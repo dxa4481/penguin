@@ -1,14 +1,14 @@
 from django.db import models
 
 from ..Users.models import User
-Tool = models.ForeignKey('Tools.Tool')
+from ..Tools.models import Tool
 
 	
 
 class BorrowTransaction(models.Model):
 	id = models.AutoField(primary_key=True)
-	borrower = models.ForeignKey('Users.User', related_name='borrowtransaction_borrower')
-	tool = Tool
+	borrower = models.ForeignKey(User)
+	tool = models.ForeignKey(Tool)
 	is_current = models.BooleanField(default=True)
 	in_community_shed = models.BooleanField(default=False)
 
@@ -25,6 +25,7 @@ class BorrowTransaction(models.Model):
 	def create_new_borrow_transaction(b, t):
 		bt = BorrowTransaction(borrower=b, tool=t)
 		bt.save()
+		return bt.id
 
 	""" Ends a borrow transaction
 	STATIC METHOD
