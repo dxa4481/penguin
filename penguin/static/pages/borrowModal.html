@@ -1,0 +1,17 @@
+<div>
+	<pre>Selected date is: <em>{{dt | date:'fullDate' }}</em></pre>
+	<div class="contrainer">
+	    <div class="row">
+	       <div class="col-md-6">
+	       	 <div class="well well-sm" ng-model="dt">
+		   <datepicker min="minDate" show-weeks="showWeeks"></datepicker>
+	         </div>
+	       </div>
+	       <div class="col-md-4">
+		       <p class="text-primary">How long would you like to borrow this {{tool.tool_type}}?</p>
+		       <button class="btn btn-primary" ng-click="ok()">Borrow!</button>
+		       <button class="btn btn-primary" ng-click="cancel()">Cancel!</button
+	       </div>
+	     </div>
+	</div>
+</div>

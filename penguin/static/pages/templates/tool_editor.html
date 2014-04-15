@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+	<title>Edit Tool</title> 
+</head>
+<body>
+
+	<div>
+		<form method="POST">
+			<table>
+				{{ form.as_table }}
+			</table>
+			{% csrf_token %}
+			<input type="submit" value={{action}}>
+		</form>
+	</div>
+
+</body>
+</html>

@@ -1,0 +1,48 @@
+<!-- index.html -->
+	<!DOCTYPE html>
+
+	<!-- define angular app -->
+	<html ng-app="toolShareApp">
+	<head>
+	  <!-- SCROLLS -->
+	  <!-- load bootstrap and fontawesome via CDN -->
+	<!-- Latest compiled and minified CSS -->
+	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+	<!-- Optional theme -->
+	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap-theme.min.css">
+	<link rel="shortcut icon" href="favicon.ico" />
+	<!-- Latest compiled and minified JavaScript -->
+	<!--	<script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script> -->
+
+
+
+	  <!-- SPELLS -->
+	  <!-- load angular via CDN -->
+	  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.15/angular.min.js"></script>
+          <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.15/angular-route.js"></script>
+	  <script src="http://angular-ui.github.io/bootstrap/ui-bootstrap-tpls-0.10.0.js"></script>
+
+	  <script src="/static/js/controllers/main.js"></script> <!-- load up our controller -->
+	  <script src="/static/js/services/services.js"></script> <!-- load up our controller -->
+	  <script src="/static/js/directives/directives.js"></script>
+	  <script src="/static/core.js"></script> 
+
+
+
+
+
+        </head>
+
+	<!-- define angular controller -->
+	<body ng-controller="mainController">
+
+	<nav class="navbar navbar-default navbar-static-top" role="navigation">
+		<a class="navbar-brand">Penguin</a>
+	</nav>
+	<!-- MAIN CONTENT AND INJECTED VIEWS -->
+	<div id="main">
+		<!-- angular templating -->
+		<!-- this is where content will be injected -->
+		<div ng-view></div>
+	</div>
+	</body>

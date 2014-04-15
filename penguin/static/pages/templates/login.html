@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<body>
+	<div>
+		<form method="POST">
+			<table>
+				{{form.as_table}}
+			</table>
+			{% csrf_token %}
+			<input type="submit" value="Login!">
+		</form>
+	</div>
+	
+	<div>
+		<p>Or create and account!</p>
+		<a href="register">Register!</a>
+	</div>
+
+
+</body>
+</html>

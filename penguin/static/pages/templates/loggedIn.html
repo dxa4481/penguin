@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<body>
+	<div>
+		<form method="POST">
+
+			<p>Welcome {{username}}!!</p>
+			<table>
+				{{form.as_table}}
+			</table>
+                	{% csrf_token %}
+			<input type="submit" value="Logout!">
+		</form>
+	</div>
+	
+
+
+</body>
+</html>

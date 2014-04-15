@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>Browse Tools!</title>
+</head>
+
+<p><a href="/logout">Logout!</a></p>
+
+<h1>Tools in {{ user_ac }}!</h1>
+
+<body>
+
+<table border="1" cellspacing="1" cellpadding="5">
+	<tr>
+		<td>Tool Name</td>
+		<td>Tool Type</td>
+		<td>Tool Description</td>
+		<td>Tool Owner</td>
+		<td>Tool pickup arrangements</td>
+		<td>Availability</td>
+		<td>Shed</td>
+	</tr>
+
+	{% for tool in tool_list %}
+	<tr>
+		<td>{{tool.name}}</td>
+		<td>{{tool.tool_type}}</td>
+		<td>{{tool.description}}</td>
+		<td>{{tool.owner}}</td>
+		<td>{{tool.tool_pickup_arrangements}}</td>
+                {% if tool.is_available %}
+
+                <td>
+
+                   <FORM method="POST">
+
+			{% csrf_token %}
+                       <INPUT TYPE="submit"  VALUE="Borrow!" NAME="{{tool.id}}">
+
+                   </FORM>
+ 
+
+                </td>
+
+                {% else %}
+
+                <td>Being borrowed</td>
+
+		{% endif %}
+
+		<td>{{tool.shed}}</td>
+	</tr>
+	{% endfor %}
+</table>
+<p><a href="/user">Return to home</a></p>
+
+</body>
+</html>

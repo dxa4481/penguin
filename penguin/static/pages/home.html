@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+
+<div class="row">
+  <div class="col-xs-2">
+    <div ng-include src="'/static/sidebar.html'"></div>
+  </div>
+  <div class="col-xs-10">
+   Search: <input ng-model="searchText">
+    <table class="table table-hover">
+        <thead>
+                <th>Tool Name</th>
+                <th>Tool Type</th>
+                <th>Tool Description</th>
+                <th>Tool Owner</th>
+                <th>Tool pickup arrangements</th>
+                <th>Shed</th>
+                <th>Availability</th>
+        </thead> 
+	<tbody>
+		<tr ng-repeat="tool in tools | filter:searchText">
+			<td>{{tool.name}}</td>
+			<td>{{tool.tool_type}}</td>
+			<td>{{tool.description}}</td>
+			<td>{{tool.owner}}</td>
+			<td>{{tool.tool_pickup_arrangements}}</td>
+			<td ng-switch on=tool.community_shed>
+				<div ng-switch-when="true">Community shed</div>
+				<div ng-switch-when="false">{{tool.owner}}'s shed</div>
+			</td>
+			<td ng-switch on=tool.is_available>
+				<div ng-switch-when="true">
+					<button type="button" class="btn btn-primary" ng-click="openModal(tool)">Borrow!</button>
+				</div>
+				<div ng-switch-when="false">being borrowed</td>
+			</td>
+		</tr>
+	</tbody>	
+     </table>
+  </div>
+</div>
+
