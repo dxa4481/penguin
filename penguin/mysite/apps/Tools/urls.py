@@ -11,6 +11,9 @@ urlpatterns = patterns('',
 	#url(r'^user/tools/edit/$', tool_editor),
 	
 	(r'^api/tool/(?P<tool_id>\w{0,50})/$', getTool),
+	(r'^api/tools/$', user_tools),
+	(r'^api/tools/area/$', local_tools),
+	
 )
 
 
