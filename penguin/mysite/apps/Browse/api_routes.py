@@ -20,9 +20,26 @@ def borrowTransaction(request):
 	"""
 	if request.method == "POST":
 		post_data = json.loads(request.body.decode("utf-8"))
-		current_tool = Tool.get_tool(post_data['toolId'])
+		current_tool = None
+		
+		#Make sure tool exists
+		try:
+			current_tool = Tool.get_tool(post_data['toolId'])
+		except:
+			return HttpResponse(json.dumps({"error":"Invalid tool"}), content_type="application/json", status=400)
+		
+		#check if tool is currently being borrowed
+		if (current_tool.available_date < timezone.now()):
+			return HttpResponse(json.dumps({"error":"Tool being borrowed already"}), content_type="application/json", status=400)
+		
 		milliseconds = int(post_data['date'])
 		rent_date = milliseconds_to_dt(milliseconds)
+		
+		#verify date is allowed
+		if (rent_date < timezone.now()):
+			return HttpResponse(json.dumps({"error":"Invalid date"}), content_type="application/json", status=400)
+			
+		
 		Tool.set_tool_unavailable(current_tool.id, rent_date)
 		user = User.get_user(request.session['user']['id'])
 		borrow_transaction_id = BorrowTransaction.create_new_borrow_transaction(user, current_tool)
@@ -35,6 +52,11 @@ def borrowTransaction(request):
 	"""
 	if request.method == "PUT":
 		post_data = json.loads(request.body.decode("utf-8"))
+		#Make sure tool exists
+		try:
+			current_tool = Tool.get_tool(post_data['toolId'])
+		except:
+			return HttpResponse(json.dumps({"error":"Invalid tool"}), content_type="application/json", status=400)
 		bt = BorrowTransaction.get_current_borrow_transaction_by_tool(post_data['toolId'])
 		BorrowTransaction.end_borrow_transaction(bt.id)
 		return_bt = {"id": bt.id, "toolId": post_data['toolId'], "borrowerId": bt.borrower.id}
@@ -43,27 +65,27 @@ def borrowTransaction(request):
 		
 @csrf_exempt
 def getToolsBorrowing(request, user_id):
-    if request.method == "GET":
-        transactions = BorrowTransaction.get_borrower_borrow_transactions(user_id)
-        return_transactions = []
-        for transaction in transactions:
-            return_transactions.append({"id": transaction.id,
-                "toolID": transaction.tool.id,
-                "borrowerID": transaction.borrower.id,
-                "date": dt_to_milliseconds(transaction.tool.available_date)})
-                
-        return HttpResponse(json.dumps(return_transactions), content_type="application/json")
-        
-        
+	if request.method == "GET":
+		transactions = BorrowTransaction.get_borrower_borrow_transactions(user_id)
+		return_transactions = []
+		for transaction in transactions:
+			return_transactions.append({"id": transaction.id,
+				"toolID": transaction.tool.id,
+				"borrowerID": transaction.borrower.id,
+				"date": dt_to_milliseconds(transaction.tool.available_date)})
+				
+		return HttpResponse(json.dumps(return_transactions), content_type="application/json")
+		
+		
 @csrf_exempt
 def getToolsLending(request, user_id):
-    if request.method == "GET":
-        tools_lending = []
-        bt = BorrowTransaction.get_borrow_transaction_user_owns(user_id)
-        for transaction in bt:
-                tools_lending.append({"id": user_id,
-                    "toolID": transaction.tool.id,
-                    "borrowerID": transaction.borrower.id,
-                    "date": dt_to_milliseconds(transaction.tool.available_date)})
-                
-        return HttpResponse(json.dumps(tools_lending), content_type="application/json")        
+	if request.method == "GET":
+		tools_lending = []
+		bt = BorrowTransaction.get_borrow_transaction_user_owns(user_id)
+		for transaction in bt:
+				tools_lending.append({"id": user_id,
+					"toolID": transaction.tool.id,
+					"borrowerID": transaction.borrower.id,
+					"date": dt_to_milliseconds(transaction.tool.available_date)})
+				
+		return HttpResponse(json.dumps(tools_lending), content_type="application/json")

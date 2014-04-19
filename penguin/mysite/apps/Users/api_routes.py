@@ -21,7 +21,7 @@ def user(request):
 		print(user)
 		return_user = { "id": user.id,
 				"username": user.username,
-				"area_code": user.area_code,
+				"zip_code": user.zip_code,
 				"email": user.email,
 				"phone_number": user.phone_number,
 				"default_pickup_arrangements": user.default_pickup_arrangements,
@@ -40,13 +40,13 @@ def user(request):
 		post_data = json.loads(request.body.decode("utf-8"))
 		new_user = User.create_new_user(post_data["username"],
 						post_data["password"],
-						post_data["area_code"],
+						post_data["zip_code"],
 						post_data["email"],
 						post_data["phone_number"],
 						post_data["default_pickup_arrangements"])
 		return_user = { "id": new_user.id,
 				"username": new_user.username,
-				"area_code": new_user.area_code,
+				"zip_code": new_user.zip_code,
 				"email": new_user.email,
 				"phone_number": new_user.phone_number,
 				"default_pickup_arrangements": new_user.default_pickup_arrangements,
@@ -66,13 +66,13 @@ def user(request):
 		print(put_data)
 		User.update_user(request.session['user']['username'],
 				put_data['phone_number'],
-				put_data['area_code'],
+				put_data['zip_code'],
 				put_data['email'],
 				put_data['default_pickup_arrangements'])
 		user = User.get_user_by_username(request.session['user']["username"])
 		return_user = {	"id": user.id,
 				"username": user.username,
-				"area_code": user.area_code,
+				"zip_code": user.zip_code,
 				"email": user.email,
 				"phone_number": user.phone_number,
 				"default_pickup_arrangements": user.default_pickup_arrangements,
@@ -113,7 +113,7 @@ def login(request):
 		user = User.get_user_by_username(post_data['username'])
 		return_user = {"id": user.id, 
 				"username" : user.username, 
-				"area_code": user.area_code, 
+				"zip_code": user.zip_code, 
 				"email": user.email, 
 				"phone_number": user.phone_number, 
 				"default_pickup_arrangements": user.default_pickup_arrangements, 
@@ -140,7 +140,7 @@ def changePassword(request):
 				user.update_password(userID, put_data['new_password'])
 				return_message = {"id": user.id, 
 						"username" : user.username, 
-						"area_code": user.area_code, 
+						"zip_code": user.zip_code, 
 						"email": user.email, 
 						"phone_number": user.phone_number, 
 						"default_pickup_arrangements": user.default_pickup_arrangements, 
