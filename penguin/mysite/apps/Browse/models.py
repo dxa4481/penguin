@@ -20,6 +20,7 @@ class BorrowTransaction(models.Model):
 	:param o: owner user
 	:param b: borrower user
 	:param t: tool
+	:returns the ID of the borrow transaction that was created
 	"""
 	@staticmethod
 	def create_new_borrow_transaction(b, t):
@@ -73,6 +74,7 @@ class BorrowTransaction(models.Model):
 		return BorrowTransaction.objects.get(tool=t, is_current_bt=True)
 	
 	""" Gets a tool borrower's borrow transactions
+	:param borrowerID: The borrower user's ID
 	STATIC METHOD
 	"""
 	@staticmethod
@@ -84,12 +86,24 @@ class BorrowTransaction(models.Model):
 			if BorrowTransaction.is_current(transaction):
 				return_transactions.append(transaction)
 			else:
+				print("setting false")
 				transaction.is_current_bt=False
 				transaction.save()
 		return return_transactions
 
+	""" Checks if a tool is currently available
+	:param transaction: A borrow transaction object
+	:returns true if a tool is currently being borrowed, false otherwise
+	"""
 	@staticmethod
 	def is_current(transaction):
 		return not Tool.is_tool_available(transaction.tool.id)
 
-
+	""" Gets tools that a user owns that are being borrowed
+	:param userID: user's ID that owns the tools
+	:returns list of borrow transactions
+	"""
+	@staticmethod
+	def get_borrow_transaction_user_owns(userID):
+		owner = User.get_user(userID)
+		return BorrowTransaction.objects.filter(tool__owner=owner, is_current_bt=True)
