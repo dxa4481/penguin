@@ -111,8 +111,46 @@ def login(request):
 	if request.method == "POST":
 		post_data = json.loads(request.body.decode("utf-8"))
 		user = User.get_user_by_username(post_data['username'])
-		return_user = {"id": user.id, "username" : user.username, "area_code": user.area_code, "email": user.email, "phone_number": user.phone_number, "default_pickup_arrangements": user.default_pickup_arrangements, "is_shed_coordinator": user.is_shed_coordinator, "is_admin":user.is_admin}
+		return_user = {"id": user.id, 
+				"username" : user.username, 
+				"area_code": user.area_code, 
+				"email": user.email, 
+				"phone_number": user.phone_number, 
+				"default_pickup_arrangements": user.default_pickup_arrangements, 
+				"is_shed_coordinator": user.is_shed_coordinator, 
+				"is_admin":user.is_admin}
 		request.session['user'] = return_user
 		print(request.session['user'])
 		return HttpResponse(json.dumps(return_user), content_type="application/json")
 
+@csrf_exempt
+def changePassword(request):
+	"""
+	If passwords don't match
+	Old password is wrong
+	Invalid password
+	"""
+	if request.method == "PUT":
+		put_data = json.loads(request.body.decode("utf-8"))
+		userID = request.session['user']['id']
+		user = User.get_user(userID)
+		return_message = {}
+		if (user.password==put_data['old_password']):
+			if (put_data['new_password'] == put_data['confirm_new_password']):
+				user.update_password(userID, put_data['new_password'])
+				return_message = {"id": user.id, 
+						"username" : user.username, 
+						"area_code": user.area_code, 
+						"email": user.email, 
+						"phone_number": user.phone_number, 
+						"default_pickup_arrangements": user.default_pickup_arrangements, 
+						"is_shed_coordinator": user.is_shed_coordinator, 
+						"is_admin":user.is_admin}
+						
+			else:
+				return_message = {"error":"mismatch passwords"}
+				#return_message = ERROR
+		else:
+			return_message = {"error":"incorrect old password"}
+			#return_message = ERROR
+		return HttpResponse(json.dumps(return_message), content_type="application/json")

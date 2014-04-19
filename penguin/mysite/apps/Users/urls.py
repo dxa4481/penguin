@@ -1,5 +1,5 @@
 from django.conf.urls import patterns, include, url
-from .api_routes import *
+from .api_routes import userById, user, login, changePassword
 from django.contrib import admin
 admin.autodiscover()
 
@@ -12,6 +12,7 @@ urlpatterns = patterns('',
 	url(r'^api/user/(?P<user_id>\w{0,50})$', userById),
 	url(r'^api/user$', user),
 	url(r'^api/login$', login),
+	url(r'^api/changePassword', changePassword),
 	#url(r'^api/get_user_tools', get_user_tools),
 	#url(r'^user/edit/$', user_editor),
 

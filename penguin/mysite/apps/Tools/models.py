@@ -12,7 +12,6 @@ class Tool(models.Model):
 	#is_available = models.BooleanField(default=True)
 	description = models.CharField(max_length=250)
 	tool_type = models.CharField(max_length=30)
-	#shed = models.CharField(max_length=30)
 	in_community_shed = models.BooleanField(default=False)
 	tool_pickup_arrangements = models.CharField(max_length=250)
 
@@ -27,7 +26,7 @@ class Tool(models.Model):
 	:param toolownerID: ID of owner of the tool
 	:param tooldescription: description of tool
 	:param tooltype: type of tool
-	:param toolshed: true if tool is in community shed, false otherwise
+	:param shed: true if tool is in community shed, false otherwise
 	:param pickup_info: the tool's pickup arrangements
 	:return The tool that was just added
 	"""
@@ -126,13 +125,13 @@ class Tool(models.Model):
 		t = Tool.get_tool(toolID)
 		return t.owner
 		
-	""" Get the tool list in a certain area code
-	:param ac: area code to search in
-	:return list of tools in that area
+	""" Get the tool list in a certain zip code
+	:param ac: zip code to search in
+	:return list of tools in that zip code
 	"""
 	@staticmethod
-	def get_tool_by_area_code(ac):
-		return Tool.objects.filter(owner__area_code__exact=ac)
+	def get_tool_by_zip_code(zip_c):
+		return Tool.objects.filter(owner__zip_code__exact=zip_c)
 
 	"""Get all tools belonging to an owner
 	STATIC METHOD

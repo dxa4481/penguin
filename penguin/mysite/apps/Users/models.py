@@ -6,7 +6,7 @@ class User(models.Model):
 	id = models.AutoField(primary_key=True)
 	username = models.CharField(max_length=30)
 	password = models.CharField(max_length=30)
-	area_code = models.CharField(max_length=5)
+	zip_code = models.CharField(max_length=5)
 	email = models.CharField(max_length=30)
 	phone_number = models.CharField(max_length=10)
 	default_pickup_arrangements = models.CharField(max_length=50)
@@ -24,49 +24,58 @@ class User(models.Model):
 	STATIC METHOD
 	:param u: username string
 	:param p: password string
-	:param ac: area code string
+	:param zip: zip code string
 	:param e: email string (forced email field type)
 	:param pn: phone number string
 	:return returns the user that was just created
 	"""
 	@staticmethod
-	def create_new_user(u, p, ac, e, pn, pa):
+	def create_new_user(u, p, zip_c, e, pn, pa):
 		new_user = User(username=u, password=p,
-		area_code=ac, email=e, 
+		zip_code=zip_c, email=e, 
 		phone_number=pn, default_pickup_arrangements=pa)
 		new_user.save()
 		return new_user
 		
 	""" Constructor for a community shed entry
 	STATIC METHOD
-	:param ac: area code, used as username as well
+	:param zip_c: zip code, used as username as well
 	"""
 	@staticmethod
-	def create_new_community_shed(ac):
-		cs = User(username=ac, password="", 
-		area_code=ac, email="", phone_number="",
+	def create_new_community_shed(zip_c):
+		cs = User(username=zip_c, password="", 
+		zip_code=zip_c, email="", phone_number="",
 		is_community_shed=True)
 		cs.save()
 		
-	""" Updates a user's phone number, area code, and email 
+	""" Updates a user's phone number, zip code, and email 
 	based on their username
 	:param username_lookup: username to search for
 	:param phone_number_new: new phone number to save
-	:param area_code_new: new area code to save
+	:param zip_code_new: new zip code to save
 	:param email_new: new email to save
 	:return the user that is being updated
 	"""
 	@staticmethod
-	def update_user(username_lookup, password_new, phone_number_new, area_code_new, email_new, new_pickup_arrangements):
+	def update_user(username_lookup, phone_number_new, zip_code_new, email_new, new_pickup_arrangements):
 		u = User.get_user_by_username(username_lookup)
-		u.password = password_new
 		u.phone_number = phone_number_new
-		u.area_code = area_code_new
+		u.zip_code = zip_code_new
 		u.email = email_new
 		u.default_pickup_arrangements = new_pickup_arrangements
 		u.save()
 		return u
-	    
+	
+	"""Updates a user's password
+	:param userID: the user's ID
+	:param password: the password to change to
+	"""
+	@staticmethod
+	def update_password(userID, password):
+		u = User.get_user(userID)
+		u.password = password
+		u.save()
+	
 	""" Returns a user based on user's ID
 	STATIC METHOD
 	:param userID: user's ID
@@ -164,10 +173,10 @@ class User(models.Model):
 		u.delete()
 		
 	
-	""" Returns all users in a certain areacode
-	:param ac: Area code to search for
-	:return List of all users in the area code
+	""" Returns all users in a certain zipcode
+	:param zip: zip code to search for
+	:return List of all users in the zip code
 	"""
 	@staticmethod
-	def get_user_by_area_code(ac):
-		return User.objects.filter(area_code=ac)
+	def get_user_by_zip_code(zip_c):
+		return User.objects.filter(zip_code=zip_c)

@@ -120,10 +120,10 @@ def local_tools(request):
 	Known risks:
 	  * None
 	"""
-	#get area code from the request object
+	#get zip code from the request object
 	if request.method == "GET":
-		area_code = request.session["user"]["area_code"]
-		tool_list = Tool.get_tool_by_area_code(area_code)
+		zip_code = request.session["user"]["zip_code"]
+		tool_list = Tool.get_tool_by_zip_code(zip_code)
 		return_list = []
 		
 		for tool in tool_list:
