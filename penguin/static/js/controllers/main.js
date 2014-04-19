@@ -100,6 +100,9 @@ angular.module('toolShareControllers', [])
                                 	}
                         })
 		};
+		$scope.newTool = function(){
+			$location.path('/newTool');
+		}
 		if($rootScope.user == undefined){getUser($rootScope, User, cb)};
 		$scope.active = "tools";
 		$scope.activeTools = 'myTools';
@@ -140,6 +143,21 @@ angular.module('toolShareControllers', [])
 		$scope.zipCodePattern = zip_code_regex;
 		$scope.phoneNumberPattern = phone_number_regex;
 
+	})
+
+	.controller('newToolController', function($scope, $rootScope, $location, Tool){
+		if($rootScope.user == undefined){getUser($rootScope, User, function(){})}
+		$scope.tryAddingTool = function(tool){
+			Tool.create(tool).
+				success(function(data){
+                                        if('error' in data){
+                                                $scope.errors = data;
+                                        }
+                                        else{
+                                                $location.path('/tools');
+                                        }
+                                });
+		}
 	})
 
         .controller('communityController', function($scope, $rootScope, $location, User, Tool, BorrowTransaction){

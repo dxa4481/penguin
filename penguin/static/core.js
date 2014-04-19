@@ -22,5 +22,9 @@ toolShareApp.config(function($routeProvider){
 		.when('/community',{
 			templateUrl: '/static/pages/community.html',
 			controller: 'communityController'
+		})
+		.when('/newTool',{
+			templateUrl: '/static/pages/newTool.html',
+			controller: 'newToolController'
 		});
 });
