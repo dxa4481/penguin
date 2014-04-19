@@ -10,21 +10,21 @@ from ...json_datetime import dt_to_milliseconds, milliseconds_to_dt
 @csrf_exempt
 def update(request):
 	if request.method == "PUT":
-		tool_id = int(tool_id)
 		put_data = json.loads(request.body.decode("utf-8"))
+		tool_id = int(put_data["id"])
 		temp = put_data["in_community_shed"]
 		
 		if(temp == "True"):
 			comm_shed = True
 		else:
 			comm_shed = False
-		Tool.update_tool(put_data["tool_data"],
+		Tool.update_tool(tool_id,
 				put_data["name"],
 				put_data["description"],
 				put_data["tool_type"],
 				comm_shed,
 				put_data["tool_pickup_arrangements"])
-		tool = Tool.get_tool(request.session["user"]["id"])
+		tool = Tool.get_tool(tool_id)
 		return_tool = tool_to_json(tool)
 		return HttpResponse(json.dumps(return_tool), content_type="application/json")
 
@@ -36,7 +36,6 @@ def update(request):
 			comm_shed = True
 		else:
 			comm_shed = False
-		#print(post_data)#
 		new_tool = Tool.create_new_tool(post_data["name"], 
 				request.session["user"]["id"], 
 				post_data["description"], 
@@ -51,9 +50,7 @@ def update(request):
 def get_tool(request, tool_id):
 	if request.method == "GET":
 		tool_id = int(tool_id)
-		print(tool_id)
 		tool = Tool.get_tool(tool_id)
-		#tool = Tool.get_tool(request.session["user"]["id"])
 		return_tool = tool_to_json(tool)
 		return HttpResponse(json.dumps(return_tool), content_type="application/json")
 		
