@@ -74,7 +74,7 @@ angular.module('toolShareControllers', [])
 				resolve: {tool: function(){return $scope.tool}}
 			});
 			modalInstance.result.then(function(date){
-				BorrowTransaction.create({date:date, toolId:tool.id}).
+				BorrowTransaction.create({date:date.getTime(), toolId:tool.id}).
 					 success(function(data){
 						if("error" in data){
 							$scope.errors = data.error;
@@ -110,7 +110,6 @@ angular.module('toolShareControllers', [])
 					$scope.errors = data.error;
 				}else{
 					$scope.myTools = data;
-					console.log(data)
 				}
 			})
 		
@@ -122,6 +121,7 @@ angular.module('toolShareControllers', [])
 		if($rootScope.user == undefined){getUser($rootScope, User, cb)};
 		$scope.user = $rootScope.user;
 		$scope.trySaving = function(user){
+			console.log(user)
 			User.update(user).
 				success(function(data){
 					if('error' in data){
