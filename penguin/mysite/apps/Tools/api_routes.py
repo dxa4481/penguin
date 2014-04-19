@@ -23,6 +23,12 @@ def getTool(request, tool_id):
 		return_tool = tool_to_json(tool)
 		return HttpResponse(json.dumps(return_tool), content_type="application/json")
 		
+	"""
+	^/api/tool/:id DELETE
+	Known risks:
+	  * Tool can be deleted by users other than the one who owns it.
+	  * Tool can be deleted while it's checked out.
+	"""
 	if request.method == "DELETE":
 		try:
 			Tool.delete_tool(tool_id)
@@ -40,19 +46,29 @@ def create(request):
 
 @csrf_exempt
 def user_tools(request):
+	"""
+	^/api/tools/ GET
+	Known risks:
+	  * None
+	"""
 	#get user_id from the request object
 	if request.method == "GET":
 		user_id = request.session['user']['id']
 		tool_list = Tool.get_tool_by_owner(user_id)
 		return_list = []
 		
-	for tool in tool_list:
-		return_list.append(tool_to_json(tool))
+		for tool in tool_list:
+			return_list.append(tool_to_json(tool))
 		
-	return HttpResponse(json.dumps(return_list), content_type="application/json")
+		return HttpResponse(json.dumps(return_list), content_type="application/json")
 	
 @csrf_exempt
 def local_tools(request):
+	"""
+	^/api/tools/:ac GET
+	Known risks:
+	  * None
+	"""
 	#get area code from the request object
 	if request.method == "GET":
 		area_code = request.session['user']['area_code']

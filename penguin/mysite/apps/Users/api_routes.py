@@ -86,6 +86,13 @@ def user(request):
 
 @csrf_exempt
 def userById(request, user_id):
+	"""
+	^/api/user/:id DELETE
+	Known risks:
+	  * Can delete any user, even if not logged in as them.
+	  * Can delete users with tools checked out.
+	  * Can delete users checking tools out.
+	"""
 	if request.method == "DELETE":
 		try:
 			User.delete_user(user_id)
