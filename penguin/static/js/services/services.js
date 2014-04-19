@@ -64,10 +64,10 @@ angular.module('toolShareServices', [])
 				return $http.get('/api/borrowTransaction/' + id);
 			},
 			getBorrowing: function(userId){
-				return $http.get('/api/borrowTransactions/borrowing/' + userId);
+				return $http.get('/api/borrowTransaction/borrowing/' + userId);
 			},
 			getBorrowed: function(userId){
-				return $http.get('/api/borrowTransactions/borrowed/' + userId);
+				return $http.get('/api/borrowTransaction/borrowed/' + userId);
 			},
 			getCommunityHistory: function(areaCode){
 				return $http.get('/api/borrowTransactions/community/' + areaCode);
