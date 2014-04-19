@@ -23,9 +23,9 @@
 	      <span ng-show="form.confirm_password.$dirty && form.confirm_password.$error.match && !form.confrim_password.$error.required" class="help-block">Passwords don't match</span>
 	   </div>
 
-	   <div class="form-group" ng-class="{'has-error': form.area_code.$dirty && form.area_code.$error.pattern}">
-	      <input type="text" class="form-control" placeholder="area code" ng-model="$parent.user.area_code" name="area_code" ng-pattern="areaCodePattern" required/><br />
-	      <span ng-show="form.area_code.$dirty && form.area_code.$error.pattern" class="help-block">Invalid area code!</span>
+	   <div class="form-group" ng-class="{'has-error': form.zip_code.$dirty && form.zip_code.$error.pattern}">
+	      <input type="text" class="form-control" placeholder="zip code" ng-model="$parent.user.zip_code" name="zip_code" ng-pattern="zipCodePattern" required/><br />
+	      <span ng-show="form.zip_code.$dirty && form.zip_code.$error.pattern" class="help-block">Invalid zip code!</span>
            </div>
 	   <div class="form-group" ng-class="{'has-error': form.email.$dirty && form.email.$error.email}"> 
 	      <input type="email" class="form-control" placeholder="email" ng-model="$parent.user.email" name="email" required/><br />

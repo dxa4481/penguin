@@ -1,6 +1,6 @@
 // js/controllers/main.js
 //
-area_code_regex = /(^\d{5}(-\d{4})?$)|(^[ABCEGHJKLMNPRSTVXY]{1}\d{1}[A-Z]{1} *\d{1}[A-Z]{1}\d{1}$)/;
+zip_code_regex = /(^\d{5}(-\d{4})?$)|(^[ABCEGHJKLMNPRSTVXY]{1}\d{1}[A-Z]{1} *\d{1}[A-Z]{1}\d{1}$)/;
 phone_number_regex = /^[\s()+-]*([0-9][\s()+-]*){6,20}$/;
 angular.module('toolShareControllers', [])
 
@@ -42,7 +42,7 @@ angular.module('toolShareControllers', [])
 
 
 		$scope.switchToRegister = function(){
-			$scope.areaCodePattern = area_code_regex
+			$scope.zipCodePattern = zip_code_regex
 			$scope.phoneNumberPattern = phone_number_regex
 			$scope.register = true;
 			$scope.errors = undefined;
@@ -137,7 +137,7 @@ angular.module('toolShareControllers', [])
 		$scope.active = "profile";
 		$scope.register = false;
 		$scope.editing = true;
-		$scope.areaCodePattern = area_code_regex;
+		$scope.zipCodePattern = zip_code_regex;
 		$scope.phoneNumberPattern = phone_number_regex;
 
 	})
