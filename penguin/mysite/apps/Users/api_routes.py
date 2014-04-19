@@ -65,7 +65,6 @@ def user(request):
 		put_data = json.loads(request.body.decode("utf-8"))
 		print(put_data)
 		User.update_user(request.session['user']['username'],
-				put_data['password'],
 				put_data['phone_number'],
 				put_data['area_code'],
 				put_data['email'],
