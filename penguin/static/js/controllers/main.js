@@ -184,8 +184,8 @@ var borrowModalController = function($scope, $modalInstance, tool){
 	$scope.format = $scope.formats[0];
 
 	
-	$scope.ok = function () {
-		$modalInstance.close($scope.dt);
+	$scope.ok = function (dt) {
+		$modalInstance.close(dt);
 	};
 
 	$scope.cancel = function () {
