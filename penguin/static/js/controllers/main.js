@@ -5,7 +5,7 @@ phone_number_regex = /^[\s()+-]*([0-9][\s()+-]*){6,20}$/;
 angular.module('toolShareControllers', [])
 
 	// inject the Todo service factory into our controller
-	.controller('mainController', function($scope, $location, User) {
+	.controller('mainController', function($scope, $rootScope, $location, User) {
 		$scope.register = false;
 		$scope.tryLogin = function(user){
 			console.log(user)
@@ -15,6 +15,8 @@ angular.module('toolShareControllers', [])
 						$scope.errors = data;
 					}
 					else{
+						$rootScope.user = data;
+						console.log(data)
 						$location.path('/home');
 					}
 				});
@@ -31,6 +33,7 @@ angular.module('toolShareControllers', [])
 						$scope.errors = data;
 					}
 					else{
+						$rootScope.user = data;
 						$location.path('/home');
 					}
 				});
@@ -47,9 +50,10 @@ angular.module('toolShareControllers', [])
 		
 	})
 
-	.controller('homepageController', function($scope, $modal, $location, Tool, BorrowTransaction){
+	.controller('homepageController', function($scope, $rootScope, $modal, $location, User, Tool, BorrowTransaction){
 		$scope.active = "home"		
 		
+		if($rootScope.user == undefined){getUser($rootScope, User, function(){})};
 		Tool.getInArea().
 			success(function(data){
 				if('error' in data){
@@ -84,29 +88,39 @@ angular.module('toolShareControllers', [])
 		};
 	})
 
-	.controller('toolsController', function($scope, $location, User, Tool){
+	.controller('toolsController', function($scope, $rootScope, $location, User, Tool, BorrowTransaction){
+		var cb = function(){
+			BorrowTransaction.getBorrowing($rootScope.user.id).
+				success(function(data){
+					if("error" in data){
+                                        	$scope.errors = data.error;
+                                	}else{
+						console.log(data)
+                                        	$scope.borrowingTools = data;
+                                	}
+                        })
+		};
+		if($rootScope.user == undefined){getUser($rootScope, User, cb)};
 		$scope.active = "tools";
+		$scope.activeTools = 'myTools';
+		$scope.myToolsClass = 'active';
 		Tool.getByUser().
 			success(function(data){
 				if("error" in data){
 					$scope.errors = data.error;
 				}else{
-					$scope.tools = data;
+					$scope.myTools = data;
+					console.log(data)
 				}
 			})
+		
 	
 	})
 
-	.controller('profileController', function($scope, $location, User, Tool){
-		User.get().
-			success(function(data){
-				if('error' in data){
-					$scope.errors = data;
-				}
-				else{
-					$scope.user = data;
-				}
-			});	
+	.controller('profileController', function($scope, $rootScope, $location, User, Tool){
+		var cb = function(){$scope.user = $rootScope.user};
+		if($rootScope.user == undefined){getUser($rootScope, User, cb)};
+		$scope.user = $rootScope.user;
 		$scope.trySaving = function(user){
 			User.update(user).
 				success(function(data){
@@ -114,6 +128,7 @@ angular.module('toolShareControllers', [])
 						$scope.errors = data;
 					}
 					else{
+						$rootScope.user = data;
 						$location.path('/home');
 					}
 				});
@@ -127,9 +142,24 @@ angular.module('toolShareControllers', [])
 
 	})
 
-        .controller('communityController', function($scope, $location, User, Tool, BorrowTransaction){
+        .controller('communityController', function($scope, $rootScope, $location, User, Tool, BorrowTransaction){
+		if($rootScope.user == undefined){getUser($rootScope, User, function(){})}
 		$scope.active = "community";
 	})
+var getUser = function(rootScope, User, cb){
+	User.get().
+		success(function(data){
+                	if('error' in data){
+                        	$scope.errors = data;
+                        }
+                        else{
+                        	rootScope.user = data;
+				cb();
+                        }
+		});
+
+
+}
 
 
 var borrowModalController = function($scope, $modalInstance, tool){
