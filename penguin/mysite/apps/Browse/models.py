@@ -9,7 +9,7 @@ class BorrowTransaction(models.Model):
 	id = models.AutoField(primary_key=True)
 	borrower = models.ForeignKey(User)
 	tool = models.ForeignKey(Tool)
-	is_current = models.BooleanField(default=True)
+	is_current_bt = models.BooleanField(default=True)
 	in_community_shed = models.BooleanField(default=False)
 
 	def __str__(self):
@@ -24,6 +24,8 @@ class BorrowTransaction(models.Model):
 	@staticmethod
 	def create_new_borrow_transaction(b, t):
 		bt = BorrowTransaction(borrower=b, tool=t)
+		if bt.tool.in_community_shed:
+			bt.in_community_shed=True
 		bt.save()
 		return bt.id
 
@@ -34,8 +36,8 @@ class BorrowTransaction(models.Model):
 	@staticmethod
 	def end_borrow_transaction(btID):
 		bt = BorrowTransaction.get_borrow_transaction(btID)
-		bt.tool.set_tool_available()
-		bt.is_current = False
+		Tool.set_tool_available(bt.tool.id)
+		bt.is_current_bt = False
 		bt.save()
 
 	""" Removes a borrow transaction
@@ -60,7 +62,16 @@ class BorrowTransaction(models.Model):
 	"""
 	def get_borrow_transaction_id(self):
 		return self.id
-
+		
+	""" Gets the current borrow transaction for a tool
+	:param toolID: The tool ID pertaining to the borrow transaction
+	:returns borrow transaction ID
+	"""
+	@staticmethod
+	def get_current_borrow_transaction_by_tool(toolID):
+		t = Tool.get_tool(toolID)
+		return BorrowTransaction.objects.get(tool=t, is_current_bt=True)
+	
 	""" Gets a tool borrower's borrow transactions
 	STATIC METHOD
 	"""
@@ -73,7 +84,7 @@ class BorrowTransaction(models.Model):
 			if BorrowTransaction.is_current(transaction):
 				return_transactions.append(transaction)
 			else:
-				transaction.is_current=False
+				transaction.is_current_bt=False
 				transaction.save()
 		return return_transactions
 

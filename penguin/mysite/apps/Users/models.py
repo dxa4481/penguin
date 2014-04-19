@@ -27,6 +27,7 @@ class User(models.Model):
 	:param ac: area code string
 	:param e: email string (forced email field type)
 	:param pn: phone number string
+	:return returns the user that was just created
 	"""
 	@staticmethod
 	def create_new_user(u, p, ac, e, pn, pa):
@@ -53,6 +54,7 @@ class User(models.Model):
 	:param phone_number_new: new phone number to save
 	:param area_code_new: new area code to save
 	:param email_new: new email to save
+	:return the user that is being updated
 	"""
 	@staticmethod
 	def update_user(username_lookup, password_new, phone_number_new, area_code_new, email_new, new_pickup_arrangements):
@@ -62,8 +64,8 @@ class User(models.Model):
 		u.area_code = area_code_new
 		u.email = email_new
 		u.default_pickup_arrangements = new_pickup_arrangements
-		print("New password is " + u.password)
 		u.save()
+		return u
 	    
 	""" Returns a user based on user's ID
 	STATIC METHOD

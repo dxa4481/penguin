@@ -83,12 +83,12 @@ class Tool(models.Model):
 	""" Sets a tool as unavailable for a given number of days
 	STATIC METHOD
 	:param toolID: tool's ID
-	:param numDays: number of days unavailable
+	:param end_date: the date that the tool will be available once more
 	"""
 	@staticmethod
-	def set_tool_unavailable(toolID, numDays):
+	def set_tool_unavailable(toolID, end_date):
 		t = Tool.get_tool(toolID)
-		t.available_date = timezone.now() + datetime.timedelta(days=numDays)
+		t.available_date = end_date
 		t.save()
 
 	
