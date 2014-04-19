@@ -90,16 +90,21 @@ class ToolTestCase(TestCase):
 		self.assertEqual(broken_sledge.tool_pickup_arrangements, 
 			"Take it off my lawn.")
 		
-"""
 	def test_delete_tool(self):
-		Tool.objects.filter(pk=42)
-		return
-"""
-
-"""
+		sledge = Tool.objects.get(pk=23)
+		self.assertIn(sledge, Tool.objects.all())
+		Tool.delete_tool(sledge.id)
+		self.assertNotIn(sledge, Tool.objects.all())
+		
 	def test_get_tool(self):
 		sledge = Tool.get_tool(23)
-		self.assertEqual(sledge.name, "sledgehammer")
+		sledge2 = Tool.objects.get(pk=23)
+		self.assertEqual(sledge, sledge2)
+		
+	def test_get_tool_id(self):
+		sledge = Tool.get_tool(23)
+		num = Tool.get_tool_id(sledge)
+		self.assertEqual(num, 23) 		#should never fail
 		
 	def test_set_tool_unavailable(self):
 		#in our test database, it should be available initially...
@@ -107,11 +112,14 @@ class ToolTestCase(TestCase):
 		self.assertTrue(sledge.available_date < timezone.now())
 		
 		#but then let's mark it as away for a week.
-		Tool.set_tool_unavailable(sledge.id, 7)
+		Tool.set_tool_unavailable(
+			sledge.id, 
+			timezone.now() + datetime.timedelta(days=7),
+			)
 		sledge = Tool.objects.get(pk=sledge.pk)
 		self.assertFalse(sledge.available_date < timezone.now())
 		
-				
+"""
 	def test_is_tool_available(self):
 		#again, the fresh tool should be available from the start
 		sledge = Tool.objects.get(pk=23)
