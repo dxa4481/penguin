@@ -9,17 +9,51 @@ from ...json_datetime import dt_to_milliseconds, milliseconds_to_dt
 
 @csrf_exempt
 def update(request):
-	return 0
-	#if request.method == "PUT"
-		#put_data = json.loads(request.body.decode("utf-8"))
-	
+	if request.method == "PUT":
+		tool_id = int(tool_id)
+		put_data = json.loads(request.body.decode("utf-8"))
+		temp = put_data["in_community_shed"]
+		
+		if(temp == "True"):
+			comm_shed = True
+		else:
+			comm_shed = False
+		Tool.update_tool(put_data["tool_data"],
+				put_data["name"],
+				put_data["description"],
+				put_data["tool_type"],
+				comm_shed,
+				put_data["tool_pickup_arrangements"])
+		tool = Tool.get_tool(request.session["user"]["id"])
+		return_tool = tool_to_json(tool)
+		return HttpResponse(json.dumps(return_tool), content_type="application/json")
+
+	if request.method == "POST":
+		post_data = json.loads(request.body.decode("utf-8"))
+		temp = post_data["in_community_shed"]
+		
+		if(temp == "True"):
+			comm_shed = True
+		else:
+			comm_shed = False
+		#print(post_data)#
+		new_tool = Tool.create_new_tool(post_data["name"], 
+				request.session["user"]["id"], 
+				post_data["description"], 
+				post_data["tool_type"], 
+				comm_shed,
+				post_data["tool_pickup_arrangements"])
+		return_tool = tool_to_json(new_tool)
+		return HttpResponse(json.dumps(return_tool), content_type="application/json")
+
 	
 @csrf_exempt
-def getTool(request, tool_id):
-	tool_id = int(tool_id)
-	print(tool_id)
+def get_tool(request, tool_id):
 	if request.method == "GET":
+		tool_id = int(tool_id)
+		print(tool_id)
 		tool = Tool.get_tool(tool_id)
+		#tool = Tool.get_tool(request.session["user"]["id"])
 		return_tool = tool_to_json(tool)
 		return HttpResponse(json.dumps(return_tool), content_type="application/json")
 		
@@ -37,12 +71,32 @@ def getTool(request, tool_id):
 			returnmsg = { 'success': False }
 			 
 		return HttpResponse(json.dumps(returnmsg), content_type="application/json")
-
+"""
 @csrf_exempt
 def create(request):
-	if request.method == "GET":
-		new_tool = create_new_tool(tool.name, tool.owner, tool.description, tool.tool_type, tool.shed, tool.tool_pickup_arrangements)
+	if request.method == "POST":
+		post_data = json.loads(request.body.decode("utf-8"))
+		new_tool = Tool.create_new_tool(post_data.name, request.session["user"]["id"], 
+				post_data.description, post_data.tool_type, post_data.community_shed, 
+				post_data.tool_pickup_arrangements)
+		return_tool = tool_to_json(tool)
+		return HttpResponse(json.dumps(return_tool), content_type="application/json")
+"""
+"""		return_tool = { "id" : new_tool.id,
+				"name" : new_tool.name, 
+				"owner" : new_tool.owner.username,
+				"available_date" : dt_to_milliseconds(new_tool.available_date),
+				"description" : new_tool.description,
+				"tool_type" : new_tool.tool_type,
+				"community_shed" : new_tool.in_community_shed,
+				"tool_pickup_arrangements" : new_tool.tool_pickup_arrangements}
+"""		
+		#print(new_tool)
 		
+
+"""	if request.method == "GET":
+		new_tool = create_new_tool(tool.name, tool.owner, tool.description, tool.tool_type, tool.shed, tool.tool_pickup_arrangements)
+"""		
 
 @csrf_exempt
 def user_tools(request):
@@ -53,7 +107,7 @@ def user_tools(request):
 	"""
 	#get user_id from the request object
 	if request.method == "GET":
-		user_id = request.session['user']['id']
+		user_id = request.session["user"]["id"]
 		tool_list = Tool.get_tool_by_owner(user_id)
 		return_list = []
 		
@@ -71,7 +125,7 @@ def local_tools(request):
 	"""
 	#get area code from the request object
 	if request.method == "GET":
-		area_code = request.session['user']['area_code']
+		area_code = request.session["user"]["area_code"]
 		tool_list = Tool.get_tool_by_area_code(area_code)
 		return_list = []
 		
@@ -90,6 +144,6 @@ def tool_to_json(tool):
 			"available_date" : dt_to_milliseconds(tool.available_date),
 			"description" : tool.description,
 			"tool_type" : tool.tool_type,
-			"community_shed" : tool.in_community_shed,
+			"in_community_shed" : tool.in_community_shed,
 			"tool_pickup_arrangements": tool.tool_pickup_arrangements}
 	return return_tool
