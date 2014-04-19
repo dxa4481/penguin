@@ -1,6 +1,9 @@
 from mysite.apps.Users.models import User
 from mysite.apps.Browse.models import BorrowTransaction
 from mysite.apps.Tools.models import Tool
+import datetime
+from django.utils import timezone
+
 import os
 import subprocess
 
@@ -20,6 +23,8 @@ def pop_db():
 	b = User.get_user(2)
 	t = Tool.get_tool(1)
 	BorrowTransaction.create_new_borrow_transaction(b, t)
+	avail_date = timezone.now() + datetime.timedelta(days=20)
+	Tool.set_tool_unavailable(t.id, avail_date)
 	
 
 def dia():
