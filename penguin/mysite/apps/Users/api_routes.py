@@ -85,6 +85,17 @@ def user(request):
 		return HttpResponse(json.dumps(return_user), content_type="application/json")
 
 @csrf_exempt
+def userById(request, user_id):
+	if request.method == "DELETE":
+		try:
+			User.delete_user(user_id)
+			returnmsg = { 'success': True }
+		except:
+			returnmsg = { 'success': False }
+			 
+		return HttpResponse(json.dumps(returnmsg), content_type="application/json")
+
+@csrf_exempt
 def login(request):
 	"""
 		If username and password not in body
