@@ -6,8 +6,8 @@ admin.autodiscover()
 
 
 urlpatterns = patterns('',
-		url(r'^api/borrowTransaction/$', borrowTransaction),
-		url(r'^api/borrowTransaction/borrowing/(?P<user_id>\w{0,50})/$', getToolsBorrowing),
-		url(r'^api/borrowTransaction/borrowed/(?P<user_id>\w{0,50})/$', getToolsLending),
+		url(r'^api/borrowTransaction$', borrowTransaction),
+		url(r'^api/borrowTransaction/borrowing/(?P<user_id>\w{0,50})$', getToolsBorrowing),
+		url(r'^api/borrowTransaction/borrowed/(?P<user_id>\w{0,50})$', getToolsLending),
 
 )
