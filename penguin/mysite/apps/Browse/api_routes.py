@@ -29,14 +29,14 @@ def borrowTransaction(request):
 			return HttpResponse(json.dumps({"error":"Invalid tool"}), content_type="application/json", status=400)
 		
 		#check if tool is currently being borrowed
-		if (current_tool.available_date < timezone.now()):
+		if not Tool.is_tool_available(post_data['toolId']):
 			return HttpResponse(json.dumps({"error":"Tool being borrowed already"}), content_type="application/json", status=400)
 		
 		milliseconds = int(post_data['date'])
 		rent_date = milliseconds_to_dt(milliseconds)
 		
 		#verify date is allowed
-		if (rent_date < timezone.now()):
+		if (rent_date < datetime.datetime.now()):
 			return HttpResponse(json.dumps({"error":"Invalid date"}), content_type="application/json", status=400)
 			
 		
