@@ -26,5 +26,9 @@ toolShareApp.config(function($routeProvider){
 		.when('/newTool',{
 			templateUrl: '/static/pages/newTool.html',
 			controller: 'newToolController'
-		});
+		})
+		.when('/logout',{
+			templateUrl: '/static/pages/login.html',
+			controller: 'logoutController'
+		})
 });

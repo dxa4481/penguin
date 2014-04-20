@@ -8,7 +8,7 @@ from .models import BorrowTransaction
 from ..Tools.models import Tool
 from ..Users.models import User
 from ...json_datetime import dt_to_milliseconds, milliseconds_to_dt
-
+from ..Tools.api_routes import tool_to_json
 
 @csrf_exempt
 def borrowTransaction(request):
@@ -67,25 +67,19 @@ def borrowTransaction(request):
 def getToolsBorrowing(request, user_id):
 	if request.method == "GET":
 		transactions = BorrowTransaction.get_borrower_borrow_transactions(user_id)
-		return_transactions = []
+		return_tools = []
 		for transaction in transactions:
-			return_transactions.append({"id": transaction.id,
-				"toolID": transaction.tool.id,
-				"borrowerID": transaction.borrower.id,
-				"date": dt_to_milliseconds(transaction.tool.available_date)})
+			return_tools.append(tool_to_json(transaction.tool))
 				
-		return HttpResponse(json.dumps(return_transactions), content_type="application/json")
+		return HttpResponse(json.dumps(return_tools), content_type="application/json")
 		
 		
 @csrf_exempt
 def getToolsLending(request, user_id):
 	if request.method == "GET":
 		tools_lending = []
-		bt = BorrowTransaction.get_borrow_transaction_user_owns(user_id)
-		for transaction in bt:
-				tools_lending.append({"id": user_id,
-					"toolID": transaction.tool.id,
-					"borrowerID": transaction.borrower.id,
-					"date": dt_to_milliseconds(transaction.tool.available_date)})
+		transactions = BorrowTransaction.get_borrow_transaction_user_owns(user_id)
+		for transaction in transactions:
+				tools_lending.append(tool_to_json(transaction.tool))
 				
 		return HttpResponse(json.dumps(tools_lending), content_type="application/json")

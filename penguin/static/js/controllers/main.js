@@ -11,13 +11,16 @@ angular.module('toolShareControllers', [])
 			console.log(user)
 			User.login(user).
 				success(function(data){
-					if('error' in data){
-						$scope.errors = data;
-					}
+					$rootScope.user = data;
+					console.log(data)
+					$location.path('/home');
+				}).
+				error(function(data, status){
+					if(typeof data === "object"){
+                                                $scope.error = data;
+                                        }
 					else{
-						$rootScope.user = data;
-						console.log(data)
-						$location.path('/home');
+						$location.path('/');
 					}
 				});
 			
@@ -29,14 +32,18 @@ angular.module('toolShareControllers', [])
 		$scope.tryRegister = function(user){
 			User.create(user).
 				success(function(data){
-					if('error' in data){
-						$scope.errors = data;
-					}
-					else{
-						$rootScope.user = data;
-						$location.path('/home');
-					}
-				});
+					$rootScope.user = data;
+					$location.path('/home');
+				}).
+                                error(function(data, status){
+                                        if(typeof data === "object"){
+                                                $scope.error = data;
+                                        }
+                                        else{
+                                                $location.path('/');
+                                        }
+                                });
+
 			
 		}
 
@@ -45,27 +52,39 @@ angular.module('toolShareControllers', [])
 			$scope.zipCodePattern = zip_code_regex
 			$scope.phoneNumberPattern = phone_number_regex
 			$scope.register = true;
-			$scope.errors = undefined;
+			$scope.error = undefined;
 		};
 		
 	})
+	.controller('logoutController', function($location, User){
+		User.logout().
+                	success(function(data){
+                        	$location.path('/');
+                        }).
+                        error(function(data, status){
+                                $location.path('/');
+                        });
 
+
+	})
 	.controller('homepageController', function($scope, $rootScope, $modal, $location, User, Tool, BorrowTransaction){
 		$scope.active = "home"		
 		
-		if($rootScope.user == undefined){getUser($rootScope, User, function(){})};
+		if($rootScope.user == undefined){getUser($location, $rootScope, User, function(){})};
 		Tool.getInArea().
 			success(function(data){
-				if('error' in data){
-					$scope.errors = data;
-				}
-				else{
-					for(var i=0; i<data.length; i++){
-						data[i].is_available = new Date() > new Date(data[i].available_date);
-					}
-					$scope.tools = data;
-				}
-			});
+				var tools = set_tool_availability(data)
+				$scope.tools = tools;
+			}).
+                        error(function(data, status){
+                        	if(typeof data === "object"){
+                                        $scope.error = data;
+                                }
+                                else{
+                                        $location.path('/');
+                                }
+                        });
+
 		$scope.openModal = function(tool){
 			$scope.tool = tool
 			var modalInstance = $modal.open({
@@ -75,14 +94,18 @@ angular.module('toolShareControllers', [])
 			});
 			modalInstance.result.then(function(date){
 				BorrowTransaction.create({date:date.getTime(), toolId:tool.id}).
-					 success(function(data){
-						if("error" in data){
-							$scope.errors = data.error;
-						}else{
-							tool.is_available = false;
-						}
+					success(function(data){
+						tool.is_available = false;
+					}).
+	                                error(function(data, status){
+                                        	if(typeof data === "object"){
+                                                	$scope.error = data;
+                                        	}
+                                        	else{
+                                                	$location.path('/');
+                                        	}
+                                	});
 
-					 })
 			});
 
 		};
@@ -92,49 +115,60 @@ angular.module('toolShareControllers', [])
 		var cb = function(){
 			BorrowTransaction.getBorrowing($rootScope.user.id).
 				success(function(data){
-					if("error" in data){
-                                        	$scope.errors = data.error;
-                                	}else{
-						console.log(data)
-                                        	$scope.borrowingTools = data;
-                                	}
-                        })
+					var tools = set_tool_availability(data)
+                                        $scope.borrowingTools = tools;
+                        	}).
+                                error(function(data, status){
+                                        if(typeof data === "object"){
+                                                $scope.error = data;
+                                        }
+                                        else{
+                                                $location.path('/');
+                                        }
+                                });
+
 		};
 		$scope.newTool = function(){
 			$location.path('/newTool');
 		}
-		if($rootScope.user == undefined){getUser($rootScope, User, cb)};
+		if($rootScope.user == undefined){getUser($location, $rootScope, User, cb)}else{cb()};
 		$scope.active = "tools";
 		$scope.activeTools = 'myTools';
 		$scope.myToolsClass = 'active';
 		Tool.getByUser().
 			success(function(data){
-				if("error" in data){
-					$scope.errors = data.error;
-				}else{
-					$scope.myTools = data;
-				}
-			})
-		
-	
+				var tools = set_tool_availability(data);
+				$scope.myTools = tools;
+			}).
+                        error(function(data, status){
+                                if(typeof data === "object"){
+                                	$scope.error = data;
+                                }
+                                else{
+                                        $location.path('/');
+                                }
+                       });
 	})
 
 	.controller('profileController', function($scope, $rootScope, $location, User, Tool){
 		var cb = function(){$scope.user = $rootScope.user};
-		if($rootScope.user == undefined){getUser($rootScope, User, cb)};
+		if($rootScope.user == undefined){getUser($location, $rootScope, User, cb)};
 		$scope.user = $rootScope.user;
 		$scope.trySaving = function(user){
 			console.log(user)
 			User.update(user).
 				success(function(data){
-					if('error' in data){
-						$scope.errors = data;
-					}
-					else{
-						$rootScope.user = data;
-						$location.path('/home');
-					}
-				});
+					$rootScope.user = data;
+					$location.path('/home');
+				}).
+                                error(function(data, status){
+                                        if(typeof data === "object"){
+                                                $scope.error = data;
+                                        }
+                                        else{
+                                                $location.path('/');
+                                        }
+                                });
 		}
 
 		$scope.active = "profile";
@@ -145,37 +179,39 @@ angular.module('toolShareControllers', [])
 
 	})
 
-	.controller('newToolController', function($scope, $rootScope, $location, Tool){
-		if($rootScope.user == undefined){getUser($rootScope, User, function(){})}
+	.controller('newToolController', function($scope, $rootScope, $location, User, Tool){
+		cb = function(){$scope.tool = {}; $scope.tool.tool_pickup_arrangements = $rootScope.user.default_pickup_arrangements}
+		if($rootScope.user == undefined){getUser($location, $rootScope, User, cb)}else{cb()}
 		$scope.tryAddingTool = function(tool){
 			Tool.create(tool).
 				success(function(data){
-                                        if('error' in data){
-                                                $scope.errors = data;
+                                        $location.path('/tools');
+                                }).
+                                error(function(data, status){
+                                        if(typeof data === "object"){
+                                                $scope.error = data;
                                         }
                                         else{
-                                                $location.path('/tools');
+                                                $location.path('/');
                                         }
                                 });
+
 		}
 	})
 
         .controller('communityController', function($scope, $rootScope, $location, User, Tool, BorrowTransaction){
-		if($rootScope.user == undefined){getUser($rootScope, User, function(){})}
+		if($rootScope.user == undefined){getUser($location, $rootScope, User, function(){})}
 		$scope.active = "community";
 	})
-var getUser = function(rootScope, User, cb){
+var getUser = function($location, rootScope, User, cb){
 	User.get().
 		success(function(data){
-                	if('error' in data){
-                        	$scope.errors = data;
-                        }
-                        else{
-                        	rootScope.user = data;
-				cb();
-                        }
+                        rootScope.user = data;
+			cb();
+		}).
+                error(function(data, status){
+                	$location.path('/');
 		});
-
 
 }
 
@@ -210,4 +246,11 @@ var borrowModalController = function($scope, $modalInstance, tool){
 		$modalInstance.dismiss('cancel');
 	};
 
+}
+
+var set_tool_availability = function(tools){
+	for(var i=0; i<tools.length; i++){
+		tools[i].is_available = new Date() > new Date(tools[i].available_date);
+	}
+	return tools;
 }

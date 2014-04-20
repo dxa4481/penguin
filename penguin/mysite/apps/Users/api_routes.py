@@ -242,7 +242,7 @@ def changePassword(request):
 
 @csrf_exempt
 def logout(request):
-	if request.method == "DELETE":
+	if request.method == "POST":
 		request.session.flush()
 #		print(request.session["user"])
 		return_message = {"message": "Logout successful!"}

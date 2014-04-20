@@ -9,7 +9,10 @@ angular.module('toolShareServices', [])
                                 return $http.get('/api/user');
                         },
 			login: function(loginData){
-				return $http.post('/api/login', loginData)
+				return $http.post('/api/login', loginData);
+			},
+			logout: function(){
+				return $http.post('/api/logout');
 			},
                         create : function(userData) {
                                 return $http.post('/api/user', userData);

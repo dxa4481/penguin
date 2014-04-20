@@ -13,15 +13,13 @@
                         <td>{{tool.tool_type}}</td>
                         <td>{{tool.description}}</td>
                         <td>{{tool.tool_pickup_arrangements}}</td>
-                        <td ng-switch on=tool.community_shed>
+                        <td ng-switch on=tool.in_community_shed>
                                 <div ng-switch-when="true">Community shed</div>
                                 <div ng-switch-when="false">{{tool.owner}}'s shed</div>
                         </td>
                         <td ng-switch on=tool.is_available>
-                                <div ng-switch-when="true">
-                                        <button type="button" class="btn btn-primary" ng-click="openModal(tool)">Borrow!</button>
-                                </div>
-                                <div ng-switch-when="false">being borrowed</td>
+                                <div ng-switch-when="true">It's in the shed!</div>
+                                <div ng-switch-when="false">It's being borrowed</div>
                         </td>
                 </tr>
         </tbody>

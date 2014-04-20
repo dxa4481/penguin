@@ -15,7 +15,7 @@
                         <td>{{tool.description}}</td>
                         <td>{{tool.owner}}</td>
                         <td>{{tool.tool_pickup_arrangements}}</td>      
-                        <td ng-switch on=tool.community_shed>           
+                        <td ng-switch on=tool.in_community_shed>           
                                 <div ng-switch-when="true">Community shed</div>
                                 <div ng-switch-when="false">{{tool.owner}}'s shed</div>
                         </td>
