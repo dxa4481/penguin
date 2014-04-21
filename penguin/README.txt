@@ -55,14 +55,6 @@ Features not included in this release:
 	-edit a tool
 
 
-
-OLD
-Known bugs, issues:
-	- Email, phone number, and zip codes are not validated for correctness when creating or 
-		editing a user.
-	- No validation forcing fields to be filled in when creating or editing a tool/user.
-	- Model lookups cause crash if the user does not exist.
-	- To blacklist a tool you own, you must "borrow" it from yourself.
-	- An owner cannot confirm a tool to be borrowed.
+If you have any questions, contact our group leader Dan Inglin at dinglin22@live.com
 
 
