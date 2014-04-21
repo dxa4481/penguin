@@ -7,7 +7,7 @@ from .models import User
 from ...json_datetime import dt_to_milliseconds, milliseconds_to_dt
 from django.core.validators import validate_email, MaxLengthValidator, MinLengthValidator
 from django.core.exceptions import ValidationError
-
+import re
 
 @csrf_exempt
 def user(request):
@@ -54,17 +54,12 @@ def user(request):
 			return HttpResponse(json.dumps(error), content_type="application/json", status=400)
 
 		# if zipcode not a valid zipcode -- error 400
-		if( len(post_data["zip_code"]) != 5 ):
-			error = {"error": "You entered an invalid zip code!"}
-			return HttpResponse(json.dumps(error), content_type="application/json", status=400)
-		try:
-			is_int = int(post_data["zip_code"])
-		except ValueError:
+		if( not validate_zip_code(post_data["zip_code"])):
 			error = {"error": "You entered an invalid zip code!"}
 			return HttpResponse(json.dumps(error), content_type="application/json", status=400)
 
 		# if phone number not a valid phone number -- error 400
-		if( validate_phone_number( post_data["phone_number"] ) == False ):
+		if( not validate_phone_number( post_data["phone_number"] )):
 			error = {"error": "Invalid phone number, make sure phone number is in form of: 	XXX-XXX-XXXX"}
 			return HttpResponse(json.dumps(error), content_type="application/json", status=400)
 		
@@ -98,13 +93,8 @@ def user(request):
 		put_data = json.loads(request.body.decode("utf-8"))
 
 		# invalid zipcode -- error 400
-		if len(put_data["zip_code"]) != 5:
+		if (not validate_zip_code(put_data["zip_code"])):
 			error = {"error": "invalid zip code! (wrong len)"}
-			return HttpResponse(json.dumps(error), content_type="application/json", status=400)
-		try:
-			is_int = int(put_data["zip_code"])
-		except ValueError:
-			error = {"error": "invalid zip code! (not an int)"}
 			return HttpResponse(json.dumps(error), content_type="application/json", status=400)
 		
 		# invalid email -- error 400
@@ -195,18 +185,11 @@ def login(request):
 		return HttpResponse(json.dumps(return_user), content_type="application/json")
 
 def validate_phone_number( phone_number ):
-	if( len(phone_number) != 12 ):
-		return False
-	for i in range(12):
-		if i in [3, 7]:
-			if( phone_number[i] != '-' ):
-				return False
-		else:
-			try:
-				is_int = int(phone_number[i])
-			except ValueError:
-				return False
-	return True
+	regex_phone_number = re.compile("^[\s()+-]*([0-9][\s()+-]*){6,20}$")
+	return regex_phone_number.match(phone_number)
+def validate_zip_code(zip_code):
+	regex_zip_code = re.compile("(^\d{5}(-\d{4})?$)|(^[ABCEGHJKLMNPRSTVXY]{1}\d{1}[A-Z]{1} *\d{1}[A-Z]{1}\d{1}$)")
+	return regex_zip_code.match(zip_code)
 
 @csrf_exempt
 def changePassword(request):
