@@ -180,9 +180,14 @@ angular.module('toolShareControllers', [])
 	})
 
 	.controller('newToolController', function($scope, $rootScope, $location, User, Tool){
-		cb = function(){$scope.tool = {}; $scope.tool.tool_pickup_arrangements = $rootScope.user.default_pickup_arrangements}
+		cb = function(){
+			$scope.tool = {}; 
+			$scope.tool.tool_pickup_arrangements = $rootScope.user.default_pickup_arrangements
+			$scope.tool.in_community_shed = false
+		}
 		if($rootScope.user == undefined){getUser($location, $rootScope, User, cb)}else{cb()}
 		$scope.tryAddingTool = function(tool){
+			console.log(tool)
 			Tool.create(tool).
 				success(function(data){
                                         $location.path('/tools');
