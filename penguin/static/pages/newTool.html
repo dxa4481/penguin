@@ -15,7 +15,7 @@
             <input type="text" class="form-control" placeholder="tool_type" ng-model="tool.tool_type" name="tool_type" required/><br />
         </div>
 	<div class="form-group">
-            <input type="checkbox" checked=false ng-model="tool.in_community_shed" name="in_community_shed"/>&nbsp Will this tool be in the community shed?<br />
+            <input type="checkbox" ng-checked="tool.in_community_shed" ng-model="tool.in_community_shed" name="in_community_shed"/>&nbsp Will this tool be in the community shed?<br />
         </div>
 	<div class="form-group">
             <input type="text" class="form-control" placeholder="Tool Pickup Arrangements" ng-model="tool.tool_pickup_arrangements" name="too_pickup_arrangements" required/><br />
