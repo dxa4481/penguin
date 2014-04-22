@@ -1,24 +1,29 @@
 from django.db import models
+from hashlib import sha512
+import uuid
+from random import getrandbits
 
 """ User object
 """
 class User(models.Model):
 	id = models.AutoField(primary_key=True)
 	username = models.CharField(max_length=30)
-	password = models.CharField(max_length=30)
+	hashed_password = models.CharField(max_length=512)
 	zip_code = models.CharField(max_length=5)
 	email = models.CharField(max_length=30)
 	phone_number = models.CharField(max_length=10)
 	default_pickup_arrangements = models.CharField(max_length=50)
 	is_shed_coordinator = models.BooleanField(default=False)
 	is_admin = models.BooleanField(default=False)
-	is_community_shed = models.BooleanField(default=False)
-
+	salt = models.CharField(max_length=256)
 
 	
 	def __str__(self):
 		return (self.username)
 
+
+	def verify_password(self, password):
+		return(sha512(password.encode('utf-8') + self.salt.encode('utf-8')).hexdigest() == self.hashed_password)
 		
 	""" Constructor for a user entry
 	STATIC METHOD
@@ -31,22 +36,14 @@ class User(models.Model):
 	"""
 	@staticmethod
 	def create_new_user(u, p, zip_c, e, pn, pa):
-		new_user = User(username=u, password=p,
+		salt = uuid.uuid4().hex
+		hashed_pw = sha512(p.encode('utf-8') + salt.encode('utf-8')).hexdigest()
+		new_user = User(username=u, hashed_password=hashed_pw,
 		zip_code=zip_c, email=e, 
-		phone_number=pn, default_pickup_arrangements=pa)
+		phone_number=pn, default_pickup_arrangements=pa, salt=salt)
 		new_user.save()
 		return new_user
 		
-	""" Constructor for a community shed entry
-	STATIC METHOD
-	:param zip_c: zip code, used as username as well
-	"""
-	@staticmethod
-	def create_new_community_shed(zip_c):
-		cs = User(username=zip_c, password="", 
-		zip_code=zip_c, email="", phone_number="",
-		is_community_shed=True)
-		cs.save()
 		
 	""" Updates a user's phone number, zip code, and email 
 	based on their username
@@ -73,7 +70,8 @@ class User(models.Model):
 	@staticmethod
 	def update_password(userID, password):
 		u = User.get_user(userID)
-		u.password = password
+		u.salt = uuid.uuid4().hex
+		u.hashed_password = sha512(password.encode('utf-8') + u.salt.encode('utf-8')).hexdigest()
 		u.save()
 	
 	""" Returns a user based on user's ID
@@ -116,7 +114,7 @@ class User(models.Model):
 	@staticmethod
 	def demote_user_from_admin(userID):
 		u = User.get_user(userID)
-		u.is_admin = false;
+		u.is_admin = False;
 		u.save()
 	
 	""" Promotes user object to shed coordinator
@@ -139,31 +137,7 @@ class User(models.Model):
 		u.is_shed_coordinator = False;
 		u.save()
 		
-	""" Checks if a user is an admin
-	STATIC METHOD
-	:param userID: user's ID
-	"""
-	@staticmethod
-	def is_user_admin(userID):
-		u = User.get_user(userID)
-		return u.is_admin
 		
-	""" Checks if a user is a shed coordinator
-	STATIC METHOD
-	:param userID: user's ID
-	"""
-	@staticmethod
-	def is_user_shed_coordinator(userID):
-		u = User.get_user(userID)
-		return u.is_shed_coordinator
-	
-	""" Get a user ID
-	:return user's ID
-	"""
-	def get_user_id(self):
-		return self.id
-		
-
 	""" Deletes a user & all of their tools
 	:param userID: user's ID
 	"""

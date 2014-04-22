@@ -168,7 +168,7 @@ def login(request):
 		
 		# password is incorrect
 		user = User.get_user_by_username(post_data["username"])
-		if post_data["password"] != user.password:
+		if not user.verify_password(post_data["password"]):
 			error = {"error": "Invalid password"}
 			return HttpResponse(json.dumps(error), content_type="application/json", status=400)
 
@@ -203,7 +203,7 @@ def changePassword(request):
 		userID = request.session['user']['id']
 		user = User.get_user(userID)
 		return_message = {}
-		if (user.password==put_data['old_password']):
+		if (user.varify_password(put_data['old_password'])):
 			if (put_data['new_password'] == put_data['confirm_new_password']):
 				user.update_password(userID, put_data['new_password'])
 				return_message = {"id": user.id, 
