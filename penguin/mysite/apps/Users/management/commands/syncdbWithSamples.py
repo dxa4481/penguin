@@ -10,10 +10,10 @@ from django.core.management.base import BaseCommand, CommandError
 class Command(BaseCommand):
 	def handle(self, *args, **options):
 		try:
-                        call_command('flush', interactive=True)
-                except:
-                        print("Couldn't flush, tables probably weren't built, building now")
-                call_command('syncdb', interactive=True)
+			call_command('flush', interactive=True)
+		except:
+			print("Couldn't flush, tables probably weren't built, building now")
+		call_command('syncdb', interactive=True)
 		User.create_new_user('Dan', 'password', '03545', 'dan@dan.com', '1234567890', "email me!")
 		User.create_new_user('Andrew', 'password', '03545', 'andrew@andrew.com', '1234567890', "come to my house")
 		User.create_new_user('Schmitty', 'password', '03545', 'schmitty@schmitty.com', '1234567890', "come to my work")
