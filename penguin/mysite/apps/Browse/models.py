@@ -56,6 +56,7 @@ class BorrowTransaction(models.Model):
 		bt = BorrowTransaction.get_borrow_transaction(btID)
 		bt.owner_message = ownerMessage
 		bt.status = "rejected"
+		bt.is_current_bt=False
 		bt.save()
 		return bt
 		
@@ -144,7 +145,9 @@ class BorrowTransaction(models.Model):
 	@staticmethod
 	def get_borrow_transaction_user_owns(userID):
 		owner = User.get_user(userID)
-		return BorrowTransaction.objects.filter(tool__owner=owner, status="borrowing")
+		bt = BorrowTransaction.get_unresolved_borrow_transactions
+		return bt.objects.filter(tool__owner=owner)
+		#return BorrowTransaction.objects.filter(tool__owner=owner, status="borrowing")
 		
 	""" Gets all BT with a status of rejected
 	:param userID: Borrower's user ID
@@ -152,8 +155,8 @@ class BorrowTransaction(models.Model):
 	"""
 	@staticmethod
 	def get_rejected_borrow_transactions(userID):
-		borrower = User.get_user(userID)
-		return BorrowTransaction.objects.filter(tool__borrower=borrower, status="rejected")
+		borr = User.get_user(userID)
+		return BorrowTransaction.objects.filter(borrower=borr, status="rejected")
 	
 	""" Gets all BT with status 'borrow request pending', 'borrowing', or 'borrow return pending'
 	:param userID: Borrower's user ID
@@ -162,6 +165,5 @@ class BorrowTransaction(models.Model):
 	@staticmethod
 	def get_unresolved_borrow_transactions(userID):
 		borrower = User.get_user(userID)
-		return Q(BorrowTransaction__tool__borrower==borrower & (BorrowTransaction__status=="borrow request pending" | BorrowTransaction__status=="borrowing" | BorrowTransaction__status=="borrow return pending"))
-		#BorrowTransaction.objects.filter(tool__borrower=borrower, status="rejected")
-	
+		return BorrowTransaction.objects.filter(Q(borrower=User.get_user(userID)) & Q(status="borrow request pending") | Q(status="borrowing") | Q(status="borrow return pending"))
+		
