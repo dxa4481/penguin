@@ -1,44 +1,54 @@
 from django.test import TestCase
+
+# For testing the Tool API Routes
+from .api_routes import *
+from django.test.client import RequestFactory
+
+# For testing the Tool model
+from .models import Tool
+from ..Users.models import User		# Linked in database
 import datetime
 from django.utils import timezone
 
-from .models import Tool
-from ..Users.models import User		# Linked in database
 
-""" Test the creation and usage of tools. """                
+
+""" 
+Test the creation and usage of tools. 
+
+UPDATE: no longer need to set pk's manually, apparently you *can* store
+objects for later use. I shouldn't be relying on constant pk's anyway.
+"""                
 class ToolTestCase(TestCase):
 
 	def setUp(self):
-		# Tools require an Owner, so let's add a user:
-		john = User(pk=42, 
-					username='John', 
-					password = 'password', 
-					area_code = '00413', 
-					email = 'ectoBiologist@skaia.net', 
-					phone_number = '1234567890', 
-					default_pickup_arrangements = 
-						'Drop in nearest pipe.',
-					)
-		john.save()
+		# Set up sample User
+		self.john = User(
+			username = 'John', 
+			hashed_password = 'password',	#not actually hashed
+			salt = 'NaCl',
+			zip_code = '00413', 
+			email = 'ectoBiologist@skaia.net', 
+			phone_number = '1234567890', 
+			default_pickup_arrangements = 'Drop in nearest mailbox.',
+			)
+		self.john.save()
 		
-		# Remember you can always identify a tool by its private key,
-		# though.
+		# Set up sample Tool
 		today = timezone.now()
-		sledge = Tool(	
-			pk = 23, 
+		self.sledge = Tool(
 			name = "sledgehammer", 
-			owner = john, 
+			owner = self.john, 
 			description = "A sturdy sledgehammer.", 
 			tool_type = "hammer",
 			tool_pickup_arrangements =
 				"If you can lift it, you can have it.",
 			available_date = today,
 			)
-		sledge.save()
+		self.sledge.save()
 
 
 	def test_create_new_tool(self):
-		john = User.objects.get(pk=42)
+		john = self.john
 		zillyhoo0 = Tool.create_new_tool(
 			toolname = "Warhammer of Zillyhoo",
 			toolownerID = john.id,
@@ -65,8 +75,8 @@ class ToolTestCase(TestCase):
 
 	def test_update_tool(self):
 		#update the tool
-		john = User.objects.get(pk=42)
-		sledge = Tool.objects.get(name = "sledgehammer")
+		john = self.john
+		sledge = self.sledge
 		Tool.update_tool(
 			toolID = sledge.id, 
 			toolname = "broken sledgehammer", 
@@ -91,24 +101,24 @@ class ToolTestCase(TestCase):
 			"Take it off my lawn.")
 		
 	def test_delete_tool(self):
-		sledge = Tool.objects.get(pk=23)
+		sledge = self.sledge
 		self.assertIn(sledge, Tool.objects.all())
 		Tool.delete_tool(sledge.id)
 		self.assertNotIn(sledge, Tool.objects.all())
 		
 	def test_get_tool(self):
-		sledge = Tool.get_tool(23)
-		sledge2 = Tool.objects.get(pk=23)
+		sledge = self.sledge
+		sledge2 = Tool.objects.get(sledge.id)
 		self.assertEqual(sledge, sledge2)
 		
 	def test_get_tool_id(self):
-		sledge = Tool.get_tool(23)
+		sledge = self.sledge
 		num = Tool.get_tool_id(sledge)
-		self.assertEqual(num, 23) 		#should never fail
+		self.assertEqual(num, sledge.id) 	#should never fail
 		
 	def test_set_tool_unavailable(self):
 		#in our test database, it should be available initially...
-		sledge = Tool.objects.get(pk=23)
+		sledge = self.sledge
 		self.assertTrue(sledge.available_date < timezone.now())
 		
 		#but then let's mark it as away for a week.
@@ -140,3 +150,58 @@ class ToolTestCase(TestCase):
 		#the Sledgehammer (pk = 23) should exist in this area code.
 		self.assertTrue(localTools.filter(pk=23).exists())
 """
+
+""" Test the API Routes in this section """
+class ToolApiTestCase(TestCase):
+	
+	def setUp(self):
+		# Set up a Request Factory
+		self.factory = RequestFactory()
+		
+		# Set up a User
+		self.john = User(pk=42, 
+					username='John', 
+					hashed_password = 'password', 
+					salt = 'NaCl',
+					zip_code = '00413', 
+					email = 'ectoBiologist@skaia.net', 
+					phone_number = '1234567890', 
+					default_pickup_arrangements = 
+						'Drop in nearest pipe.',
+					)
+		self.john.save()
+		
+		# Set up a Tool
+		today = timezone.now()
+		self.sledge = Tool(	
+			pk = 23, 
+			name = "sledgehammer", 
+			owner = self.john, 
+			description = "A sturdy sledgehammer.", 
+			tool_type = "hammer",
+			tool_pickup_arrangements =
+				"If you can lift it, you can have it.",
+			available_date = today,
+			)
+		self.sledge.save()
+		
+	def test_get_by_id(self):
+		request = self.factory.get('/api/tool/')
+		response = get_tool(request, 23)
+		
+		# Did we get a clean response?
+		self.assertEqual(response.status_code, 200)
+		
+		# Did we get the right data?
+		response_data = json.loads(response.content.decode("utf-8"))
+		self.assertEqual(response_data["name"], self.sledge.name)
+		self.assertEqual(response_data["owner"], self.sledge.owner)
+		self.assertEqual(response_data["description"], 
+						self.sledge.description)
+		self.assertEqual(response_data["tool_type"], 
+						self.sledge.tool_type)
+		self.assertEqual(response_data["tool_pickup_arrangements"], 
+						self.sledge.tool_pickup_arrangements)
+		self.assertEqual(response_data["available_date"], 
+						self.sledge.available_date)
+		
