@@ -167,3 +167,11 @@ class BorrowTransaction(models.Model):
 		borrower = User.get_user(userID)
 		return BorrowTransaction.objects.filter(Q(borrower=User.get_user(userID)) & Q(status="borrow request pending") | Q(status="borrowing") | Q(status="borrow return pending"))
 		
+	""" Gets all BT with a status of "borrow return pending"
+	:param userID: Borrower's user ID
+	:return list of borrow transactions
+	"""
+	@staticmethod
+	def get_return_pending_borrow_transactions(userID):
+		borr = User.get_user(userID)
+		return BorrowTransaction.objects.filter(borrower=borr, status="borrow return pending")
