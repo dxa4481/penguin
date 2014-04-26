@@ -27,7 +27,7 @@ class Command(BaseCommand):
 		Tool.create_new_tool('Drill 3', '2', 'A purple drill', 'drill', True, "find me at work")
 		b = User.get_user(2)
 		t = Tool.get_tool(1)
-		BorrowTransaction.create_new_borrow_transaction(b, t)
+		BorrowTransaction.create_new_borrow_transaction(b, t, "Can I haz this tool?")
 		avail_date = timezone.now() + datetime.timedelta(days=20)
 		Tool.set_tool_unavailable(t.id, avail_date)
 		print("Added samples successfully!")	
