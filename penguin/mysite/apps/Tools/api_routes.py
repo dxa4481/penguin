@@ -17,7 +17,8 @@ def update(request):
 				put_data["description"],
 				put_data["tool_type"],
 				put_data["in_community_shed"],
-				put_data["tool_pickup_arrangements"])
+				put_data["tool_pickup_arrangements"], 
+				put_data["tool_available"])
 		tool = Tool.get_tool(tool_id)
 		return_tool = tool_to_json(tool)
 		return HttpResponse(json.dumps(return_tool), content_type="application/json")
@@ -130,5 +131,6 @@ def tool_to_json(tool):
 			"description" : tool.description,
 			"tool_type" : tool.tool_type,
 			"in_community_shed" : tool.in_community_shed,
-			"tool_pickup_arrangements": tool.tool_pickup_arrangements}
+			"tool_pickup_arrangements": tool.tool_pickup_arrangements,
+			"tool_available": tool.is_available}
 	return return_tool
