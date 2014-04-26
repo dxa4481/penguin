@@ -154,3 +154,10 @@ class User(models.Model):
 	@staticmethod
 	def get_user_by_zip_code(zip_c):
 		return User.objects.filter(zip_code=zip_c)
+		
+	""" Gets all admins for the system
+	return list of all admin users
+	"""
+	@staticmethod
+	def get_all_admins():
+		return User.objects.filter(is_admin=True)

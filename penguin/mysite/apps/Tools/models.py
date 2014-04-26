@@ -9,7 +9,7 @@ class Tool(models.Model):
 	name = models.CharField(max_length=30)
 	owner = models.ForeignKey(User)
 	available_date = models.DateTimeField()
-	#is_available = models.BooleanField(default=True)
+	is_available = models.BooleanField(default=True)
 	description = models.CharField(max_length=250)
 	tool_type = models.CharField(max_length=30)
 	in_community_shed = models.BooleanField(default=False)
@@ -47,13 +47,14 @@ class Tool(models.Model):
 	:param pickup_info: the tool's pickup arrangements
 	"""
 	@staticmethod
-	def update_tool(toolID, toolname, tooldescription, tooltype, shed, pickup_info):
+	def update_tool(toolID, toolname, tooldescription, tooltype, shed, pickup_info, tool_available):
 		t = Tool.get_tool(toolID)
 		t.name = toolname
 		t.description = tooldescription
 		t.tool_type = tooltype
 		t.in_community_shed = shed
 		t.tool_pickup_arrangements = pickup_info
+		t.is_available = tool_available
 		t.save()
 	
 	""" Deletes the given tool
@@ -88,6 +89,7 @@ class Tool(models.Model):
 	def set_tool_unavailable(toolID, end_date):
 		t = Tool.get_tool(toolID)
 		t.available_date = end_date
+		t.is_available = False
 		t.save()
 
 	
@@ -99,6 +101,7 @@ class Tool(models.Model):
 	def set_tool_available(toolID):
 		t = Tool.get_tool(toolID)
 		t.available_date = timezone.now() - datetime.timedelta(seconds=1)
+		t.is_available = True
 		t.save()
 	
 	""" Checks if a tool is available now
@@ -109,10 +112,7 @@ class Tool(models.Model):
 	@staticmethod
 	def is_tool_available(toolID):
 		t = Tool.get_tool(toolID)
-		if (t.available_date < timezone.now()):
-			return True
-		else:
-			return False
+		return t.is_available
 
 
 	""" Get tool's owner's id
