@@ -131,7 +131,7 @@ class BorrowTransaction(models.Model):
 	"""
 	@staticmethod
 	def is_current(transaction):
-		if (transaction.status = "borrowing") or (transaction.status = "borrow request pending") or (transaction.status = "borrow return pending"):
+		if (transaction.status == "borrowing") or (transaction.status == "borrow request pending") or (transaction.status == "borrow return pending"):
 			return True
 		else:
 			return False
@@ -151,7 +151,7 @@ class BorrowTransaction(models.Model):
 	:return list of borrow transactions
 	"""
 	@staticmethod
-	def get_rejected_borrow_transactions:
+	def get_rejected_borrow_transactions(userID):
 		borrower = User.get_user(userID)
 		return BorrowTransaction.objects.filter(tool__borrower=borrower, status="rejected")
 	
@@ -160,8 +160,8 @@ class BorrowTransaction(models.Model):
 	:return list of borrow transactions
 	"""
 	@staticmethod
-	def get_unresolved_borrow_transactions:
+	def get_unresolved_borrow_transactions(userID):
 		borrower = User.get_user(userID)
-		return Q(BorrowTransaction__tool__borrower=borrower & (status="borrow request pending" | status="borrowing" | status="borrow return pending"))
+		return Q(BorrowTransaction__tool__borrower==borrower & (BorrowTransaction__status=="borrow request pending" | BorrowTransaction__status=="borrowing" | BorrowTransaction__status=="borrow return pending"))
 		#BorrowTransaction.objects.filter(tool__borrower=borrower, status="rejected")
 	
