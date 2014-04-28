@@ -51,9 +51,20 @@ def user(request):
 		if( User.get_user_by_username(post_data["username"]) != False ):
 			error = { "error": "Username already exists" }
 			return HttpResponse(json.dumps(error), content_type ="application/json", status=409)
+
+		# Leave username field blank -- error 400
+		if not post_data["username"]:
+			error = {"error": "username field left blank.  Please provide a username."}
+			return HttpResponse(json.dumps(error), content_type="application/json", status=400)
+
 		# if password doesn't match confirm password -- error 400
 		if( post_data["password"] != post_data["confirm_password"] ):
 			error = {"error": "passwords do not match!"}
+			return HttpResponse(json.dumps(error), content_type="application/json", status=400)
+
+		# Leave password field blank -- error 400
+		if not post_data["password"]:
+			error = {"error": "password field left blank.  Please provide a password."}
 			return HttpResponse(json.dumps(error), content_type="application/json", status=400)
 
 		# if email not a valid email address -- error 400
@@ -133,6 +144,11 @@ def user(request):
 			if BorrowTransaction.get_borrower_borrow_transactions(current_user.id):
 				error = {"error": "You are currently borrowing tools, you may not change your zip code.  Please contact an admin."}
 				return HttpResponse(json.dumps(error), content_type="application/json", status=403)
+
+		# default pickup arrangements field left blank -- error 400
+		if not put_data["default_pickup_arrangements"]:
+			error ={"error": "pickup arrangements field was left blank.  Please specify your pickup arrangements"}
+			return HttpResponse(json.dumps(error), content_type="application/json", status=400)
 
 		update_user = User.update_user( request.session['user']['username'],
 						put_data['phone_number'],
