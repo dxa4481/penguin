@@ -5,6 +5,15 @@ import json
 import datetime
 from .models import Tool
 from ...json_datetime import dt_to_milliseconds, milliseconds_to_dt
+from ..Users.models import User
+
+def validate_fields(fields):
+	for key in fields:
+		if key == "tool_pickup_arrangements":
+			pass
+		elif not fields[key]:
+			return False
+	return True
 
 
 @csrf_exempt
@@ -12,25 +21,72 @@ def update(request):
 	if request.method == "PUT":
 		put_data = json.loads(request.body.decode("utf-8"))
 		tool_id = int(put_data["id"])
+
+		if not validate_fields(put_data):
+			error = {"error": "One or more fields were left blank, make sure all fields are filled in before submitting."}
+			return HttpResponse(json.dumps(error), content_type="application/json", status=400)
+
+		# pickup arrangements field left blank -- revert to user's default pickup arrangements
+		current_user = User.get_user_by_username(request.session['user']['username'])
+		pickup_arrangement = current_user.default_pickup_arrangements
+		if put_data["tool_pickup_arrangements"]:
+			pickup_arrangement = put_data["tool_pickup_arrangements"]
+
+		# convert str representing bool to actual bool
+		community_shed = False
+		if put_data["in_community_shed"] == "True":
+			community_shed = True
+
+		# convert str representing bool to actual bool
+		tool_available = True
+		if put_data["tool_available"] == "False":
+			tool_available = False
+
 		Tool.update_tool(tool_id,
 				put_data["name"],
 				put_data["description"],
 				put_data["tool_type"],
-				put_data["in_community_shed"],
-				put_data["tool_pickup_arrangements"], 
-				put_data["tool_available"])
+				community_shed,
+				pickup_arrangement, 
+				tool_available)
 		tool = Tool.get_tool(tool_id)
 		return_tool = tool_to_json(tool)
 		return HttpResponse(json.dumps(return_tool), content_type="application/json")
 
 	if request.method == "POST":
 		post_data = json.loads(request.body.decode("utf-8"))
+		
+		shed = False
+		if post_data["in_community_shed"] == "True":
+			shed = True
+		
+		# tool name field left empty -- error 400
+		if not post_data["name"]:
+			error = {"error": "Tool name field left empty.  Please enter a tool name; this field cannot be left empty"}
+			return HttpResponse(json.dumps(error), content_type="application/json", status=400)
+
+		# tool description left empty -- error 400
+		if not post_data["description"]:
+			error = {"error": "Tool Description field left empty.  Please enter the tool's description; this field cannot be left empty"}
+			return HttpResponse(json.dumps(error), content_type="application/json", status=400)
+
+		# tool type field left empty -- error 400
+		if not post_data["tool_type"]:
+			error = {"error": "Tool Type field left empty.  Please enter the tool's type;  this field cannot be left empty."}
+			return HttpResponse(json.dumps(error), content_type="application/json", status=400)
+
+		# tool pickup arrangements left empty -- use user's default pickup arrangements
+		current_user = User.get_user_by_username(request.session["user"]["username"])
+		pickup_arrangements = current_user.default_pickup_arrangements
+		if post_data["tool_pickup_arrangements"]:
+			pickup_arrangements = post_data["tool_pickup_arrangements"]
+
 		new_tool = Tool.create_new_tool(post_data["name"], 
 				request.session["user"]["id"], 
 				post_data["description"], 
 				post_data["tool_type"], 
-				post_data["in_community_shed"],
-				post_data["tool_pickup_arrangements"])
+				shed,
+				pickup_arrangements)
 		return_tool = tool_to_json(new_tool)
 		return HttpResponse(json.dumps(return_tool), content_type="application/json")
 
@@ -57,32 +113,6 @@ def get_tool(request, tool_id):
 			returnmsg = { 'success': False }
 			 
 		return HttpResponse(json.dumps(returnmsg), content_type="application/json")
-"""
-@csrf_exempt
-def create(request):
-	if request.method == "POST":
-		post_data = json.loads(request.body.decode("utf-8"))
-		new_tool = Tool.create_new_tool(post_data.name, request.session["user"]["id"], 
-				post_data.description, post_data.tool_type, post_data.community_shed, 
-				post_data.tool_pickup_arrangements)
-		return_tool = tool_to_json(tool)
-		return HttpResponse(json.dumps(return_tool), content_type="application/json")
-"""
-"""		return_tool = { "id" : new_tool.id,
-				"name" : new_tool.name, 
-				"owner" : new_tool.owner.username,
-				"available_date" : dt_to_milliseconds(new_tool.available_date),
-				"description" : new_tool.description,
-				"tool_type" : new_tool.tool_type,
-				"community_shed" : new_tool.in_community_shed,
-				"tool_pickup_arrangements" : new_tool.tool_pickup_arrangements}
-"""		
-		#print(new_tool)
-		
-
-"""	if request.method == "GET":
-		new_tool = create_new_tool(tool.name, tool.owner, tool.description, tool.tool_type, tool.shed, tool.tool_pickup_arrangements)
-"""		
 
 @csrf_exempt
 def user_tools(request):
