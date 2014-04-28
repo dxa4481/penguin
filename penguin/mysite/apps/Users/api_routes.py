@@ -8,6 +8,23 @@ from ...json_datetime import dt_to_milliseconds, milliseconds_to_dt
 from django.core.validators import validate_email, MaxLengthValidator, MinLengthValidator
 from django.core.exceptions import ValidationError
 import re
+from ..Browse.models import BorrowTransaction
+
+"""
+Takes a user object and converts it into json
+@param user  User object
+@return  json dictionary
+"""
+def user_to_json(user):
+	return_user = { "id": user.id,
+			"username": user.username,
+			"zip_code": user.zip_code,
+			"email": user.email,
+			"phone_number": user.phone_number,
+			"default_pickup_arrangements": user.default_pickup_arrangements,
+			"is_shed_coordinator": user.is_shed_coordinator,
+			"is_admin": user.is_admin }
+	return return_user
 
 @csrf_exempt
 def user(request):
@@ -17,14 +34,7 @@ def user(request):
 	if request.method == 'GET':
 		u_id = request.session['user']['id']
 		user = User.get_user(u_id)
-		return_user = { "id": user.id,
-				"username": user.username,
-				"zip_code": user.zip_code,
-				"email": user.email,
-				"phone_number": user.phone_number,
-				"default_pickup_arrangements": user.default_pickup_arrangements,
-				"is_shed_coordinator": user.is_shed_coordinator,
-				"is_admin": user.is_admin }
+		return_user = user_to_json(user)
 		return HttpResponse(json.dumps(return_user), content_type="application/json")
 	"""
 		username already exists
@@ -63,6 +73,11 @@ def user(request):
 			error = {"error": "Invalid phone number, make sure phone number is in form of: 	XXX-XXX-XXXX"}
 			return HttpResponse(json.dumps(error), content_type="application/json", status=400)
 		
+		# no input given for pick-up arrangements -- error 400
+		if not post_data["default_pickup_arrangements"]:
+			error ={"error": "must specify your default pickup arrangements, cannot leave blank"}
+			return HttpResponse(json.dumps(error), content_type="application/json", status=400)
+		
 		# else successfull
 		new_user = User.create_new_user(post_data["username"],
 						post_data["password"],
@@ -70,14 +85,7 @@ def user(request):
 						post_data["email"],
 						post_data["phone_number"],
 						post_data["default_pickup_arrangements"])
-		return_user = { "id": new_user.id,
-				"username": new_user.username,
-				"zip_code": new_user.zip_code,
-				"email": new_user.email,
-				"phone_number": new_user.phone_number,
-				"default_pickup_arrangements": new_user.default_pickup_arrangements,
-				"is_shed_coordinator": new_user.is_shed_coordinator,
-				"is_admin": new_user.is_admin }
+		return_user = user_to_json(new_user)
 		request.session['user'] = return_user
 		return HttpResponse(json.dumps(return_user), content_type="application/json")
 	"""
@@ -94,7 +102,7 @@ def user(request):
 
 		# invalid zipcode -- error 400
 		if (not validate_zip_code(put_data["zip_code"])):
-			error = {"error": "invalid zip code! (wrong len)"}
+			error = {"error": "invalid zip code!"}
 			return HttpResponse(json.dumps(error), content_type="application/json", status=400)
 		
 		# invalid email -- error 400
@@ -105,32 +113,33 @@ def user(request):
 			return HttpResponse(json.dumps(error), content_type="application/json", status=400)
 
 		# invalid phone number -- error 400
-		if validate_phone_number(put_data["phone_number"]) == False:
-			error = {"error": "invalid phone number, make sure phone number is in form of: XXX-XXX-XXXX!"}
+		if not validate_phone_number(put_data["phone_number"]):
+			error = {"error": "You entered an invalid phone number!"}
 			return HttpResponse(json.dumps(error), content_type="application/json", status=400)
 
+		if request.session['user']['zip_code'] != put_data['zip_code']:
 		# user is shed coordinator, can't change zip -- error 403
-		if request.session['user']['is_shed_coordinator']:
-			error = {"error": "You are currently shed coordinator, you may not change your zip code.  Please contact admin."}
-			return HttpResponse(json.dumps(error), content_type="application/json", status=403)
+			if request.session["user"]["is_shed_coordinator"]:
+				error = {"error": "You are currently shed coordinator, you may not change your zip code.  Please contact an admin."}
+				return HttpResponse(json.dumps(error), content_type="application/json", status=403)
 
 		# user has tools being borrowed, can't change zip -- error 403
+			current_user = User.get_user_by_username(request.session['user']["username"])
+			if BorrowTransaction.get_borrow_transaction_user_owns(current_user.id):
+				error = {"error": "Some of your tools are currently being borrowed, you may not change your zip code.  Please contact an admin."}
+				return HttpResponse(json.dumps(error), content_type="application/json", status=403)
 
 		# user is borrowing tools, can't change zip -- error 403
+			if BorrowTransaction.get_borrower_borrow_transactions(current_user.id):
+				error = {"error": "You are currently borrowing tools, you may not change your zip code.  Please contact an admin."}
+				return HttpResponse(json.dumps(error), content_type="application/json", status=403)
 
 		update_user = User.update_user( request.session['user']['username'],
 						put_data['phone_number'],
 						put_data['zip_code'],
 						put_data['email'],
 						put_data['default_pickup_arrangements'])
-		return_user = {	"id": update_user.id,
-				"username": update_user.username,
-				"zip_code": update_user.zip_code,
-				"email": update_user.email,
-				"phone_number": update_user.phone_number,
-				"default_pickup_arrangements": update_user.default_pickup_arrangements,
-				"is_shed_coordinator": update_user.is_shed_coordinator,
-				"is_admin": update_user.is_admin} 
+		return_user = user_to_json(update_user)
 		request.session["user"] = return_user
 		return HttpResponse(json.dumps(return_user), content_type="application/json")
 
@@ -173,14 +182,7 @@ def login(request):
 			return HttpResponse(json.dumps(error), content_type="application/json", status=400)
 
 		user = User.get_user_by_username(post_data['username'])
-		return_user = {"id": user.id, 
-				"username" : user.username, 
-				"zip_code": user.zip_code, 
-				"email": user.email, 
-				"phone_number": user.phone_number, 
-				"default_pickup_arrangements": user.default_pickup_arrangements, 
-				"is_shed_coordinator": user.is_shed_coordinator, 
-				"is_admin":user.is_admin}
+		return_user = user_to_json(user)
 		request.session['user'] = return_user
 		return HttpResponse(json.dumps(return_user), content_type="application/json")
 
@@ -203,30 +205,32 @@ def changePassword(request):
 		userID = request.session['user']['id']
 		user = User.get_user(userID)
 		return_message = {}
-		if (user.varify_password(put_data['old_password'])):
+		if (user.verify_password(put_data['old_password'])):
 			if (put_data['new_password'] == put_data['confirm_new_password']):
 				user.update_password(userID, put_data['new_password'])
-				return_message = {"id": user.id, 
-						"username" : user.username, 
-						"zip_code": user.zip_code, 
-						"email": user.email, 
-						"phone_number": user.phone_number, 
-						"default_pickup_arrangements": user.default_pickup_arrangements, 
-						"is_shed_coordinator": user.is_shed_coordinator, 
-						"is_admin":user.is_admin}
+				return_message = user_to_json(user)
 						
 			else:
 				return_message = {"error":"mismatch passwords"}
-				#return_message = ERROR
+				return HttpResponse(json.dumps(return_message), content_type="application/json", status=400)
 		else:
 			return_message = {"error":"incorrect old password"}
-			#return_message = ERROR
+			return HttpResponse(json.dumps(return_message), content_type="application/json", status=400)
 		return HttpResponse(json.dumps(return_message), content_type="application/json")
 
 @csrf_exempt
 def logout(request):
 	if request.method == "POST":
 		request.session.flush()
-#		print(request.session["user"])
 		return_message = {"message": "Logout successful!"}
 		return HttpResponse(json.dumps(return_message), content_type="application/json")
+
+@csrf_exempt
+def get_admins(request):
+	if request.method == "GET":
+		admins = User.get_all_admins()
+		return_list = []
+		for admin in admins:
+			return_list.append(user_to_json(admin))
+		return HttpResponse(json.dumps(return_list), content_type="application/json")
+	
