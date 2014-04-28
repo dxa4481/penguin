@@ -145,8 +145,8 @@ class BorrowTransaction(models.Model):
 	@staticmethod
 	def get_borrow_transaction_user_owns(userID):
 		owner = User.get_user(userID)
-		bt = BorrowTransaction.get_unresolved_borrow_transactions
-		return bt.objects.filter(tool__owner=owner)
+		bt = BorrowTransaction.get_unresolved_borrow_transactions(userID)
+		return BorrowTransaction.objects.filter(tool__owner=owner)
 		#return BorrowTransaction.objects.filter(tool__owner=owner, status="borrowing")
 		
 	""" Gets all BT with a status of rejected
