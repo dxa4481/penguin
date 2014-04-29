@@ -175,3 +175,21 @@ class BorrowTransaction(models.Model):
 	def get_return_pending_borrow_transactions(userID):
 		borr = User.get_user(userID)
 		return BorrowTransaction.objects.filter(borrower=borr, status="borrow return pending")
+		
+	""" Gets a request pending borrow transaction for a tool
+	:param toolID: The tool ID pertaining to the borrow transaction
+	:returns borrow transaction ID
+	"""
+	@staticmethod
+	def get_request_pending_borrow_transaction_by_tool(toolID):
+		t = Tool.get_tool(toolID)
+		return BorrowTransaction.objects.get(tool=t, status="borrow request pending")
+	
+	""" Gets an unresolved borrow transaction for a tool
+	:param toolID: The tool ID pertaining to the borrow transaction
+	:returns borrow transaction ID
+	"""
+	@staticmethod
+	def get_unresolved_borrow_transaction_by_tool(toolID):
+		t = Tool.get_tool(toolID)
+		return BorrowTransaction.objects.get(Q(tool=t) & Q(status="borrow request pending") | Q(status="borrowing") | Q(status="borrow return pending"))
