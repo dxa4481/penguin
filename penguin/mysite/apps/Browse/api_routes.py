@@ -59,7 +59,7 @@ def borrowTransaction(request):
 			return HttpResponse(json.dumps({"error":"Invalid date"}), content_type="application/json", status=400)
 			
 		
-		Tool.set_tool_unavailable(current_tool.id, rent_date)
+		current_tool = Tool.set_tool_unavailable(current_tool.id, rent_date)
 		user = User.get_user(request.session['user']['id'])
 		borrow_transaction = BorrowTransaction.create_new_borrow_transaction(user, current_tool, post_data["borrower_message"])
 		return_bt = bt_to_json(borrow_transaction)
@@ -89,10 +89,29 @@ def borrowTransaction(request):
 	"""
 	PUT
 	api_route -> request to end borrow transaction
+
+	possible errors:
+	tool id not an int
+	tool does not exist
+	transaction does not exist
 	"""
 	if request.method == "PUT":
 		put_data = json.loads(request.body.decode("utf-8"))
-		bt = BorrowTransaction.get_current_borrow_transaction_by_tool(put_data["toolId"])
+
+		# tool does not exist -- status 400
+		try:
+			current_tool = Tool.get_tool(put_data["toolId"])
+		except:
+			error = {"error": "tool does not exist"}
+			return HttpResponse(json.dumps(error), content_type="application/json", status=400)
+
+		# transaction does not exist -- status 400
+		try:
+			bt = BorrowTransaction.get_current_borrow_transaction_by_tool(put_data["toolId"])
+		except:
+			error = {"error": "Transaction does not exist"}
+			return HttpResponse(json.dumps(error), content_type="application/json", status=400)
+
 		transaction = BorrowTransaction.request_end_borrow_transaction(bt.id)
 		return_bt = bt_to_json(transaction)
 		return HttpResponse(json.dumps(return_bt), content_type="application/json")
@@ -118,23 +137,74 @@ def getToolsLending(request, user_id):
 				
 		return HttpResponse(json.dumps(tools_lending), content_type="application/json")
 
+"""
+POST
+url -> /api/borrowTransaction/resolve
+
+possible errors:
+tool does not exist
+transaction does not exist
+tool already approved
+resolution not True or False
+owner doesn't give message if rejects request
+"""
 @csrf_exempt
 def resolve_borrow_request(request):
 	if request.method == "POST":
 		post_data = json.loads(request.body.decode("utf-8"))
-		if post_data["resolution"] == "True":
-			bt = BorrowTransaction.get_request_pending_borrow_transaction_by_tool(post_data["toolId"])
+		
+		# tool does not exist -- status 400
+		try:
+			current_tool = Tool.get_tool(post_data["toolId"])
+		except:
+			error = {"error": "tool does not exist"}
+			return HttpResponse(json.dumps(error), content_type="application/json", status=400)
+
+		# transaction does not exist -- status 400
+		try:
+			bt = BorrowTransaction.get_request_pending_borrow_transaction_by_tool(current_tool.id)
+		except:
+			error = {"error": "transaction does not exist or has already been approved"}
+			return HttpResponse(json.dumps(error), content_type="application/json", status=400)
+
+
+		# 'resolution' not True or False -- status 400
+		resolution = True
+		if post_data["resolution"] != "True":
+			if post_data["resolution"] != "False":
+				error = {"error": "resolution was neither True nor False"}
+				return HttpResponse(json.dumps(error), content_type="application/json", status=400)
+			resolution = False
+		
+		if resolution:
 			approved_bt = BorrowTransaction.approve_borrow_transaction(bt.get_borrow_transaction_id())
 			return_bt = bt_to_json(approved_bt)
 			return HttpResponse(json.dumps(return_bt), content_type="application/json")
-		if post_data["resolution"] == "False":
-			bt = BorrowTransaction.get_request_pending_borrow_transaction_by_tool(post_data["toolId"])
+		if not resolution :
+			# owner doesn't give message when rejecting request -- status 400
+			if not post_data["owner_message"]:
+				error = {"error": "you must provide a message when rejecting a borrow request"}
+				return HttpResponse(json.dumps(error), content_type="application/json", status=400)
+
 			rejected_bt = BorrowTransaction.reject_borrow_transaction(bt.get_borrow_transaction_id(), post_data["owner_message"])
 			return_bt = bt_to_json(rejected_bt)
 			return HttpResponse(json.dumps(return_bt), content_type="application/json")
 
+"""
+DELETE
+url -> /api/borrowTransaction/:transactionId
+
+possible errors:
+transaction does not exist
+status is not borrow_return_pending
+"""
 @csrf_exempt
 def resolve_end_borrow_request(request, bt_id):
+	# transaction does not exist -- status 400
+	
+
+	# status is not borrow_return_pending -- status 400
+
 	if request.method == "DELETE":
 		bt = BorrowTransaction.end_borrow_transaction(bt_id)
 		return_bt = bt_to_json(bt)
@@ -143,6 +213,9 @@ def resolve_end_borrow_request(request, bt_id):
 """
 GET
 url -> /api/borrowTransaction/requestPending
+
+possible errors:
+user id not an int
 """
 @csrf_exempt
 def get_unresolved_borrow_transactions(request): # something funky is going on?
@@ -159,6 +232,10 @@ def get_unresolved_borrow_transactions(request): # something funky is going on?
 """
 GET
 url -> /api/borrowTransaction/rejected/:id
+
+possible errors:
+user does not exist
+user id not an int
 """
 @csrf_exempt
 def get_rejected_requests(request, user_id):
@@ -173,6 +250,9 @@ def get_rejected_requests(request, user_id):
 """
 GET
 url -> /api/borrowTransaction/endRequests
+
+possible errors:
+user id not an int
 """
 @csrf_exempt
 def get_end_borrow_transaction_requests(request):
