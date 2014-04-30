@@ -167,7 +167,7 @@ class BorrowTransaction(models.Model):
 	"""
 	@staticmethod
 	def get_unresolved_borrow_transactions(userID):
-		return BorrowTransaction.objects.filter(Q(borrower=User.get_user(userID)) & Q(status="borrow request pending") | Q(status="borrowing") | Q(status="borrow return pending"))
+		return BorrowTransaction.objects.filter(Q(borrower=User.get_user(userID)) & (Q(status="borrow request pending") | Q(status="borrowing") | Q(status="borrow return pending")))
 		
 	""" Gets all BT with a status of "borrow return pending"
 	:param userID: Borrower's user ID
@@ -194,4 +194,4 @@ class BorrowTransaction(models.Model):
 	@staticmethod
 	def get_unresolved_borrow_transaction_by_tool(toolID):
 		t = Tool.get_tool(toolID)
-		return BorrowTransaction.objects.get(Q(tool=t) & Q(status="borrow request pending") | Q(status="borrowing") | Q(status="borrow return pending"))
+		return BorrowTransaction.objects.get(Q(tool=t) & (Q(status="borrow request pending") | Q(status="borrowing") | Q(status="borrow return pending")))
