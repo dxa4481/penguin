@@ -83,10 +83,10 @@ def user(request):
 		if( not validate_phone_number( post_data["phone_number"] )):
 			error = {"error": "Invalid phone number, make sure phone number is in form of: 	XXX-XXX-XXXX"}
 			return HttpResponse(json.dumps(error), content_type="application/json", status=400)
-		
+
 		# no input given for pick-up arrangements -- error 400
 		if not post_data["default_pickup_arrangements"]:
-			error ={"error": "must specify your default pickup arrangements, cannot leave blank"}
+			error = {"error": "must specify your default pickup arrangements, cannot leave blank"}
 			return HttpResponse(json.dumps(error), content_type="application/json", status=400)
 		
 		# else successfull

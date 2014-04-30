@@ -69,6 +69,7 @@ class BorrowTransaction(models.Model):
 		bt = BorrowTransaction.get_borrow_transaction(btID)
 		bt.status = "borrow return pending"
 		bt.save()
+		return bt
 		
 	""" Ends a borrow transaction
 	STATIC METHOD
@@ -81,6 +82,7 @@ class BorrowTransaction(models.Model):
 		bt.is_current_bt = False
 		bt.status = "returned"
 		bt.save()
+		return bt
 
 	""" Removes a borrow transaction
 	STATIC METHOD
@@ -165,7 +167,6 @@ class BorrowTransaction(models.Model):
 	"""
 	@staticmethod
 	def get_unresolved_borrow_transactions(userID):
-		borrower = User.get_user(userID)
 		return BorrowTransaction.objects.filter(Q(borrower=User.get_user(userID)) & Q(status="borrow request pending") | Q(status="borrowing") | Q(status="borrow return pending"))
 		
 	""" Gets all BT with a status of "borrow return pending"
