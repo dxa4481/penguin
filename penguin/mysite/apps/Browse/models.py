@@ -195,3 +195,11 @@ class BorrowTransaction(models.Model):
 	def get_unresolved_borrow_transaction_by_tool(toolID):
 		t = Tool.get_tool(toolID)
 		return BorrowTransaction.objects.get(Q(tool=t) & (Q(status="borrow request pending") | Q(status="borrowing") | Q(status="borrow return pending")))
+
+	"""Gets all return pending transactions in a community shed
+	:param zip_c: The zip code for the community shed
+	:returns list of borrow transactions
+	"""
+	@staticmethod
+	def get_all_return_pending_in_community_shed(zip_c):
+		return BorrowTransaction.objects.filter(status="borrow return pending", tool__in_community_shed=True)
