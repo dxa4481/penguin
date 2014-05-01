@@ -249,4 +249,3 @@ def get_admins(request):
 		for admin in admins:
 			return_list.append(user_to_json(admin))
 		return HttpResponse(json.dumps(return_list), content_type="application/json")
-	
