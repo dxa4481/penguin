@@ -52,12 +52,17 @@ def borrowTransaction(request):
 			return HttpResponse(json.dumps({"error":"Tool being borrowed already"}), content_type="application/json", status=400)
 		
 		milliseconds = int(post_data['date'])
+
+		# date out of range -- status 400
+		if milliseconds >= 253370764800000:
+			error = {"error": "cannot reserve tool past Dec, 31 9998"}
+			return HttpResponse(json.dumps(error), content_type="application/json", status=400)
+
 		rent_date = milliseconds_to_dt(milliseconds)
 		
 		#verify date is allowed
 		if (rent_date < datetime.datetime.now()):
 			return HttpResponse(json.dumps({"error":"Invalid date"}), content_type="application/json", status=400)
-			
 		
 		current_tool = Tool.set_tool_unavailable(current_tool.id, rent_date)
 		user = User.get_user(request.session['user']['id'])
@@ -245,6 +250,30 @@ def get_end_borrow_transaction_requests(request):
 		end_requests = BorrowTransaction.get_return_pending_borrow_transactions(request.session['user']['id'])
 		return_transactions = []
 		for transaction in end_requests:
+			return_bt = bt_to_json(transaction)
+			return_transactions.append(return_bt)
+		return HttpResponse(json.dumps(return_transactions), content_type="application/json")
+
+"""
+GET
+url -> /api/borrowTransaction/pendingCommunity
+
+possible errors:
+user trying to access this is not a shed coordinator
+"""
+@csrf_exempt
+def get_all_return_pending_bt_in_community_shed(request):
+	if request.method == "GET":
+		shed_coord = User.get_user_by_username(request.session['user']['username'])
+
+		# user is not shed coordinator -- status 403
+		if not shed_coord.is_shed_coordinator:
+			error = {"error": "Access denied, you are not the shed coordinator"}
+			return HttpResponse(json.dumps(error), content_type="application/json", status=403)
+
+		community_transactions = BorrowTransaction.get_all_return_pending_in_community_shed(shed_coord.zip_code)
+		return_transactions = []
+		for transaction in community_transactions:
 			return_bt = bt_to_json(transaction)
 			return_transactions.append(return_bt)
 		return HttpResponse(json.dumps(return_transactions), content_type="application/json")

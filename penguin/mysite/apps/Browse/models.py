@@ -31,6 +31,7 @@ class BorrowTransaction(models.Model):
 		bt = BorrowTransaction(borrower=b, tool=t, borrower_message=borrow_message, owner_message="", status="borrow request pending")
 		if bt.tool.in_community_shed:
 			bt.in_community_shed=True
+			bt.status = "borrowing"
 		bt.save()
 		return bt
 

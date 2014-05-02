@@ -91,6 +91,7 @@ class Tool(models.Model):
 		t.available_date = end_date
 		t.is_available = False
 		t.save()
+		return t
 
 	
 	"""Sets a tool as available
