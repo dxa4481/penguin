@@ -1,11 +1,23 @@
+#For unit testing
+import unittest
 from django.test import TestCase
 import datetime
 from django.utils import timezone
 
+#For model testing
 from .models import *
 
-""" Test the creation and usage of users. """
+#For api testing
+from .api_routes import *
+from django.test.client import RequestFactory
+
+""" Test the creation and usage of users. 
+	Warning: these tests have not been updated in a while and are very
+	out of date.
+"""
 class UserTestCase(TestCase):
+from .api_routes import *
+from django.test.client import RequestFactory
 	def setUp(self):
 		# Assume all usernames are unique, use them for lookup.
 		parrot = User(pk = 42, username='Parrot', password = 'password', area_code = '03545', email = 'polly@python.org', phone_number = '1234567890', default_pickup_arrangements = 'Pining for the fjords.')
@@ -64,3 +76,40 @@ class UserTestCase(TestCase):
 		User.create_new_tool(parrot.id, "Coconut Threader", "For tying a length of thread between two coconuts", "needle", "parrot", "Stop by anytime.")
 		parrotTools = User.get_all_user_tools(parrot.id)
 		self.assertTrue(parrotTools.filter(name="Coconut Threader").exists())
+
+class UserApiTestCase(TestCase):
+	
+	def setUp(self):
+		# Set up a Request Factory
+		self.factory = RequestFactory()
+	
+	def test_getSelf(self):
+		request = self.factory.get('/api/user/')
+		
+	def test_login(self):
+		request = self.factory.post('/api/login/')
+		
+	def test_createNewUser(self):
+		request = self.factory.post('/api/user/')
+		
+	def test_userProfileEdit(self):
+		request = self.factory.put('/api/user/:id')
+		
+	def test_deleteUserProfile(self):
+		request = self.factory.delete('/api/user/:id')
+		
+	def test_getUsersInZipcode(self):
+		request = self.factory.get('/api/user/zip/:zip_code')
+		
+	def test_changePassword(self):
+		request = self.factory.put('/api/changePassword')
+		
+	def test_logout(self):
+		request = self.factory.get('/api/user/logout')
+		
+	def test_getAdmins(self):
+		request = self.factory.get('/api/admins')
+		
+	def test_changeShedCoordinator(self):
+		request = self.factory.put('/api/admin/shedCoordinator')
+	

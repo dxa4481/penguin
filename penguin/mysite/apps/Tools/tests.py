@@ -202,13 +202,24 @@ class ToolApiTestCase(TestCase):
 			)
 		self.sledge.save()
 		
-		# JSON Data for a new tool
+		# Data for a modified tool
+		self.brokenSledge_info = {
+			"id" : self.sledge.id, 
+			"name" : "broken sledgehammer", 
+			"description" : "Basically a stick.",
+			"tool_type" : "1/2 hammer",
+			"in_community_shed" : False,
+			"tool_pickup_arrangements" : "Take it off my lawn.",
+			"tool_available" : True,
+			}
+		
+		# Data for a new tool
 		self.needles_info = {
 			"name" : "Knitting Needles",
 			"description" : "for making plush eldrich monstrosities",
 			"tool_type" : "needle",
 			"in_community_shed" : "True",
-			"tool_pickup_arrangements" : "Get it from the shed."
+			"tool_pickup_arrangements" : "Get it from the shed.",
 			}
 			
 		# Mock session, where applicable
@@ -216,11 +227,11 @@ class ToolApiTestCase(TestCase):
 		{
 			"user" : \
 			{
-				"id" : self.john.id
+				"id" : self.john.id,
+				"zip_code" : self.john.zip_code,
 			}
 		}
 		
-	
 	def test_getById(self):
 		request = self.factory.get('/api/tool/')
 		response = get_tool(request, self.sledge.id)
@@ -285,20 +296,64 @@ class ToolApiTestCase(TestCase):
 			self.needles_info["tool_pickup_arrangements"])
 		self.assertTrue(response_data["tool_available"])
 		
-		
 	def test_updateTool(self):
-		request = self.factory.put('/api/tool')
-		return
+		request = self.factory.put(
+			path = '/api/tool',
+			content_type = "application/json",
+			data = json.dumps(self.brokenSledge_info),
+			)
+		
+		response = update(request)
+		response_data = json.loads(response.content.decode("utf-8"))
+		
+		self.assertEqual(response_data["id"], self.sledge.id)
+		self.assertEqual(response_data["name"], 
+			self.brokenSledge_info["name"])
+		self.assertEqual(response_data["owner"], 
+			self.john.username)
+		self.assertIsNotNone(response_data["available_date"])
+		self.assertEqual(response_data["description"], 
+			self.brokenSledge_info["description"])
+		self.assertEqual(response_data["tool_type"], 
+			self.brokenSledge_info["tool_type"])
 		
 	def test_deleteTool(self):
+		# sanity check
+		self.assertIn(self.sledge, Tool.objects.all())
+		
+		# call the delete route
 		request = self.factory.delete('/api/tool')
-		return
+		response = get_tool(request, self.sledge.id)
+		response_data = json.loads(response.content.decode("utf-8"))
+		
+		# is it gone?
+		self.assertTrue(response_data["success"])
+		self.assertNotIn(self.sledge, Tool.objects.all())
+		
+		# try to delete it again, to get an error
+		response = get_tool(request, self.sledge.id)
+		response_data = json.loads(response.content.decode("utf-8"))
+		self.assertFalse(response_data["success"])
 		
 	def test_getLocalTools(self):
 		request = self.factory.get('/api/tools/area')
-		return
+		
+		# We need a user to have local tools to browse.
+		request.session = self.mock_session
+		
+		response = local_tools(request)
+		response_data = json.loads(response.content.decode("utf-8"))
+		
+		self.assertIn(tool_to_json(self.sledge), response_data)
 		
 	def test_getPersonalTools(self):
 		request = self.factory.get('/api/tools')
-		return
+		
+		# We need a user to have personal tools to browse.
+		request.session = self.mock_session
+		
+		response = user_tools(request)
+		response_data = json.loads(response.content.decode("utf-8"))
+		
+		self.assertIn(tool_to_json(self.sledge), response_data)
 

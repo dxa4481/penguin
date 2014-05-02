@@ -20,3 +20,59 @@ class BorrowTransactionTestCase(TestCase):
 #	def test_get_borrow_transaction(self):
 #	def test_get_borrower_borrow_transactions(self):
 #	def test_is_current(self):
+
+class BorrowTransactionApiTestCase(TestCase):
+	
+	def setUp(self):
+		# Set up a Request Factory
+		self.factory = RequestFactory()
+	
+	def test_requestBorrowTransaction(self):
+		request = self.factory.post('/api/borrowTransaction')
+	
+	def test_getUnresolvedBorrowTransactions(self):
+		request = self.factory.get(
+			path = '/api/borrowTransaction/requestPending'
+			)
+		
+	def test_resolveBorrowRequest(self):
+		request = self.factory.post('/api/borrowTransaction/resolve')
+	
+	def test_getRejectedRequests(self):
+		request = self.factory.get(
+			path = '/api/borrowTransaction/rejected/:id'
+			)
+	
+	def test_requestEndBorrowTransaction(self):
+		request = self.factory.put('/api/borrowTransaction')
+	
+	def test_getEndBorrowTransactionRequests(self):
+		request = self.factory.get(
+			path = '/api/borrowTransaction/endRequests'
+			)
+	
+	def test_resolveEndBorrowTransaction(self):
+		request = self.factory.delete(
+			path = '/api/borrowTransaction/:transactionId'
+			)
+	
+	def test_getToolsUserIsBorrowing(self):
+		request = self.factory.put(
+			path = '/api/borrowTransaction/borrowing/:userId'
+			)
+	
+	def test_getToolsUserIsLending(self):
+		request = self.factory.get(
+			path = '/api/borrowTransaction/borrowed/:userId'
+			)
+	
+	def test_getAllCommunityHistory(self):
+		request = self.factory.get(
+			path = '/api/borrowTransaction/community/:zip'
+			)
+	
+	def test_getAllReturnPendingBorrowTransactionsInCommunityShed(self):
+		request = self.factory.get(
+			path = '/api/borrowTransaction/pendingCommunity'
+			)
+	
