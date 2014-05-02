@@ -136,7 +136,7 @@ def user(request):
 
 		# user has tools being borrowed, can't change zip -- error 403
 			current_user = User.get_user_by_username(request.session['user']["username"])
-			if BorrowTransaction.get_borrow_transaction_user_owns(current_user.id):
+			if BorrowTransaction.get_unresolved_borrow_transactions(current_user.id):
 				error = {"error": "Some of your tools are currently being borrowed, you may not change your zip code.  Please contact an admin."}
 				return HttpResponse(json.dumps(error), content_type="application/json", status=403)
 

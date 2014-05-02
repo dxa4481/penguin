@@ -66,32 +66,10 @@ def borrowTransaction(request):
 		return HttpResponse(json.dumps(return_bt), content_type="application/json")
 		
 	"""
-		BT PUT (end a borrow transaction)
-		Owner doesn't accept return
-		Tool doesn't exist
-	"""
-
-#	if request.method == "PUT":
-#		post_data = json.loads(request.body.decode("utf-8"))
-#		
-#		#Make sure tool exists
-#		try:
-#			current_tool = Tool.get_tool(post_data['toolId'])
-#		except:
-#			return HttpResponse(json.dumps({"error":"Invalid tool"}), content_type="application/json", status=400)
-#		
-#		transaction = BorrowTransaction.get_current_borrow_transaction_by_tool(post_data['toolId'])
-#		BorrowTransaction.end_borrow_transaction(transaction.id)
-#		#return_bt = {"id": bt.id, "toolId": post_data['toolId'], "borrowerId": bt.borrower.id}
-#		return_bt = bt_to_json(transaction)
-#		return HttpResponse(json.dumps(return_bt), content_type="application/json")
-
-	"""
 	PUT
 	api_route -> request to end borrow transaction
 
 	possible errors:
-	tool id not an int
 	tool does not exist
 	transaction does not exist
 	"""
@@ -201,9 +179,17 @@ status is not borrow_return_pending
 @csrf_exempt
 def resolve_end_borrow_request(request, bt_id):
 	# transaction does not exist -- status 400
-	
+	current_user = User.get_user_by_username(request.session['user']['username'])
+	current_transactions = BorrowTransaction.get_unresolved_borrow_transactions(current_user.id)
+	if not current_transactions:
+		error = {"error": "transaction does not exist"}
+		return HttpResponse(json.dumps(error), content_type="application/json", status=400)	
 
 	# status is not borrow_return_pending -- status 400
+	current_transaction = BorrowTransaction.get_borrow_transaction(bt_id)
+	if current_transaction.status != "borrow_return_pending":
+		error = {"error": "transaction is not return pending, cannot resolve end transaction."}
+		return HttpResponse(json.dumps(error), content_type="application/json", status=400)
 
 	if request.method == "DELETE":
 		bt = BorrowTransaction.end_borrow_transaction(bt_id)
@@ -213,17 +199,13 @@ def resolve_end_borrow_request(request, bt_id):
 """
 GET
 url -> /api/borrowTransaction/requestPending
-
-possible errors:
-user id not an int
 """
 @csrf_exempt
-def get_unresolved_borrow_transactions(request): # something funky is going on?
+def get_unresolved_borrow_transactions(request):
 	if request.method == "GET":
 		user_id = request.session['user']['id']
 		unresolved_transactions = BorrowTransaction.get_unresolved_borrow_transactions(user_id)
 		return_transactions = []
-		print(unresolved_transactions)
 		for transaction in unresolved_transactions:
 			return_bt = bt_to_json(transaction)
 			return_transactions.append(return_bt)
@@ -235,11 +217,17 @@ url -> /api/borrowTransaction/rejected/:id
 
 possible errors:
 user does not exist
-user id not an int
 """
 @csrf_exempt
 def get_rejected_requests(request, user_id):
 	if request.method == "GET":
+		# user does not exist -- status 400
+		try:
+			current_user = User.get_user(user_id)
+		except:
+			error = {"error": "invalid user id, user does not exist"}
+			return HttpResponse(json.dumps(error), content_type="application/json", status=400)
+
 		rejected_requests = BorrowTransaction.get_rejected_borrow_transactions(user_id)
 		return_transactions = []
 		for transaction in rejected_requests:
@@ -250,9 +238,6 @@ def get_rejected_requests(request, user_id):
 """
 GET
 url -> /api/borrowTransaction/endRequests
-
-possible errors:
-user id not an int
 """
 @csrf_exempt
 def get_end_borrow_transaction_requests(request):
