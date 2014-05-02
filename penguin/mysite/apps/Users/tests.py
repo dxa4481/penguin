@@ -5,19 +5,18 @@ import datetime
 from django.utils import timezone
 
 #For model testing
-from .models import *
+from .models import User
 
 #For api testing
-from .api_routes import *
 from django.test.client import RequestFactory
+import json
+from . import api_routes as api
 
 """ Test the creation and usage of users. 
 	Warning: these tests have not been updated in a while and are very
 	out of date.
 """
 class UserTestCase(TestCase):
-from .api_routes import *
-from django.test.client import RequestFactory
 	def setUp(self):
 		# Assume all usernames are unique, use them for lookup.
 		parrot = User(pk = 42, username='Parrot', password = 'password', area_code = '03545', email = 'polly@python.org', phone_number = '1234567890', default_pickup_arrangements = 'Pining for the fjords.')
@@ -77,23 +76,173 @@ from django.test.client import RequestFactory
 		parrotTools = User.get_all_user_tools(parrot.id)
 		self.assertTrue(parrotTools.filter(name="Coconut Threader").exists())
 
+""" Test the API Routes in this app """
 class UserApiTestCase(TestCase):
 	
 	def setUp(self):
 		# Set up a Request Factory
 		self.factory = RequestFactory()
+		
+		# Set up some Users
+		self.john = User.create_new_user(
+			u = 'John',
+			p = 'hehehe', 
+			zip_c = '00413', 
+			e = 'ghostyTrickster@skaia.net',
+			pn = '4134131996', 
+			pa = 'mailbox',
+			)
+		self.john.save()
+		
+		# Mock session, where applicable
+		self.mock_session = \
+		{
+			"user" : api.user_to_json(self.john)
+		}
+		
+		# Session with no data
+		self.empty_session = { }
+		
+		# Accurate login credentials
+		self.good_login = \
+		{
+			'username' : self.john.username,
+			'password' : "hehehe",
+		}
+		
+		# New user form
+		self.add_jade = \
+		{
+			'username' : "Jade",
+			'password' : "tanglebuddies",
+			'confirm_password' : "tanglebuddies",
+			'zip_code' : '00413',
+			'email' : "gardenGnostic@skaia.net",
+			'phone_number' : "4131211995",
+			'default_pickup_arrangements' : "time shenanigans",
+		}
+		
+		# Change user form
+		self.edit_john = \
+		{
+			'zip_code' : '00612',
+			'email' : "ectoBiologist@skaia.net",
+			'phone_number' : '4134132009',
+			'default_pickup_arrangement' : "parcel pixys",
+		}
 	
 	def test_getSelf(self):
+		# Generate the request
 		request = self.factory.get('/api/user/')
+		request.session = self.mock_session
+		response = api.user(request)
+		
+		# Did we get a clean response?
+		self.assertEqual(response.status_code, 200)
+		
+		# Did we get the right data?
+		response_data = json.loads(response.content.decode("utf-8"))
+		self.assertEqual(response_data["id"], self.john.id)
+		self.assertEqual(response_data["username"], self.john.username)
+		self.assertEqual(response_data["zip_code"], self.john.zip_code)
+		self.assertEqual(response_data["email"], self.john.email)
+		self.assertEqual(response_data["phone_number"], 
+			self.john.phone_number)
+		self.assertEqual(response_data["default_pickup_arrangements"], 
+			self.john.default_pickup_arrangements)
+		self.assertEqual(response_data["is_shed_coordinator"],
+			self.john.is_shed_coordinator)
+		self.assertEqual(response_data["is_admin"], self.john.is_admin)
 		
 	def test_login(self):
-		request = self.factory.post('/api/login/')
+		# Generate the request
+		request = self.factory.post(
+			path = '/api/login/',
+			data = json.dumps(self.good_login), 
+			content_type = "application/json",
+			)
+		request.session = self.empty_session
+		response = api.login(request)
+			
+		# Did we get a clean response?
+		self.assertEqual(response.status_code, 200)
+		
+		# Did we get the right data?
+		response_data = json.loads(response.content.decode("utf-8"))
+		self.assertEqual(response_data["id"], self.john.id)
+		self.assertEqual(response_data["username"], self.john.username)
+		self.assertEqual(response_data["zip_code"], self.john.zip_code)
+		self.assertEqual(response_data["email"], self.john.email)
+		self.assertEqual(response_data["phone_number"], 
+			self.john.phone_number)
+		self.assertEqual(response_data["default_pickup_arrangements"], 
+			self.john.default_pickup_arrangements)
+		self.assertEqual(response_data["is_shed_coordinator"],
+			self.john.is_shed_coordinator)
+		self.assertEqual(response_data["is_admin"], self.john.is_admin)
 		
 	def test_createNewUser(self):
-		request = self.factory.post('/api/user/')
+		# Generate the request
+		request = self.factory.post(
+			path = '/api/user/',
+			data = json.dumps(self.add_jade),
+			content_type = "application/json",
+			)
+		request.session = self.empty_session
+		response = api.user(request)
+		
+		
+		# Did we get a clean response?
+		self.assertEqual(response.status_code, 200)
+		
+		# Did we get the right data?
+		response_data = json.loads(response.content.decode("utf-8"))
+		self.assertEqual(response_data['username'], 
+			self.add_jade['username'])
+		self.assertEqual(response_data['zip_code'], 
+			self.add_jade['zip_code'])
+		self.assertEqual(response_data['email'], self.add_jade['email'])
+		self.assertEqual(response_data['phone_number'], 
+			self.add_jade['phone_number'])
+		self.assertEqual(response_data['default_pickup_arrangements'], 
+			self.add_jade['default_pickup_arrangements'])
+			
+		# We don't know the ID, but we know it has to be different.
+		self.assertNotEqual(response_data['id'], self.john.id)
+		# Only the first user in each zone should be the coordinator.
+		self.assertNotEqual(response_data['is_shed_coordinator'], 
+			self.john.is_shed_coordinator)
+		# New users should not be admins by default.
+		self.assertEqual(response_data['is_admin'], 
+			False)
 		
 	def test_userProfileEdit(self):
-		request = self.factory.put('/api/user/:id')
+		# Generate the request
+		request = self.factory.put(
+			path = '/api/user/',
+			data = json.dumps(self.edit_john), 
+			content_type = "application/json",
+			)
+		#request.session = self.empty_session
+		response = api.userById(request, self.john.id)
+			
+		# Did we get a clean response?
+		self.assertIsNotNone(response)
+		self.assertEqual(response.status_code, 200)
+		
+		# Did we get the right data?
+		response_data = json.loads(response.content.decode("utf-8"))
+		self.assertEqual(response_data["id"], self.john.id)
+		self.assertEqual(response_data["username"], self.john.username)
+		self.assertEqual(response_data["zip_code"], self.john.zip_code)
+		self.assertEqual(response_data["email"], self.john.email)
+		self.assertEqual(response_data["phone_number"], 
+			self.john.phone_number)
+		self.assertEqual(response_data["default_pickup_arrangements"], 
+			self.john.default_pickup_arrangements)
+		self.assertEqual(response_data["is_shed_coordinator"],
+			self.john.is_shed_coordinator)
+		self.assertEqual(response_data["is_admin"], self.john.is_admin)
 		
 	def test_deleteUserProfile(self):
 		request = self.factory.delete('/api/user/:id')
