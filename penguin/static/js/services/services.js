@@ -25,7 +25,16 @@ angular.module('toolShareServices', [])
                         },
 			getByAreaCode: function(areaCode){
 				return $http.get('/api/user/areaCode/' + areaCode);
-			}
+			},
+			updatePassword: function(passwordData){
+				return $http.put('/api/user/password', passwordData);
+			},
+			getAdmins: function(){
+				return $http.get('/api/admins');
+			},
+			changeShedCoordinator: function(coordinator){
+				return $http.put('/api/admin/shedCoordinator', coordinator);
+			},
                 }
         })
 
@@ -55,39 +64,38 @@ angular.module('toolShareServices', [])
 
 	.factory('BorrowTransaction', function($http){
 		return {
-			create: function(transactionData){
+			requestStart: function(transactionData){
 				//{toolId: 3, date: datetime}
 				return $http.post('/api/borrowTransaction', transactionData);
 			},
-			update: function(transactionData){
+			resolveStartRequest: function(transactionData){
 				//{toolId: 3}
+				return $http.post('/api/borrowTransaction/resolve', transactionData);
+			},
+			getRejected: function(){
+				return $http.get('/api/borrowTransaction/rejected');
+			},
+			requestEnd: function(transactionData){
 				return $http.put('/api/borrowTransaction', transactionData);
 			},
-			get: function(transactionId){
-				return $http.get('/api/borrowTransaction/' + id);
+			resolveEndRequest: function(transactionId){
+				return $http.delete('/api/borrowTransaction/' + transactionId);
 			},
 			getBorrowing: function(userId){
-				return $http.get('/api/borrowTransaction/borrowing/' + userId);
+				return $http.get('/api/borrowTransaction/borrowing/' + userId);	
 			},
 			getBorrowed: function(userId){
 				return $http.get('/api/borrowTransaction/borrowed/' + userId);
 			},
 			getCommunityHistory: function(areaCode){
 				return $http.get('/api/borrowTransactions/community/' + areaCode);
+			},
+			getPendingRequests: function(){
+				return $http.get('/api/borrowTransaction/requestPending');
+			},
+			getEndRequests: function(){
+				return $http.get('/api/borrowTransaction/endRequests');
 			}
 		}
-	}).
-
-        service('username', function(){
-                var username;
-                return {
-                        setUsername: function(usernameToSet){
-                                username = usernameToSet;
-                        },
-                        getUsername: function(){
-                                return username
-                        }
-                }
-        });
-
+	})
 

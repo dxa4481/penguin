@@ -1,49 +1,30 @@
-<div ng-switch on="active">
-  <div ng-switch-when="home">
-    <ul class="nav nav-pills nav-stacked">
-      <li class="active"><a href="#home">Browse local tools</a></li>
-      <li><a href="#tools">Manage tools</a></li>
-      <li><a href="#profile">Edit profile</a></li>
-      <li><a href="#community">Community statistics</a></li>
-      <li><a href="#logout">Logout!</a></li>
-    </ul>
-  </div>
-  <div ng-switch-when="tools">
-    <ul class="nav nav-pills nav-stacked">
-      <li><a href="#home">Browse local tools</a></li>
-      <li class="active"><a href="#tools">Manage tools</a></li>
-      <li><a href="#profile">Edit profile</a></li>
-      <li><a href="#community">Community statistics</a></li>
-      <li><a href="#logout">Logout!</a></li>
-    </ul>
-  </div>
-  <div ng-switch-when="profile">
-    <ul class="nav nav-pills nav-stacked">
-      <li><a href="#home">Browse local tools</a></li>
-      <li><a href="#tools">Manage tools</a></li>
-      <li class="active"><a href="#profile">Edit profile</a></li>
-      <li><a href="#community">Community statistics</a></li>
-      <li><a href="#logout">Logout!</a></li>
-    </ul>
-  </div>
-  <div ng-switch-when="community">
-    <ul class="nav nav-pills nav-stacked">
-      <li><a href="#home">Browse local tools</a></li>
-      <li><a href="#tools">Manage tools</a></li>
-      <li><a href="#profile">Edit profile</a></li>
-      <li class="active"><a href="#community">Community statistics</a></li>
-      <li><a href="#logout">Logout!</a></li>
-    </ul>
-  </div>
-  <div ng-switch-default>
-    <ul class="nav nav-pills nav-stacked">
-      <li><a href="#home">Browse local tools</a></li>
-      <li><a href="#tools">Manage tools</a></li>
-      <li><a href="#profile">Edit profile</a></li>
-      <li><a href="#community">Community statistics</a></li>
-      <li><a href="#logout">Logout!</a></li>
-    </ul>
-  </div>
+<ul class="nav nav-pills nav-stacked">
+   <li ng-class="$root.active.home"><a href="#home">Browse local tools</a></li>
+   <li ng-class="$root.active.tools"><a href="#tools">Manage tools</a></li>
+   <li ng-class="$root.active.profile"><a href="#profile">Edit profile</a></li>
+   <li ng-class="$root.active.community"><a href="#community">Community statistics</a></li>
+   <li><a href="#logout">Logout!</a></li>
+</ul>
 
-
+<div>
+   <div ng-if="$root.transactionRequests">
+      Borrow requests:
+      <ul ng-repeat="transactionRequest in $root.transactionRequests">
+         <li>{{transactionRequest.borrower}} would like to borrow {{transactionRequest.tool.name}}. {{transactionRequest.borrower}}: "{{transactionRequest.borrower_message}}"
+            <input type="text" class="form-control" placeholder="Reply Message" ng-model="transactionRequest.owner_message" name="owner_message" autofocus/><br />
+            <button class="btn btn-primary" ng-click="resolveTransaction(true, transactionRequest)">Approve!</button>
+            <button class="btn btn-primary" ng-click="$root.resolveTransaction(false, transactionRequest)">Reject!</button>
+         </li>
+      </ul>
+   </div>
+   <div ng-if="$root.endTransactionRequests">
+      Tool return requests:
+      <ul ng-repeat="endTransactionRequest in $root.endTransactionRequests">        
+         <li>{{endTransactionRequest.borrower}} would like to return {{endTransactionRequest.tool.name}}.
+            <button class="btn btn-primary" ng-click="$root.resolveEndTransaction(endTransactionRequest)">Approve!</button>
+         </li>
+   </div>
+   <div ng-if="$root.messages">
+      Messages:
+   </div>
 </div>

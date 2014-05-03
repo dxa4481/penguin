@@ -1,11 +1,13 @@
 // js/controllers/main.js
 //
+var polling = false;
 zip_code_regex = /(^\d{5}(-\d{4})?$)|(^[ABCEGHJKLMNPRSTVXY]{1}\d{1}[A-Z]{1} *\d{1}[A-Z]{1}\d{1}$)/;
 phone_number_regex = /^[\s()+-]*([0-9][\s()+-]*){6,20}$/;
-angular.module('toolShareControllers', [])
 
+
+angular.module('toolShareControllers', [])
 	// inject the Todo service factory into our controller
-	.controller('mainController', function($scope, $rootScope, $location, User) {
+	.controller('mainController', function($scope, $rootScope, $timeout, $location, User) {
 		$scope.register = false;
 		$scope.tryLogin = function(user){
 			console.log(user)
@@ -56,9 +58,10 @@ angular.module('toolShareControllers', [])
 		};
 		
 	})
-	.controller('logoutController', function($location, User){
+	.controller('logoutController', function($location, $rootScope, User){
 		User.logout().
                 	success(function(data){
+				delete $rootScope.user;
                         	$location.path('/');
                         }).
                         error(function(data, status){
@@ -67,8 +70,8 @@ angular.module('toolShareControllers', [])
 
 
 	})
-	.controller('homepageController', function($scope, $rootScope, $modal, $location, User, Tool, BorrowTransaction){
-		$scope.active = "home"		
+	.controller('homepageController', function($scope, $timeout, $rootScope, $modal, $location, User, Tool, BorrowTransaction){
+		setActive($rootScope, $timeout, BorrowTransaction, "home");		
 		
 		if($rootScope.user == undefined){getUser($location, $rootScope, User, function(){})};
 		Tool.getInArea().
@@ -111,7 +114,7 @@ angular.module('toolShareControllers', [])
 		};
 	})
 
-	.controller('toolsController', function($scope, $rootScope, $location, User, Tool, BorrowTransaction){
+	.controller('toolsController', function($scope, $timeout, $rootScope, $location, User, Tool, BorrowTransaction){
 		var cb = function(){
 			BorrowTransaction.getBorrowing($rootScope.user.id).
 				success(function(data){
@@ -132,7 +135,7 @@ angular.module('toolShareControllers', [])
 			$location.path('/newTool');
 		}
 		if($rootScope.user == undefined){getUser($location, $rootScope, User, cb)}else{cb()};
-		$scope.active = "tools";
+		setActive($rootScope, $timeout, BorrowTransaction, "tools");
 		$scope.activeTools = 'myTools';
 		$scope.myToolsClass = 'active';
 		Tool.getByUser().
@@ -150,7 +153,7 @@ angular.module('toolShareControllers', [])
                        });
 	})
 
-	.controller('profileController', function($scope, $rootScope, $location, User, Tool){
+	.controller('profileController', function($scope, $timeout, $rootScope, $location, User, Tool, BorrowTransaction){
 		var cb = function(){$scope.user = $rootScope.user};
 		if($rootScope.user == undefined){getUser($location, $rootScope, User, cb)};
 		$scope.user = $rootScope.user;
@@ -170,8 +173,7 @@ angular.module('toolShareControllers', [])
                                         }
                                 });
 		}
-
-		$scope.active = "profile";
+		setActive($rootScope, $timeout, $BorrowTransaction, "profile");
 		$scope.register = false;
 		$scope.editing = true;
 		$scope.zipCodePattern = zip_code_regex;
@@ -204,9 +206,9 @@ angular.module('toolShareControllers', [])
 		}
 	})
 
-        .controller('communityController', function($scope, $rootScope, $location, User, Tool, BorrowTransaction){
+        .controller('communityController', function($scope, $timeout, $rootScope, $location, User, Tool, BorrowTransaction){
 		if($rootScope.user == undefined){getUser($location, $rootScope, User, function(){})}
-		$scope.active = "community";
+		setActive($rootScope, $timeout, BorrowTransaction, "community");
 	})
 var getUser = function($location, rootScope, User, cb){
 	User.get().
@@ -258,4 +260,59 @@ var set_tool_availability = function(tools){
 		tools[i].is_available = new Date() > new Date(tools[i].available_date);
 	}
 	return tools;
+}
+
+var setActive = function($rootScope, $timeout, BorrowTransaction, activeThing){
+	console.log("wat");
+	if(!polling){
+		polling = true;
+		var notifications = function(){
+                        BorrowTransaction.getPendingRequests().
+                        	success(function(data){
+                                	$rootScope.transactionRequests ? addToFirstArrayById($rootScope.transactionRequests, data) : $rootScope.transactionRequests = data;
+                                }).
+                                error(function(data, status){
+                                	if(typeof data === "object"){
+                                        	$scope.error = data;
+                                        }
+                                        else{
+                                        	$location.path('/');
+                                        }
+                                });
+                        BorrowTransaction.getEndRequests().
+                        	success(function(data){
+                                	$rootScope.endTransactionRequests ? addToFirstArrayById($rootScope.endTransactionRequests, data) : $rootScope.endTransactionRequests = data;
+                                }).
+                                error(function(data, status){
+                                	if(typeof data === "object"){
+                                        	$scope.error = data;
+                                        }
+                                        else{
+                                        	$location.path('/');
+                                        }
+                                });
+					
+                        $timeout(notifications, 1000);
+                }
+		notifications();
+	}
+	delete $rootScope.active
+	$rootScope.active = {}
+	$rootScope.active[activeThing] = "active";
+}
+
+var addToFirstArrayById = function(array1, array2){
+	for (var j = 0; j < array2.length; j++) {
+		var inArray = false;
+		for(var i = 0; i < array1.length; i++){
+			if(array1[j].id = array2[i]){
+				inArray = true;
+				break;
+			}
+		}
+		if(!inArray){
+			array1.push(array2[j])
+		}
+	}
+	return array1;
 }
