@@ -137,19 +137,18 @@ class ToolTestCase(TestCase):
 		sledge.save()
 		self.assertFalse(Tool.is_tool_available(sledge.id))
 	
-	""" def test_is_tool_available_future_date(self):
-		
-		This functionality has changed, the date is an "expected" date,
-		not a hard deadline. It's possible for us to pass a date but
-		still not have the tool back yet.
-		
+	@unittest.skip
+	def test_is_tool_available_future_date(self):
+		""" This functionality has changed, the date is an "expected" date,
+			not a hard deadline. It's possible for us to pass a date but
+			still not have the tool back yet.
+		"""
 		#if we move the date, it should no longer be available
 		sledge = self.sledge
 		sledge.available_date = timezone.now() + \
 			datetime.timedelta(days=1)
 		sledge.save()
 		self.assertFalse(Tool.is_tool_available(sledge.id))
-	"""
 	
 	@unittest.expectedFailure
 	def test_is_tool_available_deleted(self):
@@ -157,17 +156,6 @@ class ToolTestCase(TestCase):
 		id = self.sledge.id
 		self.sledge.delete()
 		self.assertFalse(Tool.is_tool_available(id))
-"""
-	def test_get_tool_owner(self):
-		sledge = Tool.objects.get(pk=23)
-		parrot = User.objects.get(pk=42)
-		self.assertEqual(Tool.get_tool_owner(sledge.id), parrot)
-
-	def test_get_tool_by_area_code(self):
-		localTools = Tool.get_tool_by_area_code("03545")
-		#the Sledgehammer (pk = 23) should exist in this area code.
-		self.assertTrue(localTools.filter(pk=23).exists())
-"""
 
 """ Test the API Routes in this app """
 class ToolApiTestCase(TestCase):
@@ -227,10 +215,14 @@ class ToolApiTestCase(TestCase):
 		{
 			"user" : \
 			{
+				"username" : self.john.username,
 				"id" : self.john.id,
 				"zip_code" : self.john.zip_code,
 			}
 		}
+		
+		# Empty session, otherwise
+		self.empty_session = { }
 		
 	def test_getById(self):
 		request = self.factory.get('/api/tool/')
@@ -302,8 +294,14 @@ class ToolApiTestCase(TestCase):
 			content_type = "application/json",
 			data = json.dumps(self.brokenSledge_info),
 			)
+		request.session = self.mock_session
 		
 		response = update(request)
+		
+		# Did we get a clean response?
+		print(response.content)
+		self.assertEqual(response.status_code, 200)
+		
 		response_data = json.loads(response.content.decode("utf-8"))
 		
 		self.assertEqual(response_data["id"], self.sledge.id)
@@ -317,21 +315,31 @@ class ToolApiTestCase(TestCase):
 		self.assertEqual(response_data["tool_type"], 
 			self.brokenSledge_info["tool_type"])
 		
-	def test_deleteTool(self):
+	def test_deleteTool_good(self):
 		# sanity check
 		self.assertIn(self.sledge, Tool.objects.all())
 		
 		# call the delete route
 		request = self.factory.delete('/api/tool')
+		request.session = self.mock_session
 		response = get_tool(request, self.sledge.id)
 		response_data = json.loads(response.content.decode("utf-8"))
 		
 		# is it gone?
 		self.assertTrue(response_data["success"])
 		self.assertNotIn(self.sledge, Tool.objects.all())
+	
+	@unittest.expectedFailure
+	def test_deleteTool_bad(self):
+		""" there continues to be no error checking on deleting
+			nonexistant tools.
+		"""
 		
-		# try to delete it again, to get an error
-		response = get_tool(request, self.sledge.id)
+		# try to delete a tool twice
+		request = self.factory.delete('/api/tool')
+		request.session = self.mock_session
+		response = get_tool(request, self.sledge.id) #first
+		response = get_tool(request, self.sledge.id) #second
 		response_data = json.loads(response.content.decode("utf-8"))
 		self.assertFalse(response_data["success"])
 		

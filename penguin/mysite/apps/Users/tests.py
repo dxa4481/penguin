@@ -6,6 +6,7 @@ from django.utils import timezone
 
 #For model testing
 from .models import User
+from ..Tools.models import Tool		# Linked in database
 
 #For api testing
 from django.test.client import RequestFactory
@@ -19,11 +20,40 @@ from . import api_routes as api
 class UserTestCase(TestCase):
 	def setUp(self):
 		# Assume all usernames are unique, use them for lookup.
-		parrot = User(pk = 42, username='Parrot', password = 'password', area_code = '03545', email = 'polly@python.org', phone_number = '1234567890', default_pickup_arrangements = 'Pining for the fjords.')
+		parrot = User(
+			pk = 42, 
+			username='Parrot', 
+			hashed_password = 'password', 
+			salt = "NaCl",
+			zip_code = '03545', 
+			email = 'polly@python.org', 
+			phone_number = '1234567890', 
+			default_pickup_arrangements = 'Pining for the fjords.'
+			)
 		parrot.save()
-		af_swallow = User(pk = 2, username = 'African_Swallow', password = 'password', area_code = '03545', email = 'swallow@python.org', phone_number = '1234567890', default_pickup_arrangements = 'Incapable of lifting a coconut.')
+		af_swallow = User(
+			pk = 2, 
+			username = 'African_Swallow', 
+			hashed_password = 'password', 
+			salt = "NaCl",
+			zip_code = '03545', 
+			email = 'swallow@python.org', 
+			phone_number = '1234567890', 
+			default_pickup_arrangements = 
+				'Incapable of lifting a coconut.',
+			)
 		af_swallow.save()
-		eu_swallow = User(pk = 3, username = 'European_Swallow', password = 'password', area_code = '03545', email = 'swallow@python.org', phone_number = '1234567890', default_pickup_arrangements = 'Capable of lifting a coconut.')
+		eu_swallow = User(
+			pk = 3, 
+			username = 'European_Swallow', 
+			hashed_password = 'password', 
+			salt = "NaCl",
+			zip_code = '03545', 
+			email = 'swallow@python.org', 
+			phone_number = '1234567890', 
+			default_pickup_arrangements = 
+				'Capable of lifting a coconut.',
+			)
 		eu_swallow.save()
 
 	def test_create_new_user(self):
@@ -31,8 +61,8 @@ class UserTestCase(TestCase):
 		penguin = User.objects.get(username='Penguin')
 
 		self.assertEqual(penguin.username, 'Penguin')
-		self.assertEqual(penguin.password, 'password')
-		self.assertEqual(penguin.area_code, '03545')
+		#self.assertEqual(penguin.password, 'password') #can't compare this
+		self.assertEqual(penguin.zip_code, '03545')
 		self.assertEqual(penguin.email, 'penguin@python.org')
 		self.assertEqual(penguin.phone_number, '5555551234')
 		self.assertEqual(penguin.default_pickup_arrangements, 'It\'s on the telly.')
@@ -43,8 +73,8 @@ class UserTestCase(TestCase):
 		User.update_user("African_Swallow", "18005555555", "12345", "afswallow@python.edu", "Tie it to a length of string")
 		af_swallow = User.objects.get(username = "African_Swallow")
 		self.assertEqual(af_swallow.username, 'African_Swallow')
-		self.assertEqual(af_swallow.password, 'password')
-		self.assertEqual(af_swallow.area_code, '12345')
+		#self.assertEqual(af_swallow.password, 'password') #we can't compare this
+		self.assertEqual(af_swallow.zip_code, '12345')
 		self.assertEqual(af_swallow.email, 'afswallow@python.edu')
 		self.assertEqual(af_swallow.phone_number, '18005555555')
 		self.assertEqual(af_swallow.default_pickup_arrangements, "Tie it to a length of string")
@@ -59,6 +89,10 @@ class UserTestCase(TestCase):
 		self.assertEqual(guy.id, 42)
 		self.assertEqual(guy.username, "Parrot")
 
+	""" Deprecated - the User model is no longer in charge of 
+		instantiating new Tools.
+	"""
+	@unittest.skip
 	def test_create_new_tool(self):
 		parrot = User.objects.get(username="Parrot")
 		User.create_new_tool(parrot.id, "Coconut Threader", "For tying a length of thread between two coconuts", "needle", "parrot", "Stop by anytime.")
@@ -70,11 +104,24 @@ class UserTestCase(TestCase):
 		self.assertEqual(coco.shed, "parrot")
 		self.assertEqual(coco.tool_pickup_arrangements, "Stop by anytime.")
 		
+	""" Deprecated: This functionality now belongs to 
+		BorrowTransactions.
+	"""
+	@unittest.skip
 	def test_get_all_user_tools(self):
 		parrot = User.objects.get(username="Parrot")
-		User.create_new_tool(parrot.id, "Coconut Threader", "For tying a length of thread between two coconuts", "needle", "parrot", "Stop by anytime.")
+		coco = Tool(
+			name = "Coconut Threader", 
+			owner = parrot, 
+			description = "For tying a length of thread between two coconuts", 
+			tool_type = "needle",
+			tool_pickup_arrangements = "Stop by anytime.",
+			available_date = timezone.now(),
+			)
+		coco.save()
 		parrotTools = User.get_all_user_tools(parrot.id)
 		self.assertTrue(parrotTools.filter(name="Coconut Threader").exists())
+	
 
 """ Test the API Routes in this app """
 class UserApiTestCase(TestCase):
@@ -128,7 +175,7 @@ class UserApiTestCase(TestCase):
 			'zip_code' : '00612',
 			'email' : "ectoBiologist@skaia.net",
 			'phone_number' : '4134132009',
-			'default_pickup_arrangement' : "parcel pixys",
+			'default_pickup_arrangements' : "parcel pixys",
 		}
 	
 	def test_getSelf(self):
@@ -223,22 +270,22 @@ class UserApiTestCase(TestCase):
 			data = json.dumps(self.edit_john), 
 			content_type = "application/json",
 			)
-		#request.session = self.empty_session
+		request.session = self.mock_session
 		response = api.userById(request, self.john.id)
 			
 		# Did we get a clean response?
 		self.assertIsNotNone(response)
 		self.assertEqual(response.status_code, 200)
 		
-		# Did we get the right data?
+		# Did the data change?
 		response_data = json.loads(response.content.decode("utf-8"))
 		self.assertEqual(response_data["id"], self.john.id)
 		self.assertEqual(response_data["username"], self.john.username)
-		self.assertEqual(response_data["zip_code"], self.john.zip_code)
-		self.assertEqual(response_data["email"], self.john.email)
-		self.assertEqual(response_data["phone_number"], 
+		self.assertNotEqual(response_data["zip_code"], self.john.zip_code)
+		self.assertNotEqual(response_data["email"], self.john.email)
+		self.assertNotEqual(response_data["phone_number"], 
 			self.john.phone_number)
-		self.assertEqual(response_data["default_pickup_arrangements"], 
+		self.assertNotEqual(response_data["default_pickup_arrangements"], 
 			self.john.default_pickup_arrangements)
 		self.assertEqual(response_data["is_shed_coordinator"],
 			self.john.is_shed_coordinator)
