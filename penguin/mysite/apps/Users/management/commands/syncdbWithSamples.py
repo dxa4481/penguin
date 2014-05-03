@@ -34,30 +34,28 @@ class Command(BaseCommand):
 		Tool.create_new_tool('Screwdriver 9', '4', 'A purple screwdriver', 'screwdriver', True, "email me!")
 		Tool.create_new_tool('Screwdriver 10', '3', 'A purple screwdriver', 'screwdriver', True, "email me!")
 		
+		avail_date = timezone.now() + datetime.timedelta(days=20)
 		#request pending bt ID1
 		b = User.get_user(2)
 		t = Tool.get_tool(1)
-		bt = BorrowTransaction.create_new_borrow_transaction(b, t, "Can I haz this tool?")
+		bt = BorrowTransaction.create_new_borrow_transaction(b, t, "Can I haz this tool?", avail_date)
 		#borrowing bt ID2
 		t = Tool.get_tool(2)
-		bt = BorrowTransaction.create_new_borrow_transaction(b, t, "I want tool.")
+		bt = BorrowTransaction.create_new_borrow_transaction(b, t, "I want tool.", avail_date)
 		BorrowTransaction.approve_borrow_transaction(bt.id)
 		#rejected bt ID3
 		t = Tool.get_tool(3)
-		bt = BorrowTransaction.create_new_borrow_transaction(b, t, "I wanta da tool.")
+		bt = BorrowTransaction.create_new_borrow_transaction(b, t, "I wanta da tool.", avail_date)
 		BorrowTransaction.reject_borrow_transaction(bt.id, "screw you")
 		#return pending ID4
 		t = Tool.get_tool(4)
-		bt = BorrowTransaction.create_new_borrow_transaction(b, t, "All your tool are belong to us.")
+		bt = BorrowTransaction.create_new_borrow_transaction(b, t, "All your tool are belong to us.", avail_date)
 		BorrowTransaction.request_end_borrow_transaction(bt.id)
 		#returned transaction ID5
 		t = Tool.get_tool(5)
-		bt = BorrowTransaction.create_new_borrow_transaction(b, t, "All your tool are belong to us.")
+		bt = BorrowTransaction.create_new_borrow_transaction(b, t, "All your tool are belong to us.", avail_date)
 		BorrowTransaction.end_borrow_transaction(bt.id)
 		
-		
-		avail_date = timezone.now() + datetime.timedelta(days=20)
-		Tool.set_tool_unavailable(t.id, avail_date)
 		print("Added samples successfully!")	
 
 

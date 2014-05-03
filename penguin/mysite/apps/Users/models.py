@@ -81,7 +81,11 @@ class User(models.Model):
 	"""
 	@staticmethod
 	def get_user(userID):
-		return User.objects.get(pk=userID)
+		user_list = User.objects.filter(pk=userID)
+		if (len(user_list) == 0):
+			return False
+		else:
+			return user_list[0]
 	
 	""" Gets a user by searching for username
 	STATIC METHOD

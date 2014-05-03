@@ -27,11 +27,12 @@ class BorrowTransaction(models.Model):
 	:returns the ID of the borrow transaction that was created
 	"""
 	@staticmethod
-	def create_new_borrow_transaction(b, t, borrow_message):
+	def create_new_borrow_transaction(b, t, borrow_message, rent_date):
 		bt = BorrowTransaction(borrower=b, tool=t, borrower_message=borrow_message, owner_message="", status="borrow request pending")
 		if bt.tool.in_community_shed:
 			bt.in_community_shed=True
 			bt.status = "borrowing"
+		Tool.set_tool_unavailable(bt.tool.id, rent_date)
 		bt.save()
 		return bt
 
@@ -172,7 +173,7 @@ class BorrowTransaction(models.Model):
 	"""
 	@staticmethod
 	def get_unresolved_borrow_transactions(userID):
-		return BorrowTransaction.objects.filter(tool__owner=User.get_user(userID), status="borrow return pending")
+		return BorrowTransaction.objects.filter(tool__owner=User.get_user(userID), status="borrow request pending")
 		
 	""" Gets all BT with a status of "borrow return pending"
 	:param userID: Borrower's user ID

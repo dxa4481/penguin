@@ -31,7 +31,11 @@ class Message(models.Model):
 	"""
 	@staticmethod
 	def get_message(msgID):
-		return Message.objects.get(pk=msgID)
+		message_list = Message.objects.filter(pk=msgID)
+		if (len(bt_list) == 0):
+			return False
+		else:
+			return message_list[0]
 	
 	""" Marks a message as read
 	:param msgID: The ID of the message to mark read

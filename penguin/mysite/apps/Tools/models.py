@@ -72,7 +72,11 @@ class Tool(models.Model):
 	"""
 	@staticmethod
 	def get_tool(toolID):
-		return Tool.objects.get(pk=toolID)
+		tool_list = Tool.objects.filter(pk=toolID)
+		if(len(tool_list) == 0):
+			return False
+		else:
+			return tool_list[0]
 		
 		
 	""" Return tool's ID

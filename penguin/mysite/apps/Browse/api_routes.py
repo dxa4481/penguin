@@ -63,9 +63,8 @@ def borrowTransaction(request):
 		if (rent_date < datetime.datetime.now()):
 			return HttpResponse(json.dumps({"error":"Invalid date"}), content_type="application/json", status=400)
 		
-		current_tool = Tool.set_tool_unavailable(current_tool.id, rent_date)
 		user = User.get_user(request.session['user']['id'])
-		borrow_transaction = BorrowTransaction.create_new_borrow_transaction(user, current_tool, post_data["borrower_message"])
+		borrow_transaction = BorrowTransaction.create_new_borrow_transaction(user, current_tool, post_data["borrower_message"], rent_date)
 		return_bt = bt_to_json(borrow_transaction)
 		return HttpResponse(json.dumps(return_bt), content_type="application/json")
 		
