@@ -161,3 +161,23 @@ class User(models.Model):
 	@staticmethod
 	def get_all_admins():
 		return User.objects.filter(is_admin=True)
+		
+	""" Gets the shed coordinator for the given share zone
+	:param zip_c: the zip code to search in
+	:returns User object who is shed coordinator
+	"""
+	@staticmethod
+	def get_shed_coordinator_for_zip(zip_c):
+		return User.objects.get(is_shed_coordinator=True, zip_code=zip_c)
+		
+	""" Checks if a shed coord exists for given share zone
+	:param zip_c: zip code to search in
+	:returns True if shed coord exists, False otherwise
+	"""
+	@staticmethod 
+	def does_shed_coord_exist(zip_c):
+		u = User.objects.filter(is_shed_coordinator=True, zip_code=zip_c)
+		if (len(u) == 1):
+			return True
+		else:
+			return False

@@ -19,6 +19,8 @@ class Command(BaseCommand):
 		User.create_new_user('Schmitty', 'password', '03545', 'schmitty@schmitty.com', '1234567890', "come to my work")
 		User.create_new_user('Sam', 'password', '03545', 'sam@sam.com', '1234567890', "knock twice, then once, then twice again")
 		User.create_new_user('Nick', 'password', '03545', 'nick@nick.com', '1234567890', "use morse code on my door")
+		User.promote_user_to_admin(1)
+
 	
 		Tool.create_new_tool('Screwdriver 3', '1', 'A green screwdriver', 'screwdriver', False, "email me!")
 		Tool.create_new_tool('Screwdriver 4', '4', 'A purple screwdriver', 'screwdriver', False, "email me!")
