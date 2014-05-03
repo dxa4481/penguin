@@ -7,15 +7,6 @@ from .models import Tool
 from ...json_datetime import dt_to_milliseconds, milliseconds_to_dt
 from ..Users.models import User
 
-def validate_fields(fields):
-	for key in fields:
-		if key == "tool_pickup_arrangements":
-			pass
-		elif not fields[key]:
-			return False
-	return True
-
-
 @csrf_exempt
 def update(request):
 	#Update a tool
@@ -27,33 +18,18 @@ def update(request):
 		#Validate user is owner of tool, or admin
 		if ((current_user.is_admin==True) or (Tool.get_tool(tool_id).owner==current_user)):
 		
-			if not validate_fields(put_data):
-				error = {"error": "One or more fields were left blank, make sure all fields are filled in before submitting."}
-				return HttpResponse(json.dumps(error), content_type="application/json", status=400)
-	
 			# pickup arrangements field left blank -- revert to user's default pickup arrangements
-			
 			pickup_arrangement = current_user.default_pickup_arrangements
 			if put_data["tool_pickup_arrangements"]:
 				pickup_arrangement = put_data["tool_pickup_arrangements"]
-	
-			# convert str representing bool to actual bool
-			community_shed = False
-			if put_data["in_community_shed"] == "True":
-				community_shed = True
-	
-			# convert str representing bool to actual bool
-			tool_available = True
-			if put_data["tool_available"] == "False":
-				tool_available = False
 	
 			Tool.update_tool(tool_id,
 					put_data["name"],
 					put_data["description"],
 					put_data["tool_type"],
-					community_shed,
+					put_data["in_community_shed"],
 					pickup_arrangement, 
-					tool_available)
+					put_data["tool_available"])
 			tool = Tool.get_tool(tool_id)
 			return_tool = tool_to_json(tool)
 			return HttpResponse(json.dumps(return_tool), content_type="application/json")
@@ -64,10 +40,6 @@ def update(request):
 	#Create a tool
 	if request.method == "POST":
 		post_data = json.loads(request.body.decode("utf-8"))
-		
-		shed = False
-		if post_data["in_community_shed"] == "True":
-			shed = True
 		
 		# tool name field left empty -- error 400
 		if not post_data["name"]:
@@ -94,7 +66,7 @@ def update(request):
 				request.session["user"]["id"], 
 				post_data["description"], 
 				post_data["tool_type"], 
-				shed,
+				post_data["in_community_shed"],
 				pickup_arrangements)
 		return_tool = tool_to_json(new_tool)
 		return HttpResponse(json.dumps(return_tool), content_type="application/json")

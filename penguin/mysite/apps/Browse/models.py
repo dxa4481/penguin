@@ -58,7 +58,7 @@ class BorrowTransaction(models.Model):
 		bt.owner_message = ownerMessage
 		bt.status = "rejected"
 		bt.is_current_bt=False
-		bt.tool.is_available=False
+		Tool.set_tool_available(bt.tool.id)
 		bt.save()
 		return bt
 		

@@ -14,7 +14,6 @@ from ..Tools.api_routes import tool_to_json
 Takes a BorrowTransaction object and converts it into a dictionary for use with json
 
 @param transaction  the borrow transaction object
-
 @return  python dictionary 
 """
 def bt_to_json(transaction):
@@ -150,20 +149,14 @@ def resolve_borrow_request(request):
 			error = {"error": "transaction does not exist or has already been approved"}
 			return HttpResponse(json.dumps(error), content_type="application/json", status=400)
 
-
-		# 'resolution' not True or False -- status 400
-		resolution = True
-		if post_data["resolution"] != "True":
-			if post_data["resolution"] != "False":
-				error = {"error": "resolution was neither True nor False"}
-				return HttpResponse(json.dumps(error), content_type="application/json", status=400)
-			resolution = False
-		
-		if resolution:
+		# accept borrow request
+		if post_data["resolution"]:
 			approved_bt = BorrowTransaction.approve_borrow_transaction(bt.get_borrow_transaction_id())
 			return_bt = bt_to_json(approved_bt)
 			return HttpResponse(json.dumps(return_bt), content_type="application/json")
-		if not resolution :
+
+		# reject borrow request
+		if not post_data["resolution"]:
 			# owner doesn't give message when rejecting request -- status 400
 			if not post_data["owner_message"]:
 				error = {"error": "you must provide a message when rejecting a borrow request"}
@@ -183,20 +176,17 @@ status is not borrow_return_pending
 """
 @csrf_exempt
 def resolve_end_borrow_request(request, bt_id):
-	# transaction does not exist -- status 400
-	current_user = User.get_user_by_username(request.session['user']['username'])
-	current_transactions = BorrowTransaction.get_unresolved_borrow_transactions(current_user.id)
-	if not current_transactions:
-		error = {"error": "transaction does not exist"}
-		return HttpResponse(json.dumps(error), content_type="application/json", status=400)	
-
-	# status is not borrow_return_pending -- status 400
-	current_transaction = BorrowTransaction.get_borrow_transaction(bt_id)
-	if current_transaction.status != "borrow_return_pending":
-		error = {"error": "transaction is not return pending, cannot resolve end transaction."}
-		return HttpResponse(json.dumps(error), content_type="application/json", status=400)
-
 	if request.method == "DELETE":
+		# transaction does not exist -- status 400
+		try:
+			current_transaction = BorrowTransaction.get_borrow_transaction(bt_id)
+		except:
+			error = {"error" "transaction does not exist"}
+
+		# transaction status is not borrow_return_pending -- status 400
+		if current_transaction.status != "borrow return pending":
+			error = {"error": "transaction is not return pending, cannot resolve transaction."}
+			return HttpResponse(json.dumps(error), content_type="application/json", status=400)
 		bt = BorrowTransaction.end_borrow_transaction(bt_id)
 		return_bt = bt_to_json(bt)
 		return HttpResponse(json.dumps(return_bt), content_type="application/json")
