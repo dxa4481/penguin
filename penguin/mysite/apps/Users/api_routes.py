@@ -98,8 +98,7 @@ def user(request):
 						post_data["phone_number"],
 						post_data["default_pickup_arrangements"])
 		# check if user is first to zip code
-		area_users = User.get_user_by_zip_code(post_data["zip_code"])
-		if area_users.count() == 1:	# if user first to zip code, promote them to shed coordinator
+		if not User.does_shed_coord_exist(post_data["zip_code"]):
 			user_id = new_user.id
 			User.promote_user_to_shed_coordinator(user_id)
 			new_user = User.get_user(user_id)
