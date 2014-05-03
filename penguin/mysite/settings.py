@@ -43,7 +43,6 @@ INSTALLED_APPS = (
     'mysite.apps.Tools',
     'mysite.apps.Users',
     'mysite.apps.Browse',
-    'mysite.apps.Messages',
 )
 
 MIDDLEWARE_CLASSES = (
