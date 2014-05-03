@@ -22,14 +22,40 @@ class Command(BaseCommand):
 		User.promote_user_to_admin(1)
 
 	
-		Tool.create_new_tool('Screwdriver 3', '1', 'A green screwdriver', 'screwdriver', False, "email me!")
-		Tool.create_new_tool('Screwdriver 4', '4', 'A purple screwdriver', 'screwdriver', False, "email me!")
+		
 		Tool.create_new_tool('Drill 1', '3', 'A blue drill', 'drill', False, "email me!")
-		Tool.create_new_tool('Drill 2', '1', 'An orange drill', 'drill', False, "knock on my door")
-		Tool.create_new_tool('Drill 3', '2', 'A purple drill', 'drill', True, "find me at work")
-		b = User.get_user(2)
+		Tool.create_new_tool('Drill 2', '2', 'An orange drill', 'drill', False, "knock on my door")
+		Tool.create_new_tool('Drill 3', '2', 'A purple drill', 'drill', False, "find me at work")
+		Tool.create_new_tool('Drill 4', '4', 'A green drill', 'drill', False, "find me at work")
+		Tool.create_new_tool('Drill 5', '3', 'A yellow drill', 'drill', False, "find me at work")
+		Tool.create_new_tool('Drill 6', '2', 'A black drill', 'drill', False, "find me at work")
+		Tool.create_new_tool('Drill 7', '1', 'A brown drill', 'drill', False, "find me at work")
+		Tool.create_new_tool('Screwdriver 8', '1', 'A green screwdriver', 'screwdriver', True, "email me!")
+		Tool.create_new_tool('Screwdriver 9', '4', 'A purple screwdriver', 'screwdriver', True, "email me!")
+		Tool.create_new_tool('Screwdriver 10', '3', 'A purple screwdriver', 'screwdriver', True, "email me!")
+		
+		#request pending bt ID1
+		b = User.get_user(1)
 		t = Tool.get_tool(1)
-		BorrowTransaction.create_new_borrow_transaction(b, t, "Can I haz this tool?")
+		bt = BorrowTransaction.create_new_borrow_transaction(b, t, "Can I haz this tool?")
+		#borrowing bt ID2
+		t = Tool.get_tool(2)
+		bt = BorrowTransaction.create_new_borrow_transaction(b, t, "I want tool.")
+		BorrowTransaction.approve_borrow_transaction(bt.id)
+		#rejected bt ID3
+		t = Tool.get_tool(3)
+		bt = BorrowTransaction.create_new_borrow_transaction(b, t, "I wanta da tool.")
+		BorrowTransaction.reject_borrow_transaction(bt.id, "screw you")
+		#return pending ID4
+		t = Tool.get_tool(4)
+		bt = BorrowTransaction.create_new_borrow_transaction(b, t, "All your tool are belong to us.")
+		BorrowTransaction.request_end_borrow_transaction(bt.id)
+		#returned transaction ID5
+		t = Tool.get_tool(5)
+		bt = BorrowTransaction.create_new_borrow_transaction(b, t, "All your tool are belong to us.")
+		BorrowTransaction.end_borrow_transaction(bt.id)
+		
+		
 		avail_date = timezone.now() + datetime.timedelta(days=20)
 		Tool.set_tool_unavailable(t.id, avail_date)
 		print("Added samples successfully!")	
