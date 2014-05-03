@@ -150,7 +150,7 @@ class ToolTestCase(TestCase):
 		sledge.save()
 		self.assertFalse(Tool.is_tool_available(sledge.id))
 	
-	@unittest.expectedFailure
+	#@unittest.expectedFailure
 	def test_is_tool_available_deleted(self):
 		#if a tool is deleted, it should *definitely* not be available.
 		id = self.sledge.id
@@ -288,10 +288,7 @@ class ToolApiTestCase(TestCase):
 			self.needles_info["tool_pickup_arrangements"])
 		self.assertTrue(response_data["tool_available"])
 		
-	@unittest.expectedFailure
 	def test_updateTool(self):
-		""" The API Route doesn't know how to handle boolean literals.
-		"""
 		request = self.factory.put(
 			path = '/api/tool',
 			content_type = "application/json",
@@ -332,7 +329,7 @@ class ToolApiTestCase(TestCase):
 		self.assertTrue(response_data["success"])
 		self.assertNotIn(self.sledge, Tool.objects.all())
 	
-	@unittest.expectedFailure
+	#@unittest.expectedFailure
 	def test_deleteTool_bad(self):
 		""" there continues to be no error checking on deleting
 			nonexistant tools.

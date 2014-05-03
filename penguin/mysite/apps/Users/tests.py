@@ -228,10 +228,7 @@ class UserApiTestCase(TestCase):
 			self.john.is_shed_coordinator)
 		self.assertEqual(response_data["is_admin"], self.john.is_admin)
 		
-	@unittest.expectedFailure
 	def test_createNewUser(self):
-		""" New users being shed coordinators is not implimented yet.
-		"""
 		# Generate the request
 		request = self.factory.post(
 			path = '/api/user/',
