@@ -1,4 +1,5 @@
 from django.test import TestCase
+import unittest
 import datetime
 from django.utils import timezone
 from django.test.client import RequestFactory
@@ -27,50 +28,61 @@ class BorrowTransactionApiTestCase(TestCase):
 		# Set up a Request Factory
 		self.factory = RequestFactory()
 	
+	@unittest.skip #not ready yet
 	def test_requestBorrowTransaction(self):
 		request = self.factory.post('/api/borrowTransaction')
 	
+	@unittest.skip #not ready yet
 	def test_getUnresolvedBorrowTransactions(self):
 		request = self.factory.get(
 			path = '/api/borrowTransaction/requestPending'
 			)
 		
+	@unittest.skip #not ready yet
 	def test_resolveBorrowRequest(self):
 		request = self.factory.post('/api/borrowTransaction/resolve')
 	
+	@unittest.skip #not ready yet
 	def test_getRejectedRequests(self):
 		request = self.factory.get(
 			path = '/api/borrowTransaction/rejected/:id'
 			)
 	
+	@unittest.skip #not ready yet
 	def test_requestEndBorrowTransaction(self):
 		request = self.factory.put('/api/borrowTransaction')
 	
+	@unittest.skip #not ready yet
 	def test_getEndBorrowTransactionRequests(self):
 		request = self.factory.get(
 			path = '/api/borrowTransaction/endRequests'
 			)
 	
+	@unittest.skip #not ready yet
 	def test_resolveEndBorrowTransaction(self):
 		request = self.factory.delete(
 			path = '/api/borrowTransaction/:transactionId'
 			)
 	
+	@unittest.skip #not ready yet
 	def test_getToolsUserIsBorrowing(self):
 		request = self.factory.put(
 			path = '/api/borrowTransaction/borrowing/:userId'
 			)
 	
+	@unittest.skip #not ready yet
 	def test_getToolsUserIsLending(self):
 		request = self.factory.get(
 			path = '/api/borrowTransaction/borrowed/:userId'
 			)
 	
+	@unittest.skip #not ready yet
 	def test_getAllCommunityHistory(self):
 		request = self.factory.get(
 			path = '/api/borrowTransaction/community/:zip'
 			)
 	
+	@unittest.skip #not ready yet
 	def test_getAllReturnPendingBorrowTransactionsInCommunityShed(self):
 		request = self.factory.get(
 			path = '/api/borrowTransaction/pendingCommunity'
