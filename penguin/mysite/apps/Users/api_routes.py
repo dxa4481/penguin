@@ -43,6 +43,7 @@ def user(request):
 		invalid zipcode
 		invalid phone number
 		Missing Fields
+		first user to zip, auto promote to shed_coordinator
 	"""
 	if request.method == 'POST':
 		post_data = json.loads(request.body.decode("utf-8"))
@@ -96,46 +97,53 @@ def user(request):
 						post_data["email"],
 						post_data["phone_number"],
 						post_data["default_pickup_arrangements"])
+		# check if user is first to zip code
+		area_users = User.get_user_by_zip_code(post_data["zip_code"])
+		if area_users.count() == 1:	# if user first to zip code, promote them to shed coordinator
+			user_id = new_user.id
+			User.promote_user_to_shed_coordinator(user_id)
+			new_user = User.get_user(user_id)
 		return_user = user_to_json(new_user)
 		request.session['user'] = return_user
 		return HttpResponse(json.dumps(return_user), content_type="application/json")
 
-
-		# invalid phone number -- error 400
-		if not validate_phone_number(put_data["phone_number"]):
-			error = {"error": "You entered an invalid phone number!"}
-			return HttpResponse(json.dumps(error), content_type="application/json", status=400)
-
-		if request.session['user']['zip_code'] != put_data['zip_code']:
-		# user is shed coordinator, can't change zip -- error 403
-			if request.session["user"]["is_shed_coordinator"]:
-				error = {"error": "You are currently shed coordinator, you may not change your zip code.  Please contact an admin."}
-				return HttpResponse(json.dumps(error), content_type="application/json", status=403)
-
-		# user has tools being borrowed, can't change zip -- error 403
-			current_user = User.get_user_by_username(request.session['user']["username"])
-			if BorrowTransaction.get_unresolved_borrow_transactions(current_user.id):
-				error = {"error": "Some of your tools are currently being borrowed, you may not change your zip code.  Please contact an admin."}
-				return HttpResponse(json.dumps(error), content_type="application/json", status=403)
-
-		# user is borrowing tools, can't change zip -- error 403
-			if BorrowTransaction.get_borrower_borrow_transactions(current_user.id):
-				error = {"error": "You are currently borrowing tools, you may not change your zip code.  Please contact an admin."}
-				return HttpResponse(json.dumps(error), content_type="application/json", status=403)
-
-		# default pickup arrangements field left blank -- error 400
-		if not put_data["default_pickup_arrangements"]:
-			error ={"error": "pickup arrangements field was left blank.  Please specify your pickup arrangements"}
-			return HttpResponse(json.dumps(error), content_type="application/json", status=400)
-
-		update_user = User.update_user( request.session['user']['username'],
-						put_data['phone_number'],
-						put_data['zip_code'],
-						put_data['email'],
-						put_data['default_pickup_arrangements'])
-		return_user = user_to_json(update_user)
-		request.session["user"] = return_user
-		return HttpResponse(json.dumps(return_user), content_type="application/json")
+#	if request.method == "PUT":
+#
+#		# invalid phone number -- error 400
+#		if not validate_phone_number(put_data["phone_number"]):
+#			error = {"error": "You entered an invalid phone number!"}
+#			return HttpResponse(json.dumps(error), content_type="application/json", status=400)
+#
+#		if request.session['user']['zip_code'] != put_data['zip_code']:
+#		# user is shed coordinator, can't change zip -- error 403
+#			if request.session["user"]["is_shed_coordinator"]:
+#				error = {"error": "You are currently shed coordinator, you may not change your zip code.  Please contact an admin."}
+#				return HttpResponse(json.dumps(error), content_type="application/json", status=403)
+#
+#		# user has tools being borrowed, can't change zip -- error 403
+#			current_user = User.get_user_by_username(request.session['user']["username"])
+#			if BorrowTransaction.get_unresolved_borrow_transactions(current_user.id):
+#				error = {"error": "Some of your tools are currently being borrowed, you may not change your zip code.  Please contact an admin."}
+#				return HttpResponse(json.dumps(error), content_type="application/json", status=403)
+#
+#		# user is borrowing tools, can't change zip -- error 403
+#			if BorrowTransaction.get_borrower_borrow_transactions(current_user.id):
+#				error = {"error": "You are currently borrowing tools, you may not change your zip code.  Please contact an admin."}
+#				return HttpResponse(json.dumps(error), content_type="application/json", status=403)
+#
+#		# default pickup arrangements field left blank -- error 400
+#		if not put_data["default_pickup_arrangements"]:
+#			error ={"error": "pickup arrangements field was left blank.  Please specify your pickup arrangements"}
+#			return HttpResponse(json.dumps(error), content_type="application/json", status=400)
+#
+#		update_user = User.update_user( request.session['user']['username'],
+#						put_data['phone_number'],
+#						put_data['zip_code'],
+#						put_data['email'],
+#						put_data['default_pickup_arrangements'])
+#		return_user = user_to_json(update_user)
+#		request.session["user"] = return_user
+#		return HttpResponse(json.dumps(return_user), content_type="application/json")
 
 @csrf_exempt
 def userById(request, user_id):
@@ -173,8 +181,11 @@ def userById(request, user_id):
 	"""
 	if request.method == 'PUT':
 		put_data = json.loads(request.body.decode("utf-8"))
-		current_user = request.session['user']['id']
-		if(user_id == current_user.id or current_user.is_admin==True):
+		u_id = request.session['user']['id']
+		current_user_id = int(u_id)
+		user_id = int(user_id)
+		current_user = User.get_user(current_user_id)
+		if((user_id == current_user_id) or (current_user.is_admin==True)):
 			
 			# invalid zipcode -- error 400
 			if (not validate_zip_code(put_data["zip_code"])):
