@@ -100,7 +100,11 @@ class BorrowTransaction(models.Model):
 	"""
 	@staticmethod
 	def get_borrow_transaction(btID):
-		return BorrowTransaction.objects.get(pk=btID)
+		bt_list = BorrowTransaction.objects.filter(pk=btID)
+		if (len(bt_list) == 0):
+			return False
+		else:
+			return bt_list[0]
 
 	""" Gets a borrow transaction's ID
 	:return borrow transaction's ID
@@ -168,7 +172,7 @@ class BorrowTransaction(models.Model):
 	"""
 	@staticmethod
 	def get_unresolved_borrow_transactions(userID):
-		return BorrowTransaction.objects.filter(Q(borrower=User.get_user(userID)) & (Q(status="borrow request pending") | Q(status="borrowing") | Q(status="borrow return pending")))
+		return BorrowTransaction.objects.filter(tool__owner=User.get_user(userID), status="borrow return pending")
 		
 	""" Gets all BT with a status of "borrow return pending"
 	:param userID: Borrower's user ID
@@ -176,8 +180,8 @@ class BorrowTransaction(models.Model):
 	"""
 	@staticmethod
 	def get_return_pending_borrow_transactions(userID):
-		borr = User.get_user(userID)
-		return BorrowTransaction.objects.filter(borrower=borr, status="borrow return pending")
+		user = User.get_user(userID)
+		return BorrowTransaction.objects.filter(tool__owner=user, status="borrow return pending")
 		
 	""" Gets a request pending borrow transaction for a tool
 	:param toolID: The tool ID pertaining to the borrow transaction
