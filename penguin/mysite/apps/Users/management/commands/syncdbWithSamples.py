@@ -23,19 +23,19 @@ class Command(BaseCommand):
 
 	
 		
-		Tool.create_new_tool('Drill 1', '3', 'A blue drill', 'drill', False, "email me!")
-		Tool.create_new_tool('Drill 2', '2', 'An orange drill', 'drill', False, "knock on my door")
-		Tool.create_new_tool('Drill 3', '2', 'A purple drill', 'drill', False, "find me at work")
-		Tool.create_new_tool('Drill 4', '4', 'A green drill', 'drill', False, "find me at work")
-		Tool.create_new_tool('Drill 5', '3', 'A yellow drill', 'drill', False, "find me at work")
-		Tool.create_new_tool('Drill 6', '2', 'A black drill', 'drill', False, "find me at work")
+		Tool.create_new_tool('Drill 1', '1', 'A blue drill', 'drill', False, "email me!")
+		Tool.create_new_tool('Drill 2', '1', 'An orange drill', 'drill', False, "knock on my door")
+		Tool.create_new_tool('Drill 3', '1', 'A purple drill', 'drill', False, "find me at work")
+		Tool.create_new_tool('Drill 4', '1', 'A green drill', 'drill', False, "find me at work")
+		Tool.create_new_tool('Drill 5', '1', 'A yellow drill', 'drill', False, "find me at work")
+		Tool.create_new_tool('Drill 6', '1', 'A black drill', 'drill', False, "find me at work")
 		Tool.create_new_tool('Drill 7', '1', 'A brown drill', 'drill', False, "find me at work")
 		Tool.create_new_tool('Screwdriver 8', '1', 'A green screwdriver', 'screwdriver', True, "email me!")
 		Tool.create_new_tool('Screwdriver 9', '4', 'A purple screwdriver', 'screwdriver', True, "email me!")
 		Tool.create_new_tool('Screwdriver 10', '3', 'A purple screwdriver', 'screwdriver', True, "email me!")
 		
 		#request pending bt ID1
-		b = User.get_user(1)
+		b = User.get_user(2)
 		t = Tool.get_tool(1)
 		bt = BorrowTransaction.create_new_borrow_transaction(b, t, "Can I haz this tool?")
 		#borrowing bt ID2
