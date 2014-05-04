@@ -5,6 +5,7 @@ import datetime
 from django.utils import timezone
 from django.core.management import call_command
 from django.core.management.base import BaseCommand, CommandError
+import random
 
 
 class Command(BaseCommand):
@@ -33,6 +34,15 @@ class Command(BaseCommand):
 		Tool.create_new_tool('Screwdriver 8', '1', 'A green screwdriver', 'screwdriver', True, "email me!")
 		Tool.create_new_tool('Screwdriver 9', '4', 'A purple screwdriver', 'screwdriver', True, "email me!")
 		Tool.create_new_tool('Screwdriver 10', '3', 'A purple screwdriver', 'screwdriver', True, "email me!")
+		for i in range(0, 150):
+			user_num = random.choice(range(1,5))
+			tool_type = random.choice(['drill', 'screwdriver', 'hammer', 'nailgun', 'pliers', 'wrench', 'knife', 'awl'])
+			descrip = random.choice(['red', 'blue', 'purple', 'orange', 'brown', 'decrepit', 'functional', 'working', 'broken', 'bent', 'shoddy'])
+			in_comm_shed = random.choice([True, False, False, False])
+			pickup_arrangement = random.choice(['email me', 'knock on my door', 'find me at work', 'call me', 'go bother my wife', 
+												'go bother my husband', 'drive through the wall', 'kick in the door to my shed'])
+			
+			Tool.create_new_tool("Tool " + str(i), user_num, str("a " + descrip + " " + tool_type), tool_type, in_comm_shed, pickup_arrangement)
 		
 		avail_date = timezone.now() + datetime.timedelta(days=20)
 		#request pending bt ID1
@@ -55,6 +65,9 @@ class Command(BaseCommand):
 		t = Tool.get_tool(5)
 		bt = BorrowTransaction.create_new_borrow_transaction(b, t, "All your tool are belong to us.", avail_date)
 		BorrowTransaction.end_borrow_transaction(bt.id)
+		
+		#make Andrew a shed coordinator
+		User.promote_user_to_shed_coordinator(2)
 		
 		print("Added samples successfully!")	
 
