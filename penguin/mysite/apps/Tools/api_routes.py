@@ -9,15 +9,42 @@ from ..Users.models import User
 
 @csrf_exempt
 def update(request):
-	#Update a tool
+	"""
+	edit a tool
+	PUT
+	url -> /api/tool
+
+	possible errors:
+	id not an int
+	tool being borrowed -- cannot edit
+	"""
 	if request.method == "PUT":
 		put_data = json.loads(request.body.decode("utf-8"))
+		# user not logged in -- error 401
+		try:
+			request.session['user']
+		except KeyError:
+			error = {"error": "access denied, no user logged in"}
+			return HttpResponse(json.dumps(error), content_type="application/json", status=401)
+
 		tool_id = int(put_data["id"])
 		current_user = User.get_user_by_username(request.session['user']['username'])
-		
+
+		# tool does not exist -- error 400
+		current_tool = Tool.get_tool(tool_id)
+		if current_tool == False:
+			error = {"error": "tool does not exist"}
+			return HttpResponse(json.dumps(error), content_type="application/json", status=400)
+
 		#Validate user is owner of tool, or admin
 		if ((current_user.is_admin==True) or (Tool.get_tool(tool_id).owner==current_user)):
-		
+
+			# tool is currently being borrowed -- error 400
+			current_tool = Tool.get_tool(tool_id)
+			if not current_tool.is_available:
+				error = {"error": "tool is being borrowed, cannot edit attributes"}
+				return HttpResponse(json.dumps(error), content_type="application/json", status=400)
+
 			# pickup arrangements field left blank -- revert to user's default pickup arrangements
 			pickup_arrangement = current_user.default_pickup_arrangements
 			if put_data["tool_pickup_arrangements"]:
@@ -40,6 +67,12 @@ def update(request):
 	#Create a tool
 	if request.method == "POST":
 		post_data = json.loads(request.body.decode("utf-8"))
+		# make sure user is logged in first -- error 401
+		try:
+			current_user = User.get_user_by_username(request.session["user"]["username"])
+		except KeyError:
+			error = {"error": "access denied, you are currently not logged in"}
+			return HttpResponse(json.dumps(error), content_type="application/json", status=401)
 		
 		# tool name field left empty -- error 400
 		if not post_data["name"]:
@@ -57,7 +90,7 @@ def update(request):
 			return HttpResponse(json.dumps(error), content_type="application/json", status=400)
 
 		# tool pickup arrangements left empty -- use user's default pickup arrangements
-		current_user = User.get_user_by_username(request.session["user"]["username"])
+#		current_user = User.get_user_by_username(request.session["user"]["username"])
 		pickup_arrangements = current_user.default_pickup_arrangements
 		if post_data["tool_pickup_arrangements"]:
 			pickup_arrangements = post_data["tool_pickup_arrangements"]
@@ -71,12 +104,36 @@ def update(request):
 		return_tool = tool_to_json(new_tool)
 		return HttpResponse(json.dumps(return_tool), content_type="application/json")
 
-	
+"""
+get tool
+GET
+
+possible errors:
+tool does not exist
+tool id is not an int
+"""
 @csrf_exempt
 def get_tool(request, tool_id):
 	if request.method == "GET":
-		tool_id = int(tool_id)
+		# no user logged in -- error 401
+		try:
+			request.session['user']['id']
+		except KeyError:
+			error = {"error": "access denied, no user logged in"}
+			return HttpResponse(json.dumps(error), content_type="application/json", status=401)
+		# tool id is not an int -- error 400
+		try:
+			tool_id = int(tool_id)
+		except ValueError:
+			error = {"error": "tool id not an int"}
+			return HttpResponse(json.dumps(error), content_type="application/json", status=400)
 		tool = Tool.get_tool(tool_id)
+		
+		# tool does not exist -- error 400
+		if tool == False:
+			error = {"error": "tool does not exist"}
+			return HttpResponse(json.dumps(error), content_type="application/json", status=400)
+
 		return_tool = tool_to_json(tool)
 		return HttpResponse(json.dumps(return_tool), content_type="application/json")
 		
@@ -87,9 +144,33 @@ def get_tool(request, tool_id):
 	  * Tool can be deleted while it's checked out.
 	"""
 	if request.method == "DELETE":
+		# no user logged in -- error 401
+		try:
+			request.session['user']
+		except KeyError:
+			error = {"error": "access denied, no user logged in"}
+			return HttpResponse(json.dumps(error), content_type="application/json", status=400)
+
+		# tool id not an int -- error 400
+		try:
+			int(tool_id)
+		except ValueError:
+			error = {"error": "tool id not an int"}
+			return HttpResponse(json.dumps(error), content_type="application/json", status=400)
+
+		# tool does not exist -- error 400
+		current_tool = Tool.get_tool(tool_id)
+		if current_tool == False:
+			error = {"error": "tool does not exist"}
+			return HttpResponse(json.dumps(error), content_type="application/json", status=400)
+
 		#Validate user is owner of tool, or admin
 		current_user = User.get_user_by_username(request.session['user']['username'])
 		if ((current_user.is_admin==True) or (Tool.get_tool(tool_id).owner==current_user)):
+			# tool is being borrowed -- error 400
+			if not current_tool.is_available:
+				error = {"error": "tool is currently being borrowed, cannot delete"}
+				return HttpResponse(json.dumps(error), content_type="application/json", status=400)
 			try:
 				Tool.delete_tool(tool_id)
 				returnmsg = { 'success': True }
