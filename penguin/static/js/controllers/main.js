@@ -266,10 +266,16 @@ var setActive = function($rootScope, $timeout, BorrowTransaction, activeThing){
 	console.log("wat");
 	if(!polling){
 		polling = true;
+		$rootScope.test = ''
 		var notifications = function(){
+			$rootScope.test = $rootScope.test + "asdf";
                         BorrowTransaction.getPendingRequests().
                         	success(function(data){
-                                	$rootScope.transactionRequests ? addToFirstArrayById($rootScope.transactionRequests, data) : $rootScope.transactionRequests = data;
+					var updateNotifications = function(){
+						$rootScope.transactionRequests = data;
+					};
+					updateNotifications()
+		
                                 }).
                                 error(function(data, status){
                                 	if(typeof data === "object"){
@@ -281,7 +287,7 @@ var setActive = function($rootScope, $timeout, BorrowTransaction, activeThing){
                                 });
                         BorrowTransaction.getEndRequests().
                         	success(function(data){
-                                	$rootScope.endTransactionRequests ? addToFirstArrayById($rootScope.endTransactionRequests, data) : $rootScope.endTransactionRequests = data;
+                                	$rootScope.endTransactionRequests = data;
                                 }).
                                 error(function(data, status){
                                 	if(typeof data === "object"){
@@ -292,7 +298,7 @@ var setActive = function($rootScope, $timeout, BorrowTransaction, activeThing){
                                         }
                                 });
 					
-                        $timeout(notifications, 1000);
+                        $timeout(notifications, 6000);
                 }
 		notifications();
 	}
@@ -301,18 +307,3 @@ var setActive = function($rootScope, $timeout, BorrowTransaction, activeThing){
 	$rootScope.active[activeThing] = "active";
 }
 
-var addToFirstArrayById = function(array1, array2){
-	for (var j = 0; j < array2.length; j++) {
-		var inArray = false;
-		for(var i = 0; i < array1.length; i++){
-			if(array1[j].id = array2[i]){
-				inArray = true;
-				break;
-			}
-		}
-		if(!inArray){
-			array1.push(array2[j])
-		}
-	}
-	return array1;
-}
