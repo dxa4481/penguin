@@ -18,7 +18,7 @@ class Command(BaseCommand):
 		User.create_new_user('Dan', 'password', '03545', 'dan@dan.com', '1234567890', "email me!")
 		User.create_new_user('Andrew', 'password', '03545', 'andrew@andrew.com', '1234567890', "come to my house")
 		User.create_new_user('Schmitty', 'password', '03545', 'schmitty@schmitty.com', '1234567890', "come to my work")
-		User.create_new_user('Sam', 'password', '03545', 'sam@sam.com', '1234567890', "knock twice, then once, then twice again")
+		User.create_new_user('Samantha', 'password', '03545', 'sam@sam.com', '1234567890', "knock twice, then once, then twice again")
 		User.create_new_user('Nick', 'password', '03545', 'nick@nick.com', '1234567890', "use morse code on my door")
 		User.promote_user_to_admin(1)
 
@@ -34,15 +34,32 @@ class Command(BaseCommand):
 		Tool.create_new_tool('Screwdriver 8', '1', 'A green screwdriver', 'screwdriver', True, "email me!")
 		Tool.create_new_tool('Screwdriver 9', '4', 'A purple screwdriver', 'screwdriver', True, "email me!")
 		Tool.create_new_tool('Screwdriver 10', '3', 'A purple screwdriver', 'screwdriver', True, "email me!")
+		
+		avail_date = timezone.now() + datetime.timedelta(days=20)
+		
 		for i in range(0, 150):
 			user_num = random.choice(range(1,5))
-			tool_type = random.choice(['drill', 'screwdriver', 'hammer', 'nailgun', 'pliers', 'wrench', 'knife', 'awl'])
-			descrip = random.choice(['red', 'blue', 'purple', 'orange', 'brown', 'decrepit', 'functional', 'working', 'broken', 'bent', 'shoddy'])
+			name1 = random.choice(['Antimatter ', 'Autodynamic ', 'Catalytic ', 'Covalent ', 'Energized ', 'Gyromorphic ',
+									'Maser ' ,'Neutronium ', 'Nuclear ','Subspace ' ,'Zero-point '])
+			tool_type = random.choice(['Drill', 'Screwdriver', 'Hammer', 'Nailgun', 'Pliers', 'Wrench', 'Knife', 'Awl'])
+			descrip = random.choice(['Red', 'Blue', 'Purple', 'Orange', 'Brown', 'Decrepit', 'Functional', 'Working', 'Broken', 'Bent', 'Shoddy'])
 			in_comm_shed = random.choice([True, False, False, False])
-			pickup_arrangement = random.choice(['email me', 'knock on my door', 'find me at work', 'call me', 'go bother my wife', 
-												'go bother my husband', 'drive through the wall', 'kick in the door to my shed'])
+			pickup_arrangement = random.choice(['send an email to me and wait for my reply', 'knock on my door three times, then once more', 
+												'find me at work and tell my boss you are a doctor', 'call me over and over and over again', 
+												'go bother my wife and tell her I am productive', 'go bother my husband and tell him to get back to work', 
+												'drive through the wall and into my living room', 'kick in the door to my shed and take it', 
+												'go around back of the house and find it in the garden'])
+			if i==73:
+				Tool.create_new_tool('Mr. Wobbles', '4', 'Hits the spot', 'Marital aid', False, 'come inside if you dont see the red pickup truck')
+			Tool.create_new_tool(str(name1 + tool_type), user_num, str("A " + descrip + " " + tool_type), tool_type, in_comm_shed, pickup_arrangement)
 			
-			Tool.create_new_tool("Tool " + str(i), user_num, str("a " + descrip + " " + tool_type), tool_type, in_comm_shed, pickup_arrangement)
+			if (random.choice(range(10)) == 7):
+				t = Tool.get_tool(i)
+				b = User.get_user(user_num)
+				borrow_message = random.choice(['I want this tool please' , 'Can I borrow this?', 'I promise I will give it back soon', 'I really need this', 
+												'You are the best! Please let me use this?'])
+				bt = BorrowTransaction.create_new_borrow_transaction(b, t, borrow_message, avail_date)
+				BorrowTransaction.end_borrow_transaction(bt.id)
 		
 		avail_date = timezone.now() + datetime.timedelta(days=20)
 		#request pending bt ID1
