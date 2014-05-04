@@ -6,11 +6,17 @@
 	       	 <div class="well well-sm" ng-model="dt">
 		   <datepicker min="minDate" show-weeks="showWeeks"></datepicker>
 	         </div>
+		<form name="form" role="form" novalidate>
+	           <div class="form-group">
+                	<input type="text" class="form-control" placeholder="Leave a message for {{tool.owner}}" ng-model="message" name="message" required autofocus/><br />
+        	   </div>
+		</form>
+
 	       </div>
 	       <div class="col-md-4">
-		       <p class="text-primary">How long would you like to borrow this {{tool.tool_type}}?</p>
-		       <button class="btn btn-primary" ng-click="ok(dt)">Borrow!</button>
-		       <button class="btn btn-primary" ng-click="cancel()">Cancel!</button
+		       <p class="text-primary">When would you like to return this {{tool.tool_type}}?</p>
+		       <button class="btn btn-primary" ng-click="ok({date: dt.getTime(),borrower_message: message, toolId: tool.id})">Ask</button>
+		       <button class="btn btn-primary" ng-click="cancel()">Cancel</button>
 	       </div>
 	     </div>
 	</div>

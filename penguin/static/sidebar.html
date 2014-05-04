@@ -10,7 +10,7 @@
    <div ng-if="$root.transactionRequests">
       Borrow requests:
       <ul ng-repeat="transactionRequest in $root.transactionRequests">
-         <li>{{transactionRequest.borrower}} would like to borrow {{transactionRequest.tool.name}}. {{transactionRequest.borrower}}: "{{transactionRequest.borrower_message}}"
+         <li>{{transactionRequest.borrower}} would like to borrow {{transactionRequest.tool.name}}. "{{transactionRequest.borrower_message}}"
             <input type="text" class="form-control" placeholder="Reply Message" ng-model="transactionRequest.owner_message" name="owner_message" autofocus/><br />
             <button class="btn btn-primary" ng-click="resolveTransaction(true, transactionRequest)">Approve!</button>
             <button class="btn btn-primary" ng-click="$root.resolveTransaction(false, transactionRequest)">Reject!</button>

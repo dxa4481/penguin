@@ -95,8 +95,8 @@ angular.module('toolShareControllers', [])
 				controller: borrowModalController,
 				resolve: {tool: function(){return $scope.tool}}
 			});
-			modalInstance.result.then(function(date){
-				BorrowTransaction.create({date:date.getTime(), toolId:tool.id}).
+			modalInstance.result.then(function(transaction){
+				BorrowTransaction.requestStart(transaction).
 					success(function(data){
 						tool.is_available = false;
 					}).
@@ -245,8 +245,9 @@ var borrowModalController = function($scope, $modalInstance, tool){
 	$scope.format = $scope.formats[0];
 
 	
-	$scope.ok = function (dt) {
-		$modalInstance.close(dt);
+	$scope.ok = function (transaction) {
+		if(!transaction.borrower_message){transaction.borrower_message="No Message"};
+		$modalInstance.close(transaction);
 	};
 
 	$scope.cancel = function () {
@@ -263,12 +264,9 @@ var set_tool_availability = function(tools){
 }
 
 var setActive = function($rootScope, $timeout, BorrowTransaction, activeThing){
-	console.log("wat");
 	if(!polling){
 		polling = true;
-		$rootScope.test = ''
 		var notifications = function(){
-			$rootScope.test = $rootScope.test + "asdf";
                         BorrowTransaction.getPendingRequests().
                         	success(function(data){
 					var updateNotifications = function(){

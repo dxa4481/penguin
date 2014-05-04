@@ -66,6 +66,7 @@ angular.module('toolShareServices', [])
 		return {
 			requestStart: function(transactionData){
 				//{toolId: 3, date: datetime}
+				console.log(transactionData)
 				return $http.post('/api/borrowTransaction', transactionData);
 			},
 			resolveStartRequest: function(transactionData){
