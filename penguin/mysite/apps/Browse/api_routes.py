@@ -197,7 +197,10 @@ url -> /api/borrowTransaction/requestPending
 @csrf_exempt
 def get_unresolved_borrow_transactions(request):
 	if request.method == "GET":
-		user_id = request.session['user']['id']
+		try:
+			user_id = request.session['user']['id']
+		except:
+			return HttpResponse(json.dumps({"error": "not logged in"}), content_type="application/json", status=401)
 		unresolved_transactions = BorrowTransaction.get_unresolved_borrow_transactions(user_id)
 		return_transactions = []
 		for transaction in unresolved_transactions:
@@ -236,7 +239,11 @@ url -> /api/borrowTransaction/endRequests
 @csrf_exempt
 def get_end_borrow_transaction_requests(request):
 	if request.method == "GET":
-		end_requests = BorrowTransaction.get_return_pending_borrow_transactions(request.session['user']['id'])
+		try:
+			user_id = request.session['user']['id']
+		except:
+			return HttpResponse(json.dumps({"error": "not logged in"}), content_type="application/json", status=401)
+		end_requests = BorrowTransaction.get_return_pending_borrow_transactions(user_id)
 		return_transactions = []
 		for transaction in end_requests:
 			if(not transaction.tool.in_community_shed):

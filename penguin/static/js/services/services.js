@@ -18,7 +18,7 @@ angular.module('toolShareServices', [])
                                 return $http.post('/api/user', userData);
                         },
 			update : function(userData) {
-				return $http.put('/api/user', userData);
+				return $http.put('/api/user/' + userData.id, userData);
 			},
                         delete : function(userId) {
                                 return $http.delete('/api/user/' + userId);

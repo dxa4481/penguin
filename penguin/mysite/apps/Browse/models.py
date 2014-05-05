@@ -208,4 +208,9 @@ class BorrowTransaction(models.Model):
 	"""
 	@staticmethod
 	def get_all_return_pending_in_community_shed(zip_c):
-		return BorrowTransaction.objects.filter(status="borrow return pending", tool__in_community_shed=True)
+		all_communities = BorrowTransaction.objects.filter(status="borrow return pending", tool__in_community_shed=True)
+		just_in_zip = []
+		for borrowTransaction in all_communities:
+			if(borrowTransaction.tool.owner.zip_code == zip_c):
+				just_in_zip.append(borrowTransaction)
+		return just_in_zip

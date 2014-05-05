@@ -31,4 +31,8 @@ toolShareApp.config(function($routeProvider){
 			templateUrl: '/static/pages/login.html',
 			controller: 'logoutController'
 		})
+		.when('/error',{
+			templateUrl: '/static/pages/error.html',
+			controller: 'errorController'
+		})
 });

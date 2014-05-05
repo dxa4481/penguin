@@ -7,7 +7,7 @@ phone_number_regex = /^[\s()+-]*([0-9][\s()+-]*){6,20}$/;
 
 angular.module('toolShareControllers', [])
 	// inject the Todo service factory into our controller
-	.controller('mainController', function($scope, $rootScope, $timeout, $location, User) {
+	.controller('mainController', function($scope, $rootScope, $modal, $timeout, $location, User) {
 		$scope.register = false;
 		$scope.tryLogin = function(user){
 			console.log(user)
@@ -22,7 +22,7 @@ angular.module('toolShareControllers', [])
                                                 $scope.error = data;
                                         }
 					else{
-						$location.path('/');
+						$location.path('/error');
 					}
 				});
 			
@@ -35,14 +35,25 @@ angular.module('toolShareControllers', [])
 			User.create(user).
 				success(function(data){
 					$rootScope.user = data;
-					$location.path('/home');
+					if($rootScope.user.is_shed_coordinator){
+						var modalInstance = $modal.open({
+                                			templateUrl: '/static/pages/communityShedModal.html',
+                                			controller: shedCoordinatorModalController,
+                                			resolve: {}
+                        			});
+                        			modalInstance.result.then(function(){
+							$location.path('/home');
+						});
+					}else{
+						$location.path('/home');
+					}
 				}).
                                 error(function(data, status){
                                         if(typeof data === "object"){
                                                 $scope.error = data;
                                         }
                                         else{
-                                                $location.path('/');
+                                                $location.path('/error');
                                         }
                                 });
 
@@ -58,14 +69,15 @@ angular.module('toolShareControllers', [])
 		};
 		
 	})
-	.controller('logoutController', function($location, $rootScope, User){
+	.controller('logoutController', function($location, $timeout, $rootScope, User){
 		User.logout().
                 	success(function(data){
+				$timeout.cancel($rootScope.cronJob);
 				delete $rootScope.user;
                         	$location.path('/');
                         }).
                         error(function(data, status){
-                                $location.path('/');
+                                $location.path('/error');
                         });
 
 
@@ -84,7 +96,7 @@ angular.module('toolShareControllers', [])
                                         $scope.error = data;
                                 }
                                 else{
-                                        $location.path('/');
+                                        $location.path('/error');
                                 }
                         });
 
@@ -105,7 +117,7 @@ angular.module('toolShareControllers', [])
                                                 	$scope.error = data;
                                         	}
                                         	else{
-                                                	$location.path('/');
+                                                	$location.path('/error');
                                         	}
                                 	});
 
@@ -113,7 +125,7 @@ angular.module('toolShareControllers', [])
 
 		};
 	})
-
+	.controller('errorController', function(){})
 	.controller('toolsController', function($scope, $timeout, $rootScope, $location, $modal, User, Tool, BorrowTransaction){
 		var cb = function(){
 			BorrowTransaction.getBorrowing($rootScope.user.id).
@@ -126,7 +138,7 @@ angular.module('toolShareControllers', [])
                                                 $scope.error = data;
                                         }
                                         else{
-                                                $location.path('/');
+                                                $location.path('/error');
                                         }
                                 });
 
@@ -148,7 +160,7 @@ angular.module('toolShareControllers', [])
                                                 $scope.error = data;
                                         }
                                         else{
-                                                $location.path('/');
+                                                $location.path('/error');
                                         }
                                 });
 		}
@@ -167,7 +179,7 @@ angular.module('toolShareControllers', [])
                                                         $scope.error = data;
                                                 }
                                                 else{
-                                                        $location.path('/');
+                                                        $location.path('/error');
                                                 }
                                         });
 
@@ -186,7 +198,7 @@ angular.module('toolShareControllers', [])
                                                 $scope.error = data;
                                         }
                                         else{
-                                                $location.path('/');
+                                                $location.path('/error');
                                         }
 			});
 
@@ -201,7 +213,7 @@ angular.module('toolShareControllers', [])
                                 	$scope.error = data;
                                 }
                                 else{
-                                        $location.path('/');
+                                        $location.path('/error');
                                 }
                        });
 	})
@@ -222,11 +234,11 @@ angular.module('toolShareControllers', [])
                                                 $scope.error = data;
                                         }
                                         else{
-                                                $location.path('/');
+                                                $location.path('/error');
                                         }
                                 });
 		}
-		setActive($rootScope, $timeout, $location, User, $BorrowTransaction, "profile");
+		setActive($rootScope, $timeout, $location, User, BorrowTransaction, "profile");
 		$scope.register = false;
 		$scope.editing = true;
 		$scope.zipCodePattern = zip_code_regex;
@@ -252,7 +264,7 @@ angular.module('toolShareControllers', [])
                                                 $scope.error = data;
                                         }
                                         else{
-                                                $location.path('/');
+                                                $location.path('/error');
                                         }
                                 });
 
@@ -270,10 +282,19 @@ var getUser = function($location, rootScope, User, cb){
 			cb();
 		}).
                 error(function(data, status){
-                	$location.path('/');
+                	$location.path('/error');
 		});
 
 }
+
+var shedCoordinatorModalController = function($scope, $modalInstance){
+
+        $scope.cancel = function () {
+                $modalInstance.close();
+        };
+
+}
+
 
 var editToolModalController = function($scope, $modalInstance, tool){
 	$scope.tool = tool;
@@ -343,10 +364,10 @@ var setActive = function($rootScope, $timeout, $location, User, BorrowTransactio
 				}).
 				error(function(data, status){
                                         if(typeof data === "object"){
-                                                $scope.error = data;
+                                                console.log(data);
                                         }
                                         else{
-                                                $location.path('/');
+                                                $location.path('/error');
                                         }
                                 });
 		}
@@ -363,10 +384,10 @@ var setActive = function($rootScope, $timeout, $location, User, BorrowTransactio
                                 }).
                                 error(function(data, status){
                                         if(typeof data === "object"){
-                                                $scope.error = data;
+                                                console.log(data);
                                         }
                                         else{
-                                                $location.path('/');
+                                                $location.path('/error');
                                         }
                                 });
 
@@ -389,10 +410,10 @@ var setActive = function($rootScope, $timeout, $location, User, BorrowTransactio
                                 }).
                                 error(function(data, status){
                                 	if(typeof data === "object"){
-                                        	$scope.error = data;
+                                        	console.log("not logged in");
                                         }
                                         else{
-                                        	$location.path('/');
+                                        	$location.path('/error');
                                         }
                                 });
                         if($rootScope.user.is_shed_coordinator)
@@ -408,10 +429,10 @@ var setActive = function($rootScope, $timeout, $location, User, BorrowTransactio
 						}).
 						error(function(data, status){
 						if(typeof data === "object"){
-							$scope.error = data;
+							console.log("not logged in");
 						}
 						else{
-							$location.path('/');
+							$location.path('/error');
 						}
 					});
 			BorrowTransaction.getEndRequests().
@@ -425,14 +446,14 @@ var setActive = function($rootScope, $timeout, $location, User, BorrowTransactio
                                 }).
                                 error(function(data, status){
                                 	if(typeof data === "object"){
-                                        	$scope.error = data;
+                                        	console.log("not logged in");
                                         }
                                         else{
-                                        	$location.path('/');
+                                        	$location.path('/error');
                                         }
                                 });
 					
-                        $timeout(notifications, 6000);
+			$rootScope.cronJob = $timeout(notifications, 1000);
                 }
 		getUser($location, $rootScope, User, notifications);
 	}
