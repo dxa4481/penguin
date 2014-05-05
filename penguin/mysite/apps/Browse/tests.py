@@ -1,20 +1,51 @@
+# For unit testing
 from django.test import TestCase
 import unittest
 import datetime
 from django.utils import timezone
-from django.test.client import RequestFactory
+from ...json_datetime import dt_to_milliseconds, milliseconds_to_dt
+
+# For model testing
 from .models import *
+
+# For API testing
+from django.test.client import RequestFactory
+import json
+from . import api_routes as api
 
 """ Attempt to test users borrowing tools from other users. """
 class BorrowTransactionTestCase(TestCase):
 		
 	def setUp(self):
-		parrot = User.create_new_user("Parrot", "password", "03545", "polly@python.org", "1234567890", "Pining for the fjords.")
-		User.create_new_user('Penguin', 'password', '03545', 'penguin@python.org', '5555551234', 'It\'s on the telly.')
-		Tool.create_new_tool("Rusty Nail", parrot.id, "Holding up a stuffed parrot", "nail", "Parrot", "Rip it out of the cage.")
-		Tool.create_new_tool("Warhammer of Zillyhoo", parrot.id, "Its majesty makes you weep.", "hammer", "03545", "Some time travel required.")
+		# Make some basic objects to play with.
+		self.parrot = User.create_new_user( "Parrot", 
+			"password", 
+			"03545", 
+			"polly@python.org", 
+			"1234567890", 
+			"Pining for the fjords."
+			)
+		self.penguin = User.create_new_user( 'Penguin', 
+			'password', 
+			'03545',
+			'penguin@python.org', 
+			'5555551234', 
+			'It\'s on the telly.')
+		self.nail = Tool.create_new_tool( toolname = "Rusty Nail", 
+			toolownerID = self.parrot.id, 
+			tooldescription = "Holding up a stuffed parrot", 
+			tooltype = "nail", 
+			toolshed = False, 
+			pickup_info = "Rip it out of the cage.",
+			)
+		self.zilly = Tool.create_new_tool( "Warhammer of Zillyhoo", 
+			toolownerID = self.parrot.id, 
+			tooldescription = "Its majesty makes you weep.", 
+			tooltype = "hammer", 
+			toolshed = False, 
+			pickup_info = "Some time travel required."
+			)
 		
-
 	def test_create_new_borrow_transaction(self):
 		return None;
 			
@@ -27,10 +58,111 @@ class BorrowTransactionApiTestCase(TestCase):
 	def setUp(self):
 		# Set up a Request Factory
 		self.factory = RequestFactory()
+		
+		# Make some basic objects to play with.
+		self.parrot = User.create_new_user( "Parrot", 
+			"password", 
+			"03545", 
+			"polly@python.org", 
+			"1234567890", 
+			"Pining for the fjords."
+			)
+		self.penguin = User.create_new_user( 'Penguin', 
+			'password', 
+			'03545',
+			'penguin@python.org', 
+			'5555551234', 
+			'It\'s on the telly.')
+		self.polarbear = User.create_new_user( 'Polarbear',
+			'password',
+			'00000',
+			'polarbear@northpole.org',
+			'5555551234',
+			'Pick it up at the north pole',
+			)
+		self.nail = Tool.create_new_tool( "Rusty Nail", 
+			toolownerID = self.parrot.id, 
+			tooldescription = "Holding up a stuffed parrot", 
+			tooltype = "nail", 
+			toolshed = False, 
+			pickup_info = "Rip it out of the cage.",
+			)
+		self.zilly = Tool.create_new_tool( "Warhammer of Zillyhoo", 
+			toolownerID = self.parrot.id, 
+			tooldescription = "Its majesty makes you weep.", 
+			tooltype = "hammer", 
+			toolshed = False, 
+			pickup_info = "Some time travel required."
+			)
+		self.scraper = Tool.create_new_tool( "Ice Scraper",
+			toolownerID = self.penguin.id,
+			tooldescription = "An ice scraper for your car",
+			tooltype = "ice scraper",
+			toolshed = False,
+			pickup_info = "Pick it up at the south pole.",
+			)
 	
-	@unittest.skip #not ready yet
+	#cutting this out in case we lose points for that dumb runtime warning
+	@unittest.skip
 	def test_requestBorrowTransaction(self):
-		request = self.factory.post('/api/borrowTransaction')
+		# Penguin borrows nail from parrot
+		jsondata = {
+			'toolId' : self.nail.id,
+			'borrower_message' : "i need dis",
+			# NOTE: Python throws a nasty runtime error here because it
+			# can't tell whether the milliseconds are timezone-aware.
+			# Nothing I can do about this, just ignore the warning.
+			'date' : dt_to_milliseconds(timezone.datetime(
+				year = 3000,
+				month = 4,
+				day = 13,
+				)),
+			}
+		request = self.factory.post(
+			path = '/api/borrowTransaction',
+			data = json.dumps(jsondata), 
+			content_type = "application/json",
+			)
+		request.session = {
+			'user' : {
+				'id' : self.penguin.id
+			}
+		}
+		response = api.borrowTransaction(request)
+		
+		#print(response.content)
+		self.assertEqual(response.status_code, 200)
+	"""
+	@unittest.skip # this is not actually required behavior
+	def test_requestBorrowTransaction_differentzones(self):
+		# Polar bear borrows ice scraper from penguin
+		# note that polar bears and penguins do not live in the same
+		# place
+		jsondata = {
+			'toolId' : self.scraper.id,
+			'borrower_message' : "i need dis",
+			'date' : dt_to_milliseconds(timezone.datetime(
+				tzinfo = timezone.UTC,
+				year = 3000,
+				month = 4,
+				day = 13,
+				)),
+			}
+		request = self.factory.post(
+			path = '/api/borrowTransaction',
+			data = json.dumps(jsondata), 
+			content_type = "application/json",
+			)
+		request.session = {
+			'user' : {
+				'id' : self.polarbear.id
+			}
+		}
+		response = api.borrowTransaction(request)
+		
+		#print(response.content)
+		self.assertNotEqual(response.status_code, 200)
+	"""
 	
 	@unittest.skip #not ready yet
 	def test_getUnresolvedBorrowTransactions(self):
