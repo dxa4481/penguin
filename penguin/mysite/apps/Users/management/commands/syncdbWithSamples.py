@@ -31,8 +31,15 @@ class Command(BaseCommand):
 		for i in range(0, 150):
 			user_num = random.choice(range(1,5))
 			name1 = random.choice(['Antimatter ', 'Autodynamic ', 'Catalytic ', 'Covalent ', 'Energized ', 'Gyromorphic ',
-									'Maser ' ,'Neutronium ', 'Nuclear ','Subspace ' ,'Zero-point '])
-			tool_type = random.choice(['Drill', 'Screwdriver', 'Hammer', 'Nailgun', 'Pliers', 'Wrench', 'Knife', 'Awl'])
+									'Maser ' ,'Neutronium ', 'Nuclear ','Subspace ' ,'Zero-point ', 'Ingenuitive ',
+						'Multi-Platform ', 'NP-Complete ', 'Revolutionary ', 'Regression ', 'Recursive ', 'Crowd-Sourced ', 
+						'Thought Based ', 'Web 2.0 ', 'Middleware ', 'Innovative ', 'Beta ', 'Alpha ', 'Synergetic ', 'Aggregating ',
+						'Big O ', 'Cloud Based ', 'Cloud Service ', 'Service Oriented ', 'Reactive ', 'Net Neutral ', 'Agile ',
+						'Plug-n-play ', 'Open Source ', 'Location Aware '])
+			tool_type = random.choice(['Drill', 'Screwdriver', 'Hammer', 'Nailgun', 'Pliers', 'Wrench', 'Knife', 'Awl', 'Web Platform',
+							'3D Printer', 'Revolutionizer', 'Recursion', 'Middleware', 'Innovator', 'Synergizer', 'Data Aggregator',
+							'Cloud Software', 'Architecture', 'Service Oriented Architecture', 'Paradigm', 'NoSQL Database', 
+							'Utility Curve', 'Big Data Process', 'Data Warehouse'])
 			descrip = random.choice(['Red', 'Blue', 'Purple', 'Orange', 'Brown', 'Decrepit', 'Functional', 'Working', 'Broken', 'Bent', 'Shoddy'])
 			in_comm_shed = random.choice([True, False, False, False])
 			pickup_arrangement = random.choice(['send an email to me and wait for my reply', 'knock on my door three times, then once more', 
@@ -41,8 +48,8 @@ class Command(BaseCommand):
 												'drive through the wall and into my living room', 'kick in the door to my shed and take it', 
 												'go around back of the house and find it in the garden'])
 			if i==73:
-				Tool.create_new_tool('Mr. Wobbles', '4', 'Hits the spot', 'Marital aid', False, 'come inside if you dont see the red pickup truck')
-			Tool.create_new_tool(str(name1 + tool_type), user_num, str("A " + descrip + " " + tool_type), tool_type, in_comm_shed, pickup_arrangement)
+				Tool.create_new_tool('Mr. Wobbles', '4', 'Hits the spot', 'Marital aid', False, 'come inside if you dont see the red pickup truck', True)
+			Tool.create_new_tool(str(name1 + tool_type), user_num, str("A " + descrip + " " + tool_type), tool_type, in_comm_shed, pickup_arrangement, True)
 			
 			bt_choice = random.choice(range(10))
 			if (bt_choice >= 6):

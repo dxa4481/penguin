@@ -101,7 +101,7 @@ def update(request):
 				post_data["tool_type"], 
 				post_data["in_community_shed"],
 				pickup_arrangements,
-				put_data["tool_available"])
+				post_data["tool_available"])
 		return_tool = tool_to_json(new_tool)
 		return HttpResponse(json.dumps(return_tool), content_type="application/json")
 
