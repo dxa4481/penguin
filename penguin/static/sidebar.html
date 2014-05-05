@@ -3,7 +3,7 @@
    <li ng-class="$root.active.tools"><a href="#tools">Manage tools</a></li>
    <li ng-class="$root.active.profile"><a href="#profile">Edit profile</a></li>
    <li ng-class="$root.active.community"><a href="#community">Community statistics</a></li>
-   <li><a href="#logout">Logout!</a></li>
+   <li><a href="#logout">Logout</a></li>
 </ul>
 
 <div>
@@ -31,7 +31,7 @@
          </li>
      </td>
    </tr>
-   <tr ng-if="$root.endTransactionRequests.length != 0">
+   <tr ng-if="! $root.user.is_shed_coordinator && $root.endCommunityTransactionRequests.length != 0">
     <td>
       Community return requests:
       <ul ng-repeat="endTransactionRequest in $root.endCommunityTransactionRequests">

@@ -103,7 +103,7 @@ def getToolsBorrowing(request, user_id):
 		transactions = BorrowTransaction.get_borrower_borrow_transactions(user_id)
 		return_tools = []
 		for transaction in transactions:
-			return_tools.append(tool_to_json(transaction.tool))
+			return_tools.append(bt_to_json(transaction))
 				
 		return HttpResponse(json.dumps(return_tools), content_type="application/json")
 		
@@ -114,7 +114,7 @@ def getToolsLending(request, user_id):
 		tools_lending = []
 		transactions = BorrowTransaction.get_borrow_transaction_user_owns(user_id)
 		for transaction in transactions:
-				tools_lending.append(tool_to_json(transaction.tool))
+				tools_lending.append(bt_to_json(transaction))
 				
 		return HttpResponse(json.dumps(tools_lending), content_type="application/json")
 
@@ -239,8 +239,9 @@ def get_end_borrow_transaction_requests(request):
 		end_requests = BorrowTransaction.get_return_pending_borrow_transactions(request.session['user']['id'])
 		return_transactions = []
 		for transaction in end_requests:
-			return_bt = bt_to_json(transaction)
-			return_transactions.append(return_bt)
+			if(not transaction.tool.in_community_shed):
+				return_bt = bt_to_json(transaction)
+				return_transactions.append(return_bt)
 		return HttpResponse(json.dumps(return_transactions), content_type="application/json")
 
 """

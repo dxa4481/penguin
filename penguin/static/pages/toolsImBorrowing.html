@@ -6,24 +6,25 @@
                 <th>Tool Owner</th>
                 <th>Tool pickup arrangements</th>
                 <th>Shed</th>
-                <th>Availability</th>                                   
+                <th>Status</th>                                   
         </thead>                                                        
         <tbody>                                                         
-                <tr ng-repeat="tool in borrowingTools | filter:searchText">      
-                        <td>{{tool.name}}</td>
-                        <td>{{tool.tool_type}}</td>
-                        <td>{{tool.description}}</td>
-                        <td>{{tool.owner}}</td>
-                        <td>{{tool.tool_pickup_arrangements}}</td>      
-                        <td ng-switch on=tool.in_community_shed>           
+                <tr ng-repeat="borrowingTransaction in borrowingTransactions | filter:searchText">      
+                        <td>{{borrowingTransaction.tool.name}}</td>
+                        <td>{{borrowingTransaction.tool.tool_type}}</td>
+                        <td>{{borrowingTransaction.tool.description}}</td>
+                        <td>{{borrowingTransaction.tool.owner}}</td>
+                        <td>{{borrowingTransaction.tool.tool_pickup_arrangements}}</td>      
+                        <td ng-switch on=borrowingTransaction.tool.in_community_shed>           
                                 <div ng-switch-when="true">Community shed</div>
-                                <div ng-switch-when="false">{{tool.owner}}'s shed</div>
+                                <div ng-switch-when="false">{{borrowingTransaction.tool.owner}}'s shed</div>
                         </td>
-                        <td ng-switch on=tool.is_available>
-                                <div ng-switch-when="true">
-                                        <button type="button" class="btn btn-primary" ng-click="openModal(tool)">Borrow!</button>
-                                </div>
-                                <div ng-switch-when="false">being borrowed</td>
+                        <td ng-switch on=borrowingTransaction.status>
+                                <div ng-switch-when="borrow request pending">Awaiting approval</div>
+				<div ng-switch-when="borrowing">
+                                        <button type="button" class="btn btn-primary" ng-click="requestReturn(borrowingTransaction)">Return</button>
+				</div>
+                                <div ng-switch-when="borrow return pending">Awaiting return confirmation</td>
                         </td>                                           
                 </tr>                                                   
         </tbody>

@@ -6,6 +6,8 @@
                 <th>Tool pickup arrangements</th>
                 <th>Shed</th>
                 <th>Availability</th>
+		<th>Edit</th>
+		<th>Delete</th>
         </thead>
         <tbody>
                 <tr ng-repeat="tool in myTools | filter:searchText">
@@ -18,9 +20,17 @@
                                 <div ng-switch-when="false">{{tool.owner}}'s shed</div>
                         </td>
                         <td ng-switch on=tool.is_available>
-                                <div ng-switch-when="true">It's in the shed!</div>
-                                <div ng-switch-when="false">It's being borrowed</div>
+                                <div ng-switch-when="true">It's available</div>
+                                <div ng-switch-when="false">There are actions pending</div>
                         </td>
+			<td ng-switch on=tool.is_available>
+				<p ng-switch-when="false">Disabled until available</p>
+				<button ng-switch-when="true" class="btn btn-primary" ng-click="editTool(tool)">Edit</button>
+			</td>
+			<td ng-switch on=tool.is_available>
+				<p ng-switch-when="false">Disabled until available</p>
+				<button ng-switch-when="true" class="btn btn-danger" ng-click="deleteTool(tool)">Delete</button>
+			</td>
                 </tr>
         </tbody>
      </table>

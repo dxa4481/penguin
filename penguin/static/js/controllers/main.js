@@ -114,12 +114,12 @@ angular.module('toolShareControllers', [])
 		};
 	})
 
-	.controller('toolsController', function($scope, $timeout, $rootScope, $location, User, Tool, BorrowTransaction){
+	.controller('toolsController', function($scope, $timeout, $rootScope, $location, $modal, User, Tool, BorrowTransaction){
 		var cb = function(){
 			BorrowTransaction.getBorrowing($rootScope.user.id).
 				success(function(data){
 					var tools = set_tool_availability(data)
-                                        $scope.borrowingTools = tools;
+                                        $scope.borrowingTransactions = tools;
                         	}).
                                 error(function(data, status){
                                         if(typeof data === "object"){
@@ -138,6 +138,59 @@ angular.module('toolShareControllers', [])
 		setActive($rootScope, $timeout, $location, User, BorrowTransaction, "tools");
 		$scope.activeTools = 'myTools';
 		$scope.myToolsClass = 'active';
+		$scope.requestReturn = function(borrowTransaction){
+			BorrowTransaction.requestEnd({toolId: borrowTransaction.tool.id}).
+				success(function(data){
+                                        borrowTransaction.status = data.status;
+                                }).
+                                error(function(data, status){
+                                        if(typeof data === "object"){
+                                                $scope.error = data;
+                                        }
+                                        else{
+                                                $location.path('/');
+                                        }
+                                });
+		}
+		$scope.editTool = function(tool){
+                        $scope.tool = tool
+                        var modalInstance = $modal.open({
+                                templateUrl: '/static/pages/toolEditorModal.html',
+                                controller: editToolModalController,
+                                resolve: {tool: function(){return $scope.tool}}
+                        });
+                        modalInstance.result.then(function(tool){
+                                Tool.update(tool).
+                                        success(function(data){}).
+                                        error(function(data, status){
+                                                if(typeof data === "object"){
+                                                        $scope.error = data;
+                                                }
+                                                else{
+                                                        $location.path('/');
+                                                }
+                                        });
+
+                        });
+
+                };
+		$scope.deleteTool = function(tool){
+			Tool.delete(tool.id).
+                        	success(function(data){
+					for(var i=0; i<$scope.myTools.length; i++){
+						if($scope.myTools[i].id == tool.id){$scope.myTools.splice(i, 1)};
+					}
+				}).
+                                error(function(data, status){
+                                        if(typeof data === "object"){
+                                                $scope.error = data;
+                                        }
+                                        else{
+                                                $location.path('/');
+                                        }
+			});
+
+		}
 		Tool.getByUser().
 			success(function(data){
 				var tools = set_tool_availability(data);
@@ -222,6 +275,17 @@ var getUser = function($location, rootScope, User, cb){
 
 }
 
+var editToolModalController = function($scope, $modalInstance, tool){
+	$scope.tool = tool;
+        $scope.ok = function (tool) {
+                $modalInstance.close(tool);
+        };
+
+        $scope.cancel = function (tool) {
+                $modalInstance.dismiss('cancel');
+        };
+
+}
 
 var borrowModalController = function($scope, $modalInstance, tool){
 	$scope.tool = tool;		
@@ -383,7 +447,7 @@ var addToSetById = function(array1, array2){
 		set[array2[i].id] = array2[i];
 	}
 	for(var i=0; i<array1.length; i++){
-                if(! array1[i].id in set){
+                if(array1[i].id in set){
 			delete set[array1[i].id];
 		}else{removeSet.push(i)}
         }
