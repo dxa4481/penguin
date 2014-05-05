@@ -1,4 +1,4 @@
-var toolShareApp = angular.module('toolShareApp', ['ui.bootstrap', 'ngRoute', 'toolShareControllers', 'toolShareServices']);
+var toolShareApp = angular.module('toolShareApp', ['ui.bootstrap', 'angularCharts', 'ngRoute', 'toolShareControllers', 'toolShareServices']);
 
 toolShareApp.config(function($routeProvider){
 	$routeProvider

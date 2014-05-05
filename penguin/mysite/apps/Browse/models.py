@@ -202,6 +202,15 @@ class BorrowTransaction(models.Model):
 		t = Tool.get_tool(toolID)
 		return BorrowTransaction.objects.get(Q(tool=t) & (Q(status="borrow request pending") | Q(status="borrowing") | Q(status="borrow return pending")))
 
+
+	@staticmethod
+	def get_all_community_history(zip_code):
+		all_communities = BorrowTransaction.objects.filter(tool__in_community_shed=True)
+		just_in_zip = []
+		for borrowTransaction in all_communities:
+			if(borrowTransaction.tool.owner.zip_code == zip_code):
+				just_in_zip.append(borrowTransaction)
+		return just_in_zip
 	"""Gets all return pending transactions in a community shed
 	:param zip_c: The zip code for the community shed
 	:returns list of borrow transactions

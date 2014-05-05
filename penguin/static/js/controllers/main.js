@@ -272,8 +272,51 @@ angular.module('toolShareControllers', [])
 	})
 
         .controller('communityController', function($scope, $timeout, $rootScope, $location, User, Tool, BorrowTransaction){
-		if($rootScope.user == undefined){getUser($location, $rootScope, User, function(){})}
+		var cb = function(){
+			BorrowTransaction.getCommunityHistory($rootScope.user.zip_code).
+				success(function(data){
+					var borrowers = {};
+					for(var i=0; i<data.length; i++){
+						if(data[i].borrower in borrowers){
+							borrowers[data[i].borrower]++
+						}else{
+							borrowers[data[i].borrower] = 1;
+						}
+					}
+					var chart_data = {series: ['Borrows'], data: []};
+					for(key in borrowers){
+						chart_data.data.push({"x": key, "y": [borrowers[key]]})
+					}
+					console.log(chart_data);
+					console.log("ass");
+					$scope.data = chart_data;
+				}).
+				error(function(data, status){
+                        		if(typeof data === "object"){
+                                		$scope.error = data;
+                                	}
+                                	else{
+                                        	$location.path('/error');
+                                	}
+                		});
+		}
+		if($rootScope.user == undefined){getUser($location, $rootScope, User, cb)}else{cb()};
 		setActive($rootScope, $timeout, $location, User, BorrowTransaction, "community");
+		$scope.chartType = 'bar';
+		$scope.config = {
+			title : '',
+			tooltips: true,
+			labels : false,
+			mouseover: function() {},
+			mouseout: function() {},
+			click: function() {},
+			legend: {
+				display: true,
+    				//could be 'left, right'
+    				position: 'left'
+  			}
+		}
+		
 	})
 var getUser = function($location, rootScope, User, cb){
 	User.get().
@@ -282,7 +325,10 @@ var getUser = function($location, rootScope, User, cb){
 			cb();
 		}).
                 error(function(data, status){
-                	$location.path('/error');
+                	if(typeof data === "object"){
+			}else{
+				$location.path('/error');
+			}
 		});
 
 }

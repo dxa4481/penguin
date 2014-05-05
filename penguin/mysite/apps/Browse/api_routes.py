@@ -97,6 +97,16 @@ def borrowTransaction(request):
 		return_bt = bt_to_json(transaction)
 		return HttpResponse(json.dumps(return_bt), content_type="application/json")
 		
+
+@csrf_exempt
+def pull_entire_community(request, zip_code):
+	if request.method == "GET":
+		transactions = BorrowTransaction.get_all_community_history(zip_code)
+		return_transactions = []
+		for transaction in transactions:
+			return_transactions.append(bt_to_json(transaction))
+		return HttpResponse(json.dumps(return_transactions), content_type="application/json")
+
 @csrf_exempt
 def getToolsBorrowing(request, user_id):
 	if request.method == "GET":

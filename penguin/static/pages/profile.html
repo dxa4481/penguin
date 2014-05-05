@@ -2,7 +2,47 @@
   <div class="col-xs-2">
     <div ng-include src="'/static/sidebar.html'"></div>
   </div>
-  <div class="col-xs-8">  
-    <div ng-include src="'/static/pages/login.html'"</div>
+  <div class="col-xs-8">
+
+<div class="container">
+  <div class="row">
+   <div class="col-md-4 col-md-offset-4">
+   <div class="well span6">	   
+      <form name="form" class="form-horizontal" role="form" novalidate>
+
+	   <div class="form-group" ng-class="{'has-error': form.zip_code.$dirty && form.zip_code.$error.pattern}">
+	      <input type="text" class="form-control" placeholder="zip code" ng-model="$root.user.zip_code" name="zip_code" ng-pattern="zipCodePattern" required/><br />
+	      <span ng-show="form.zip_code.$dirty && form.zip_code.$error.pattern" class="help-block">Invalid zip code!</span>
+           </div>
+	   <div class="form-group" ng-class="{'has-error': form.email.$dirty && form.email.$error.email}"> 
+	      <input type="email" class="form-control" placeholder="email" ng-model="$root.user.email" name="email" required/><br />
+              <span ng-show="form.email.$dirty && form.email.$error.email" class="help-block">Invalid email!</span>
+           </div>
+
+	   <div class="form-group" ng-class="{'has-error': form.phone_number.$dirty && form.phone_number.$error.pattern}">  
+	      <input type="text" class="form-control" placeholder="phone number" ng-model="$root.user.phone_number" ng-pattern="phoneNumberPattern" name="phone_number" required/><br />
+	      <span ng-show="form.phone_number.$dirty && form.phone_number.$error.pattern" class="help-block">Invalid phone number!</span>
+
+	   </div>
+
+	    <div class="form-group" ng-class="{'has-error': false}">
+	      <input type="text" class="form-control" placeholder="default tool puckup arrangements" ng-model="$root.user.default_pickup_arrangements" name="default_pickup_arrangements" required/><br />
+	    </div>
+
+
+	    <div class="form-group">
+                <button class="btn btn-primary" ng-click="trySaving($root.user)" ng-disabled="form.$invalid">Edit</button>
+            </div>
+
+
+    	</div>	
+
+
+      <p>{{error.error}}</p>
+    </form>
   </div>
+  </div>
+ </div>
+</div>
+</div>
 </div>
