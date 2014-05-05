@@ -28,11 +28,13 @@ class Tool(models.Model):
 	:param tooltype: type of tool
 	:param shed: true if tool is in community shed, false otherwise
 	:param pickup_info: the tool's pickup arrangements
+	:param tool_available: whether that tool is available or not
 	:return The tool that was just added
 	"""
 	@staticmethod
-	def create_new_tool(toolname, toolownerID, tooldescription, tooltype, toolshed, pickup_info):
-		t = Tool(name=toolname, owner=User.get_user(toolownerID), description=tooldescription, tool_type=tooltype, in_community_shed=toolshed, tool_pickup_arrangements=pickup_info)
+	def create_new_tool(toolname, toolownerID, tooldescription, tooltype, toolshed, pickup_info, tool_available):
+		t = Tool(name=toolname, owner=User.get_user(toolownerID), description=tooldescription, tool_type=tooltype, 
+					in_community_shed=toolshed, tool_pickup_arrangements=pickup_info, is_available=tool_available)
 		t.available_date = timezone.now() - datetime.timedelta(days=5)
 		t.save()
 		return t
