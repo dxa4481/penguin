@@ -3,6 +3,7 @@
     <div ng-include src="'/static/sidebar.html'"></div>
   </div>
   <div class="col-xs-10">
+   <p>{{error.error}}</p>
    <ul class="nav nav-tabs" id="myTab">
           <li ng-class="myToolsClass"> <a ng-click="activeTools = 'myTools'; myToolsClass='active'; borrowingClass='';">My Tools</a></li>
           <li ng-class="borrowingClass"> <a ng-click="activeTools = 'borrowingTools'; myToolsClass=''; borrowingClass='active';">Tools I'm Borrowing</a></li>

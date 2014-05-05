@@ -85,20 +85,23 @@ angular.module('toolShareControllers', [])
 	.controller('homepageController', function($scope, $timeout, $rootScope, $modal, $location, User, Tool, BorrowTransaction){
 		setActive($rootScope, $timeout, $location, User, BorrowTransaction, "home");		
 		
-		if($rootScope.user == undefined){getUser($location, $rootScope, User, function(){})};
-		Tool.getInArea().
-			success(function(data){
-				var tools = set_tool_availability(data)
-				$scope.tools = tools;
-			}).
-                        error(function(data, status){
-                        	if(typeof data === "object"){
-                                        $scope.error = data;
-                                }
-                                else{
-                                        $location.path('/error');
-                                }
-                        });
+		var cb = function(){
+			Tool.getInArea().
+				success(function(data){
+					var tools = data;
+					tools = removeOwnTools(tools, $rootScope.user.username)
+					$scope.tools = tools;
+				}).
+                        	error(function(data, status){
+                        		if(typeof data === "object"){
+                                        	$scope.error = data;
+                                	}
+                                	else{
+                                        	$location.path('/error');
+                                	}
+                        	});
+		};
+		if($rootScope.user == undefined){getUser($location, $rootScope, User, cb)}else{cb()};
 
 		$scope.openModal = function(tool){
 			$scope.tool = tool
@@ -130,7 +133,7 @@ angular.module('toolShareControllers', [])
 		var cb = function(){
 			BorrowTransaction.getBorrowing($rootScope.user.id).
 				success(function(data){
-					var tools = set_tool_availability(data)
+					var tools = data;
                                         $scope.borrowingTransactions = tools;
                         	}).
                                 error(function(data, status){
@@ -143,6 +146,8 @@ angular.module('toolShareControllers', [])
                                 });
 
 		};
+		$scope.dateFromUTC = function(UTC){return new Date(UTC)};
+		$scope.now = new Date().getTime();
 		$scope.newTool = function(){
 			$location.path('/newTool');
 		}
@@ -205,7 +210,7 @@ angular.module('toolShareControllers', [])
 		}
 		Tool.getByUser().
 			success(function(data){
-				var tools = set_tool_availability(data);
+				var tools = data;
 				$scope.myTools = tools;
 			}).
                         error(function(data, status){
@@ -386,13 +391,19 @@ var borrowModalController = function($scope, $modalInstance, tool){
 	};
 
 }
-
-var set_tool_availability = function(tools){
+var removeOwnTools = function(tools, username){
+	var return_list = []
+	console.log(username)
+	console.log(tools)
 	for(var i=0; i<tools.length; i++){
-		tools[i].is_available = new Date() > new Date(tools[i].available_date);
+		console.log(tools[i].owner == username)
+		if(tools[i].owner != username){
+			return_list.push(tools[i]);
+		}
 	}
-	return tools;
+	return return_list;
 }
+
 
 var setActive = function($rootScope, $timeout, $location, User, BorrowTransaction, activeThing){
 	if(!polling){

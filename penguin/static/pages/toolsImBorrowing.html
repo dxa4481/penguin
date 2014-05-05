@@ -6,7 +6,8 @@
                 <th>Tool Owner</th>
                 <th>Tool pickup arrangements</th>
                 <th>Shed</th>
-                <th>Status</th>                                   
+                <th>Status</th>
+		<th>Due date</th>                                   
         </thead>                                                        
         <tbody>                                                         
                 <tr ng-repeat="borrowingTransaction in borrowingTransactions | filter:searchText">      
@@ -25,7 +26,8 @@
                                         <button type="button" class="btn btn-primary" ng-click="requestReturn(borrowingTransaction)">Return</button>
 				</div>
                                 <div ng-switch-when="borrow return pending">Awaiting return confirmation</td>
-                        </td>                                           
+                        </td>
+			<td>{{borrowingTransaction.tool.available_date | date:'short'}}</td>                                           
                 </tr>                                                   
         </tbody>
      </table>

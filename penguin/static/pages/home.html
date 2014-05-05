@@ -5,6 +5,7 @@
     <div ng-include src="'/static/sidebar.html'"></div>
   </div>
   <div class="col-xs-10">
+   <p>{{error.error}}</p>
    Search: <input ng-model="searchText">
     <table class="table table-hover">
         <thead>
@@ -27,7 +28,7 @@
 				<div ng-switch-when="true">Community shed</div>
 				<div ng-switch-when="false">{{tool.owner}}'s shed</div>
 			</td>
-			<td ng-switch on=tool.is_available>
+			<td ng-switch on=tool.tool_available>
 				<div ng-switch-when="true">
 					<div ng-switch on=tool.in_community_shed>
 						<button type="button" ng-switch-when="true" class="btn btn-primary" ng-click="openModal(tool)">Borrow</button>

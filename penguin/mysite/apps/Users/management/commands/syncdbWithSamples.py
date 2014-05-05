@@ -29,6 +29,7 @@ class Command(BaseCommand):
 		avail_date = timezone.now() + datetime.timedelta(days=20)
 		
 		for i in range(0, 150):
+			print("Inserting " + str(i) + " of 150 samples")
 			user_num = random.choice(range(1,5))
 			name1 = random.choice(['Antimatter ', 'Autodynamic ', 'Catalytic ', 'Covalent ', 'Energized ', 'Gyromorphic ',
 									'Maser ' ,'Neutronium ', 'Nuclear ','Subspace ' ,'Zero-point ', 'Ingenuitive ',
