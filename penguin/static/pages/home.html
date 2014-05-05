@@ -29,9 +29,12 @@
 			</td>
 			<td ng-switch on=tool.is_available>
 				<div ng-switch-when="true">
-					<button type="button" class="btn btn-primary" ng-click="openModal(tool)">Borrow!</button>
+					<div ng-switch on=tool.in_community_shed>
+						<button type="button" ng-switch-when="true" class="btn btn-primary" ng-click="openModal(tool)">Borrow</button>
+						<button type="button" ng-switch-when="false" class="btn btn-primary" ng-click="openModal(tool)">Ask to borrow</button>
+					</div>
 				</div>
-				<div ng-switch-when="false">being borrowed</td>
+				<div ng-switch-when="false">unavailable</td>
 			</td>
 		</tr>
 	</tbody>	

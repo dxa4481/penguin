@@ -71,7 +71,7 @@ angular.module('toolShareControllers', [])
 
 	})
 	.controller('homepageController', function($scope, $timeout, $rootScope, $modal, $location, User, Tool, BorrowTransaction){
-		setActive($rootScope, $timeout, BorrowTransaction, "home");		
+		setActive($rootScope, $timeout, $location, User, BorrowTransaction, "home");		
 		
 		if($rootScope.user == undefined){getUser($location, $rootScope, User, function(){})};
 		Tool.getInArea().
@@ -135,7 +135,7 @@ angular.module('toolShareControllers', [])
 			$location.path('/newTool');
 		}
 		if($rootScope.user == undefined){getUser($location, $rootScope, User, cb)}else{cb()};
-		setActive($rootScope, $timeout, BorrowTransaction, "tools");
+		setActive($rootScope, $timeout, $location, User, BorrowTransaction, "tools");
 		$scope.activeTools = 'myTools';
 		$scope.myToolsClass = 'active';
 		Tool.getByUser().
@@ -173,7 +173,7 @@ angular.module('toolShareControllers', [])
                                         }
                                 });
 		}
-		setActive($rootScope, $timeout, $BorrowTransaction, "profile");
+		setActive($rootScope, $timeout, $location, User, $BorrowTransaction, "profile");
 		$scope.register = false;
 		$scope.editing = true;
 		$scope.zipCodePattern = zip_code_regex;
@@ -208,7 +208,7 @@ angular.module('toolShareControllers', [])
 
         .controller('communityController', function($scope, $timeout, $rootScope, $location, User, Tool, BorrowTransaction){
 		if($rootScope.user == undefined){getUser($location, $rootScope, User, function(){})}
-		setActive($rootScope, $timeout, BorrowTransaction, "community");
+		setActive($rootScope, $timeout, $location, User, BorrowTransaction, "community");
 	})
 var getUser = function($location, rootScope, User, cb){
 	User.get().
@@ -263,17 +263,65 @@ var set_tool_availability = function(tools){
 	return tools;
 }
 
-var setActive = function($rootScope, $timeout, BorrowTransaction, activeThing){
+var setActive = function($rootScope, $timeout, $location, User, BorrowTransaction, activeThing){
 	if(!polling){
+		$rootScope.resolveTransaction = function(resolution, transactionRequest){
+			if(!transactionRequest.owner_message){transactionRequest.owner_message = "No message"};
+			BorrowTransaction.resolveStartRequest({toolId: transactionRequest.tool.id, resolution: resolution, owner_message: transactionRequest.owner_message}).
+				success(function(data){	
+					for(var i=0; i<$rootScope.transactionRequests.length; i++){
+						if(transactionRequest.id == $rootScope.transactionRequests[i].id){
+							$rootScope.transactionRequests.splice(i, 1);
+							if($rootScope.transactionRequests.length == 0){delete $rootScope.transactionRequests};
+							break;
+						}
+					}
+				}).
+				error(function(data, status){
+                                        if(typeof data === "object"){
+                                                $scope.error = data;
+                                        }
+                                        else{
+                                                $location.path('/');
+                                        }
+                                });
+		}
+		$rootScope.resolveEndTransaction = function(endTransactionRequest){
+			BorrowTransaction.resolveEndRequest(endTransactionRequest.id).
+				success(function(data){
+                                        for(var i=0; i<$rootScope.endTransactionRequests.length; i++){
+                                                if(endTransactionRequest.id == $rootScope.endTransactionRequests[i].id){
+                                                        $rootScope.endTransactionRequests.splice(i, 1);
+							if($rootScope.endTransactionRequests.length == 0){delete $rootScope.endTransactionRequests};
+                                                        break;
+                                                }
+                                        }
+                                }).
+                                error(function(data, status){
+                                        if(typeof data === "object"){
+                                                $scope.error = data;
+                                        }
+                                        else{
+                                                $location.path('/');
+                                        }
+                                });
+
+		}
 		polling = true;
+		$rootScope.messages = [];
+		$rootScope.transactionRequests = [];
+		$rootScope.endTransactionRequests = [];
+		$rootScope.endCommunityTransactionRequests = [];
 		var notifications = function(){
-                        BorrowTransaction.getPendingRequests().
+                         BorrowTransaction.getPendingRequests().
                         	success(function(data){
-					var updateNotifications = function(){
-						$rootScope.transactionRequests = data;
-					};
-					updateNotifications()
-		
+					var setData = {addToSet: data, removeFromSet: []}
+					if($rootScope.transactionRequests){
+						setData = addToSetById($rootScope.transactionRequests, data);
+						console.log(setData);
+					}else{$rootScope.transactionRequests = []}
+					for(var i=0; i<setData.removeFromSet.length; i++){$rootScope.transactionRequests.splice(setData[i], 1);};
+					for(var i=0; i<setData.addToSet.length; i++){$rootScope.transactionRequests.push(setData.addToSet[i]);};
                                 }).
                                 error(function(data, status){
                                 	if(typeof data === "object"){
@@ -283,9 +331,33 @@ var setActive = function($rootScope, $timeout, BorrowTransaction, activeThing){
                                         	$location.path('/');
                                         }
                                 });
-                        BorrowTransaction.getEndRequests().
+                        if($rootScope.user.is_shed_coordinator)
+				BorrowTransaction.getCommunityEndRequests().
+					success(function(data){
+						var setData = {addToSet: data, removeFromSet: []}
+						if($rootScope.endCommunityTransactionRequests){
+							setData = addToSetById($rootScope.endCommunityTransactionRequests, data);
+						console.log(setData);
+						}else{$rootScope.endCommunityTransactionRequests = []}
+						for(var i=0; i<setData.removeFromSet.length; i++){$rootScope.endCommunityTransactionRequests.splice(setData[i], 1);};
+						for(var i=0; i<setData.addToSet.length; i++){$rootScope.endCommunityTransactionRequests.push(setData.addToSet[i]);};
+						}).
+						error(function(data, status){
+						if(typeof data === "object"){
+							$scope.error = data;
+						}
+						else{
+							$location.path('/');
+						}
+					});
+			BorrowTransaction.getEndRequests().
                         	success(function(data){
-                                	$rootScope.endTransactionRequests = data;
+					var setData = {addToSet: data, removeFromSet: []}
+                                        if($rootScope.endTransactionRequests){
+                                                setData = addToSetById($rootScope.endTransactionRequests, data);
+                                        }else{$rootScope.endTransactionRequests = []}
+                                        for(var i=0; i<setData.removeFromSet.length; i++){$rootScope.endTransactionRequests.splice(setData[i], 1);};
+                                        for(var i=0; i<setData.addToSet.length; i++){$rootScope.endTransactionRequests.push(setData.addToSet[i]);};
                                 }).
                                 error(function(data, status){
                                 	if(typeof data === "object"){
@@ -298,10 +370,24 @@ var setActive = function($rootScope, $timeout, BorrowTransaction, activeThing){
 					
                         $timeout(notifications, 6000);
                 }
-		notifications();
+		getUser($location, $rootScope, User, notifications);
 	}
 	delete $rootScope.active
 	$rootScope.active = {}
 	$rootScope.active[activeThing] = "active";
 }
-
+var addToSetById = function(array1, array2){
+	var set = {};
+	var removeSet = [];
+	for(var i=0; i<array2.length; i++){
+		set[array2[i].id] = array2[i];
+	}
+	for(var i=0; i<array1.length; i++){
+                if(! array1[i].id in set){
+			delete set[array1[i].id];
+		}else{removeSet.push(i)}
+        }
+	var addSet = [];
+	for(key in set){addSet.push(set[key])}
+	return {addToSet: addSet, removeFromSet: removeSet};
+}

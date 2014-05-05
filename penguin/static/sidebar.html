@@ -7,24 +7,43 @@
 </ul>
 
 <div>
-   <div ng-if="$root.transactionRequests">
+  <table class="table table-bordered">
+   <tr ng-if="$root.transactionRequests.length != 0">
+    <td>
       Borrow requests:
       <ul ng-repeat="transactionRequest in $root.transactionRequests">
          <li>{{transactionRequest.borrower}} would like to borrow {{transactionRequest.tool.name}}. "{{transactionRequest.borrower_message}}"
             <input type="text" class="form-control" placeholder="Reply Message" ng-model="transactionRequest.owner_message" name="owner_message" autofocus/><br />
-            <button class="btn btn-primary" ng-click="resolveTransaction(true, transactionRequest)">Approve!</button>
-            <button class="btn btn-primary" ng-click="$root.resolveTransaction(false, transactionRequest)">Reject!</button>
+            <div class="btn-group inline">	
+		<button class="btn btn-primary" ng-click="resolveTransaction(true, transactionRequest)">Agree</button>
+            	<button class="btn btn-primary" ng-click="$root.resolveTransaction(false, transactionRequest)">Reject</button>
+	    </div>
          </li>
       </ul>
-   </div>
-   <div ng-if="$root.endTransactionRequests">
+    </td>
+   </tr>
+   <tr ng-if="$root.endTransactionRequests.length != 0">
+    <td>
       Tool return requests:
       <ul ng-repeat="endTransactionRequest in $root.endTransactionRequests">        
          <li>{{endTransactionRequest.borrower}} would like to return {{endTransactionRequest.tool.name}}.
-            <button class="btn btn-primary" ng-click="$root.resolveEndTransaction(endTransactionRequest)">Approve!</button>
+            <button class="btn btn-primary" ng-click="$root.resolveEndTransaction(endTransactionRequest)">Approve</button>
          </li>
-   </div>
-   <div ng-if="$root.messages">
+     </td>
+   </tr>
+   <tr ng-if="$root.endTransactionRequests.length != 0">
+    <td>
+      Community return requests:
+      <ul ng-repeat="endTransactionRequest in $root.endCommunityTransactionRequests">
+         <li>{{endTransactionRequest.borrower}} would like to return {{endTransactionRequest.tool.name}} to the community shed.
+            <button class="btn btn-primary" ng-click="$root.resolveEndTransaction(endTransactionRequest)">Approve</button>
+         </li>
+     </td>
+   </tr>
+   <tr ng-if="$root.messages.length != 0">
+    <td>
       Messages:
-   </div>
+    </td>
+   </tr>
+  </table>
 </div>

@@ -96,6 +96,9 @@ angular.module('toolShareServices', [])
 			},
 			getEndRequests: function(){
 				return $http.get('/api/borrowTransaction/endRequests');
+			},
+			getCommunityEndRequests: function(){
+				return $http.get('/api/borrowTransactions/pendingCommunity');
 			}
 		}
 	})
