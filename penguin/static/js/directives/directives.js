@@ -10,9 +10,5 @@ angular.module('toolShareControllers')
 				}, true);
 
 			}
-		}
-
-	
-	
+		}	
 	}])
-

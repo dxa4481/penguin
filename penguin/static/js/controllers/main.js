@@ -233,13 +233,34 @@ angular.module('toolShareControllers', [])
                                 }
                        });
 	})
+	.controller('changePasswordController', function($scope, $timeout, $rootScope, $location, User, BorrowTransaction){
+		if($rootScope.user == undefined){getUser($location, $rootScope, User, function(){})};
+		setActive($rootScope, $timeout, $location, User, BorrowTransaction, "profile");
+		$scope.trySaving = function(passwordInfo){
+			User.updatePassword(passwordInfo).
+                                success(function(data){
+                                        $rootScope.user = data;
+                                        $location.path('/home');
+                                }).
+                                error(function(data, status){
+                                        if(typeof data === "object"){
+                                                $scope.error = data;
+                                        }
+                                        else{
+                                                $location.path('/error');
+                                        }
+                                });
+		}
 
+	})
 	.controller('profileController', function($scope, $timeout, $rootScope, $location, User, Tool, BorrowTransaction){
 		var cb = function(){$scope.user = $rootScope.user};
 		if($rootScope.user == undefined){getUser($location, $rootScope, User, cb)};
 		$scope.user = $rootScope.user;
+		$scope.changePassword = function(){
+			$location.path('/changePassword');
+		}
 		$scope.trySaving = function(user){
-			console.log(user)
 			User.update(user).
 				success(function(data){
 					$rootScope.user = data;

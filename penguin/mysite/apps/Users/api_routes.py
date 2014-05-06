@@ -296,7 +296,7 @@ def changePassword(request):
 		return_message = {}
 		if (user.verify_password(put_data['old_password'])):
 			if (put_data['new_password'] == put_data['confirm_new_password']):
-				user.update_password(userID, put_data['new_password'])
+				user.update_password(user.id, put_data['new_password'])
 				return_message = user_to_json(user)
 						
 			else:

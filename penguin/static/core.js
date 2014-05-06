@@ -35,4 +35,8 @@ toolShareApp.config(function($routeProvider){
 			templateUrl: '/static/pages/error.html',
 			controller: 'errorController'
 		})
+		.when('/changePassword',{
+			templateUrl: '/static/pages/changePassword.html',
+			controller: 'changePasswordController'
+		})
 });

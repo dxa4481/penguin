@@ -27,7 +27,7 @@ angular.module('toolShareServices', [])
 				return $http.get('/api/user/areaCode/' + areaCode);
 			},
 			updatePassword: function(passwordData){
-				return $http.put('/api/user/password', passwordData);
+				return $http.put('/api/changePassword', passwordData);
 			},
 			getAdmins: function(){
 				return $http.get('/api/admins');
