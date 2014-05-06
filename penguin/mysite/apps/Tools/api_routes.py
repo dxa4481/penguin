@@ -54,7 +54,7 @@ def update(request):
 			pickup_arrangement = current_user.default_pickup_arrangements
 			if put_data["tool_pickup_arrangements"]:
 				pickup_arrangement = put_data["tool_pickup_arrangements"]
-	
+
 			Tool.update_tool(tool_id,
 					put_data["name"],
 					put_data["description"],
@@ -100,13 +100,19 @@ def update(request):
 		if post_data["tool_pickup_arrangements"]:
 			pickup_arrangements = post_data["tool_pickup_arrangements"]
 
+		# check if tool_available is provided
+		try:
+			available = post_data["tool_available"]
+		except KeyError:
+			available = False
+
 		new_tool = Tool.create_new_tool(post_data["name"], 
 				request.session["user"]["id"], 
 				post_data["description"], 
 				post_data["tool_type"], 
 				post_data["in_community_shed"],
 				pickup_arrangements,
-				post_data["tool_available"])
+				available)
 		return_tool = tool_to_json(new_tool)
 		return HttpResponse(json.dumps(return_tool), content_type="application/json")
 
