@@ -107,7 +107,7 @@ class Tool(models.Model):
 	@staticmethod
 	def set_tool_available(toolID):
 		t = Tool.get_tool(toolID)
-		t.available_date = timezone.now() - datetime.timedelta(seconds=1)
+		t.available_date = timezone.now() - datetime.timedelta(minutes=5)
 		t.is_available = True
 		t.save()
 	
