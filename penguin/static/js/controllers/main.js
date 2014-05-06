@@ -144,7 +144,19 @@ angular.module('toolShareControllers', [])
                                                 $location.path('/error');
                                         }
                                 });
-
+			BorrowTransaction.getRejected($rootScope.user.id).
+				success(function(data){
+					var tools = data;
+                                        $scope.rejectedTools = tools;
+                        	}).
+                                error(function(data, status){
+                                        if(typeof data === "object"){
+                                                $scope.error = data;
+                                        }
+                                        else{
+                                                $location.path('/error');
+                                        }
+                                });
 		};
 		$scope.now = new Date().getTime();
 		$scope.newTool = function(){

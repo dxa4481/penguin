@@ -5,8 +5,9 @@
   <div class="col-xs-10">
    <p>{{error.error}}</p>
    <ul class="nav nav-tabs" id="myTab">
-          <li ng-class="myToolsClass"> <a ng-click="activeTools = 'myTools'; myToolsClass='active'; borrowingClass='';">My Tools</a></li>
-          <li ng-class="borrowingClass"> <a ng-click="activeTools = 'borrowingTools'; myToolsClass=''; borrowingClass='active';">Tools I'm Borrowing</a></li>
+          <li ng-class="myToolsClass"> <a ng-click="activeTools = 'myTools'; rejectedClass=''; myToolsClass='active'; borrowingClass='';">My Tools</a></li>
+          <li ng-class="borrowingClass"> <a ng-click="activeTools = 'borrowingTools'; rejectedClass=''; myToolsClass=''; borrowingClass='active';">Tools I'm Borrowing</a></li>
+	  <li ng-class="rejectedClass"> <a ng-click="activeTools = 'rejectedTools'; myToolsClass=''; borrowingClass=''; rejectedClass='active';">Rejected Borrow Requests</a></li>
   </ul>
   <div ng-switch on="activeTools">
 	<div ng-switch-when="myTools">
@@ -14,6 +15,9 @@
 	</div>
 	<div ng-switch-when="borrowingTools">
 		<div ng-include src="'/static/pages/toolsImBorrowing.html'"></div>
+	</div>
+	<div ng-switch-when="rejectedTools">
+		<div ng-include src="'/static/pages/rejectedTools.html'"></div>
 	</div>
   </div>
 

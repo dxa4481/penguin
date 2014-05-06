@@ -4,14 +4,13 @@
                 <th>Tool Type</th>
                 <th>Tool Description</th>
                 <th>Tool Owner</th>
-                <th>Tool pickup arrangements</th>
+                <th>Tool Pickup Arrangements</th>
                 <th>Shed</th>
-                <th>Status</th>
-		<th>Due date</th>
+		<th>Date Asked</th>
 		<th>Message</th>                                   
         </thead>                                                        
         <tbody>                                                         
-                <tr ng-repeat="borrowingTransaction in borrowingTransactions | filter:searchText">      
+                <tr ng-repeat="borrowingTransaction in rejectedTools | filter:searchText">      
                         <td>{{borrowingTransaction.tool.name}}</td>
                         <td>{{borrowingTransaction.tool.tool_type}}</td>
                         <td>{{borrowingTransaction.tool.description}}</td>
@@ -21,16 +20,10 @@
                                 <div ng-switch-when="true">Community shed</div>
                                 <div ng-switch-when="false">{{borrowingTransaction.tool.owner}}'s shed</div>
                         </td>
-                        <td ng-switch on=borrowingTransaction.status>
-                                <div ng-switch-when="borrow request pending">Awaiting approval</div>
-				<div ng-switch-when="borrowing">
-                                        <button type="button" class="btn btn-primary" ng-click="requestReturn(borrowingTransaction)">Return</button>
-				</div>
-                                <div ng-switch-when="borrow return pending">Awaiting return confirmation</td>
-                        </td>
 			<td>{{borrowingTransaction.due_date | date:'short'}}</td>
 			<td>{{borrowingTransaction.tool.owner}}: "{{borrowingTransaction.owner_message}}"</td>                                           
                 </tr>                                                   
         </tbody>
      </table>
+     <ul><li><p>Please note if the tool info has been modified since you tried to borrow it the information here may not reflect how it was</p></li></ul>
 

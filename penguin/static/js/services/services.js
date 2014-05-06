@@ -73,8 +73,8 @@ angular.module('toolShareServices', [])
 				//{toolId: 3}
 				return $http.post('/api/borrowTransaction/resolve', transactionData);
 			},
-			getRejected: function(){
-				return $http.get('/api/borrowTransaction/rejected');
+			getRejected: function(userId){
+				return $http.get('/api/borrowTransaction/rejected/' + userId);
 			},
 			requestEnd: function(transactionData){
 				return $http.put('/api/borrowTransaction', transactionData);
