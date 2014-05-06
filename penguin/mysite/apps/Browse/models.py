@@ -200,7 +200,11 @@ class BorrowTransaction(models.Model):
 	@staticmethod
 	def get_unresolved_borrow_transaction_by_tool(toolID):
 		t = Tool.get_tool(toolID)
-		return BorrowTransaction.objects.get(Q(tool=t) & (Q(status="borrow request pending") | Q(status="borrowing") | Q(status="borrow return pending")))
+		bt = BorrowTransaction.objects.filter(Q(tool=t) & (Q(status="borrow request pending") | Q(status="borrowing") | Q(status="borrow return pending")))
+		if (len(bt) == 0):
+			return False
+		else:
+			return bt[0]
 
 
 	@staticmethod

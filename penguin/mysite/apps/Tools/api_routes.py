@@ -45,7 +45,7 @@ def update(request):
 
 			# tool is currently being borrowed -- error 400
 			current_tool = Tool.get_tool(tool_id)
-			if not current_tool.is_available:
+			if (BorrowTransaction.get_unresolved_borrow_transaction_by_tool(current_tool.id) != False):
 				error = {"error": "tool is being borrowed, cannot edit attributes"}
 				return HttpResponse(json.dumps(error), content_type="application/json", status=400)
 
@@ -176,7 +176,7 @@ def get_tool(request, tool_id):
 			return HttpResponse(json.dumps(error), content_type="application/json", status=410)
 		if ((current_user.is_admin==True) or (current_tool.owner==current_user)):
 			# tool is being borrowed -- error 400
-			if not current_tool.is_available:
+			if (BorrowTransaction.get_unresolved_borrow_transaction_by_tool(current_tool.id) != False):
 				error = {"error": "tool is currently being borrowed, cannot delete"}
 				return HttpResponse(json.dumps(error), content_type="application/json", status=400)
 			try:
