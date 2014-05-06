@@ -38,17 +38,22 @@ def borrowTransaction(request):
 	"""
 	if request.method == "POST":
 		post_data = json.loads(request.body.decode("utf-8"))
-		current_tool = None
-		
-		#Make sure tool exists
+		# user is not logged in -- error 401
 		try:
-			current_tool = Tool.get_tool(post_data['toolId'])
-		except:
-			return HttpResponse(json.dumps({"error":"Invalid tool"}), content_type="application/json", status=400)
+			request.session['user']
+		except KeyError:
+			error = {"error": "access denied, no user is logged in"}
+			return HttpResponse(json.dumps(error), content_type="application/json", status=401)
+
+		current_tool = Tool.get_tool(post_data['toolId'])
+		if current_tool == False:
+			error = {"error": "tool doesnt exist"}
+			return HttpResponse(json.dumps(error), content_type="application/json", status=410)
 		
-		#check if tool is currently being borrowed
-		if not Tool.is_tool_available(post_data['toolId']):
-			return HttpResponse(json.dumps({"error":"Tool being borrowed already"}), content_type="application/json", status=400)
+#		#check if tool is currently being borrowed
+		if not current_tool.is_available:
+			error = {"error": "tool already being borrowed"}
+			return HttpResponse(json.dumps(error), content_type="application/json", status=400)
 		
 		milliseconds = int(post_data['date'])
 
@@ -78,13 +83,18 @@ def borrowTransaction(request):
 	"""
 	if request.method == "PUT":
 		put_data = json.loads(request.body.decode("utf-8"))
+		# no user logged in -- error 401
+		try:
+			request.session['user']['id']
+		except KeyError:
+			error = {"error": "access denied, no user logged in"}
+			return HttpResponse(json.dumps(error), content_type="application/json", status=401)
 
 		# tool does not exist -- status 400
-		try:
-			current_tool = Tool.get_tool(put_data["toolId"])
-		except:
+		current_tool = Tool.get_tool(put_data["toolId"])
+		if current_tool == False:
 			error = {"error": "tool does not exist"}
-			return HttpResponse(json.dumps(error), content_type="application/json", status=400)
+			return HttpResponse(json.dumps(error), content_type="application/json", status=410)
 
 		# transaction does not exist -- status 400
 		try:
@@ -93,6 +103,15 @@ def borrowTransaction(request):
 			error = {"error": "Transaction does not exist"}
 			return HttpResponse(json.dumps(error), content_type="application/json", status=400)
 
+		# make sure user logged in is user borrowing tool -- status 401
+		current_user = User.get_user(request.session['user']['id'])
+		borrowing_user = bt.borrower
+		
+		if current_user.username != borrowing_user.username:
+			error = {"error": "access denied"}
+			return HttpResponse(json.dumps(error), content_type="application/json", status=401)
+		
+		# success
 		transaction = BorrowTransaction.request_end_borrow_transaction(bt.id)
 		return_bt = bt_to_json(transaction)
 		return HttpResponse(json.dumps(return_bt), content_type="application/json")
@@ -110,6 +129,13 @@ def pull_entire_community(request, zip_code):
 @csrf_exempt
 def getToolsBorrowing(request, user_id):
 	if request.method == "GET":
+		# no user logged in -- error 401
+		try:
+			request.session['user']
+		except KeyError:
+			error = {"error": "access denied, no user logged in"}
+			return HttpResponse(json.dumps(error), content_type="application/json", status=401)
+
 		transactions = BorrowTransaction.get_borrower_borrow_transactions(user_id)
 		return_tools = []
 		for transaction in transactions:
@@ -143,13 +169,18 @@ owner doesn't give message if rejects request
 def resolve_borrow_request(request):
 	if request.method == "POST":
 		post_data = json.loads(request.body.decode("utf-8"))
+		# no user logged in -- error 401
+		try:
+			request.session['user']
+		except KeyError:
+			error = {"error": "access denied, no user logged in"}
+			return HttpResponse(json.dumps(error), content_type="application/json", status=401)
 		
 		# tool does not exist -- status 400
-		try:
-			current_tool = Tool.get_tool(post_data["toolId"])
-		except:
+		current_tool = Tool.get_tool(post_data["toolId"])
+		if current_tool == False:
 			error = {"error": "tool does not exist"}
-			return HttpResponse(json.dumps(error), content_type="application/json", status=400)
+			return HttpResponse(json.dumps(error), content_type="application/json", status=410)
 
 		# transaction does not exist -- status 400
 		try:
@@ -157,6 +188,14 @@ def resolve_borrow_request(request):
 		except:
 			error = {"error": "transaction does not exist or has already been approved"}
 			return HttpResponse(json.dumps(error), content_type="application/json", status=400)
+
+		# make sure user logged in is tool owner -- error 401
+		current_user = User.get_user(request.session['user']['id'])
+		tool_owner = bt.tool.owner
+
+		if current_user.username != tool_owner.username:
+			error = {"error": "access denied"}
+			return HttpResponse(json.dumps(error), content_type="application/json", status=401)
 
 		# accept borrow request
 		if post_data["resolution"]:
@@ -186,17 +225,40 @@ status is not borrow_return_pending
 @csrf_exempt
 def resolve_end_borrow_request(request, bt_id):
 	if request.method == "DELETE":
-		# transaction does not exist -- status 400
+		# no user logged in -- error 401
 		try:
-			current_transaction = BorrowTransaction.get_borrow_transaction(bt_id)
-		except:
-			error = {"error" "transaction does not exist"}
+			current_user = User.get_user(request.session['user']['id'])
+		except KeyError:
+			error = {"error": "access denied, no user logged in"}
+			return HttpResponse(json.dumps(error), content_type="application/json", status=401)
+
+		# bt_id not an int
+		try:
+			current_transaction_id = int(bt_id)
+		except ValueError:
+			error = {"error": "transaction id not an int"}
+			return HttpResponse(json.dumps(error), content_type="application/json", status=400)
+
+		# transaction does not exist -- status 400
+		current_transaction = BorrowTransaction.get_borrow_transaction(bt_id)
+		if current_transaction == False:
+			error = {"error": "transaction does not exist"}
+			return HttpResponse(json.dumps(error), content_type="application/json", status=410)
 
 		# transaction status is not borrow_return_pending -- status 400
 		if current_transaction.status != "borrow return pending":
 			error = {"error": "transaction is not return pending, cannot resolve transaction."}
 			return HttpResponse(json.dumps(error), content_type="application/json", status=400)
+	
+		# make sure user logged in is tool owner -- error 401
+		current_user = User.get_user(request.session['user']['id'])
+		tool_owner = current_transaction.tool.owner
+		if current_user.username != tool_owner.username:
+			error = {"error": "access denied"}
+			return HttpResponse(json.dumps(error), content_type="application/json", status=401)
 		bt = BorrowTransaction.end_borrow_transaction(bt_id)
+
+		# success
 		return_bt = bt_to_json(bt)
 		return HttpResponse(json.dumps(return_bt), content_type="application/json")
 
@@ -228,11 +290,24 @@ user does not exist
 @csrf_exempt
 def get_rejected_requests(request, user_id):
 	if request.method == "GET":
-		# user does not exist -- status 400
+		# no user logged in -- error 401
 		try:
-			current_user = User.get_user(user_id)
-		except:
-			error = {"error": "invalid user id, user does not exist"}
+			request.session['user']
+		except KeyError:
+			error = {"error": "access denied, no user logged in"}
+			return HttpResponse(json.dumps(error), content_type="application/json", status=401)
+
+		# user_id not an int
+		try:
+			current_user_id = int(user_id)
+		except ValueError:
+			error = {"error": "user id not an int"}
+			return HttpResponse(json.dumps(error), content_type="application/json", status=400)
+
+		# user does not exist -- status 400
+		current_user = User.get_user(user_id)
+		if current_user == False:
+			error = {"error": "user does not exist"}
 			return HttpResponse(json.dumps(error), content_type="application/json", status=400)
 
 		rejected_requests = BorrowTransaction.get_rejected_borrow_transactions(user_id)
@@ -271,6 +346,12 @@ user trying to access this is not a shed coordinator
 @csrf_exempt
 def get_all_return_pending_bt_in_community_shed(request):
 	if request.method == "GET":
+		# no user logged in -- error 401
+		try:
+			request.session['user']
+		except KeyError:
+			error = {"error": "access denied, no user logged in"}
+			return HttpResponse(json.dumps(error), content_type="application/json", status=401)
 		shed_coord = User.get_user_by_username(request.session['user']['username'])
 
 		# user is not shed coordinator -- status 403

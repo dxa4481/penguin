@@ -32,8 +32,20 @@ def user(request):
 
 	"""
 	if request.method == 'GET':
-		u_id = request.session['user']['id']
+		# user not logged in -- error 401
+		try:
+			u_id = request.session['user']['id']
+		except KeyError:
+			error = {"error": "access denied, no user logged in"}
+			return HttpResponse(json.dumps(error), content_type="application/json", status=401)
+
 		user = User.get_user(u_id)
+		
+		# user does not exist -- error 400
+		if user == False:
+			error = {"error": "Oops! Something went wrong, please refresh the page"}
+			return HttpResponse(json.dumps(error), content_type="application/json", status=410)
+
 		return_user = user_to_json(user)
 		return HttpResponse(json.dumps(return_user), content_type="application/json")
 	"""
@@ -97,6 +109,7 @@ def user(request):
 						post_data["email"],
 						post_data["phone_number"],
 						post_data["default_pickup_arrangements"])
+
 		# check if user is first to zip code
 		if not User.does_shed_coord_exist(post_data["zip_code"]):
 			user_id = new_user.id
@@ -116,7 +129,11 @@ def userById(request, user_id):
 	  * Can delete users checking tools out.
 	"""
 	if request.method == "DELETE":
-		current_user = request.session['user']['id']
+		current_user_id = request.session['user']['id']
+		current_user = User.get_user(current_user_id)
+		if current_user == False:
+			error = {"error": "Oops! something went wrong, try refreshing the page"}
+			return HttpResponse(json.dumps(error), content_type="application/json", status=410)
 		if(user_id == current_user.id or current_user.is_admin==True):
 			try:
 				User.delete_user(user_id)
@@ -142,10 +159,29 @@ def userById(request, user_id):
 	"""
 	if request.method == 'PUT':
 		put_data = json.loads(request.body.decode("utf-8"))
-		u_id = request.session['user']['id']
-		current_user_id = int(u_id)
-		user_id = int(user_id)
-		current_user = User.get_user(current_user_id)
+
+		# no user logged in -- error 401
+		try:
+			request.session['user']
+		except KeyError:
+			error = {"error": "access denied, no user logged in"}
+			return HttpResponse(json.dumps(error), content_type="application/json", status=401)
+
+		current_user_id = int(request.session['user']['id'])
+		
+		# user id not an int -- error 400
+		try:
+			user_id = int(user_id)
+		except ValueError:
+			error = {"error": "user id not an int"}
+			return HttpResponse(json.dumps(error), content_type="application/json", status=400)
+
+		current_user = User.get_user(user_id)
+		
+		# user does not exist -- error 400
+		if current_user == False:
+			error = {"error": "something went wrong, please refresh the page"}
+			return HttpResponse(json.dumps(error), content_type="application/json", status=410)
 		if((user_id == current_user_id) or (current_user.is_admin==True)):
 			
 			# invalid zipcode -- error 400
@@ -172,7 +208,7 @@ def userById(request, user_id):
 					return HttpResponse(json.dumps(error), content_type="application/json", status=403)
 	
 			# user has tools being borrowed, can't change zip -- error 403
-				current_user = User.get_user_by_username(request.session['user']["username"])
+#				current_user = User.get_user_by_username(request.session['user']["username"])
 				if BorrowTransaction.get_borrow_transaction_user_owns(current_user.id):
 					error = {"error": "Some of your tools are currently being borrowed, you may not change your zip code.  Please contact an admin."}
 					return HttpResponse(json.dumps(error), content_type="application/json", status=403)
@@ -209,19 +245,18 @@ def login(request):
 	"""
 	if request.method == "POST":
 		post_data = json.loads(request.body.decode("utf-8"))
+		current_user = User.get_user_by_username(post_data["username"])
 		# username does not exist
-		if User.get_user_by_username(post_data["username"]) == False:
+		if current_user == False:
 			error = {"error": "Username does not exist"}
 			return HttpResponse(json.dumps(error), content_type="application/json", status=400)
 		
 		# password is incorrect
-		user = User.get_user_by_username(post_data["username"])
-		if not user.verify_password(post_data["password"]):
+		if not current_user.verify_password(post_data["password"]):
 			error = {"error": "Invalid password"}
 			return HttpResponse(json.dumps(error), content_type="application/json", status=400)
 
-		user = User.get_user_by_username(post_data['username'])
-		return_user = user_to_json(user)
+		return_user = user_to_json(current_user)
 		request.session['user'] = return_user
 		return HttpResponse(json.dumps(return_user), content_type="application/json")
 
@@ -241,8 +276,17 @@ def changePassword(request):
 	"""
 	if request.method == "PUT":
 		put_data = json.loads(request.body.decode("utf-8"))
-		userID = request.session['user']['id']
-		user = User.get_user(userID)
+		# no user logged in -- error 401
+		try:
+			request.session['user']
+		except KeyError:
+			error = {"error": "access denied, you are not logged in"}
+			return HttpResponse(json.dumps(error), content_type="application/json", status=401)
+
+		user = User.get_user(request.session['user']['id'])
+		if user == False:
+			error = {"error": "Oops! Something went wrong, please refresh the page."}
+			return HttpResponse(json.dumps(error), content_type="application/json", status=410)
 		return_message = {}
 		if (user.verify_password(put_data['old_password'])):
 			if (put_data['new_password'] == put_data['confirm_new_password']):
@@ -276,9 +320,16 @@ def get_admins(request):
 @csrf_exempt
 def shedCoord(request):
 	if request.method == "PUT":
-		if (User.get_user(request.session['user']['id']).is_admin == True):
+		current_user = User.get_user(request.session['user']['id'])
+		if current_user == False:
+			error = {"error": "oops. something went wrong, try refreshing the page"}
+			return HttpResponse(json.dumps(error), content_type="application/json", status=410)
+		if (current.is_admin == True):
 			put_data = json.loads(request.body.decode("utf-8"))
 			new_shed_coord = User.get_user(put_data['promote'])
+			if new_shed_coord == False:
+				error = {"error": "oops. something went wrong, try refreshing the page"}
+				return HttpResponse(json.dumps(error), content_type="applicatin/json", status=410)
 			zip_c = new_shed_coord.zip_code
 			
 			if (User.does_shed_coord_exist(zip_c)):

@@ -28,13 +28,17 @@ def update(request):
 			return HttpResponse(json.dumps(error), content_type="application/json", status=401)
 
 		tool_id = int(put_data["id"])
-		current_user = User.get_user_by_username(request.session['user']['username'])
+		current_user = User.get_user(request.session['user']['id'])
 
-		# tool does not exist -- error 400
+		if current_user == False:
+			error = {"error": "oops. something went wrong, try refreshing page"}
+			return HttpResponse(json.dumps(error), content_type="application/json", status=410)
+
+		# tool does not exist -- error 410
 		current_tool = Tool.get_tool(tool_id)
 		if current_tool == False:
-			error = {"error": "tool does not exist"}
-			return HttpResponse(json.dumps(error), content_type="application/json", status=400)
+			error = {"error": "something went wrong, try refreshing"}
+			return HttpResponse(json.dumps(error), content_type="application/json", status=410)
 
 		#Validate user is owner of tool, or admin
 		if ((current_user.is_admin==True) or (Tool.get_tool(tool_id).owner==current_user)):
@@ -130,10 +134,10 @@ def get_tool(request, tool_id):
 			return HttpResponse(json.dumps(error), content_type="application/json", status=400)
 		tool = Tool.get_tool(tool_id)
 		
-		# tool does not exist -- error 400
+		# tool does not exist -- error 410
 		if tool == False:
 			error = {"error": "tool does not exist"}
-			return HttpResponse(json.dumps(error), content_type="application/json", status=400)
+			return HttpResponse(json.dumps(error), content_type="application/json", status=410)
 
 		return_tool = tool_to_json(tool)
 		return HttpResponse(json.dumps(return_tool), content_type="application/json")
@@ -162,12 +166,15 @@ def get_tool(request, tool_id):
 		# tool does not exist -- error 400
 		current_tool = Tool.get_tool(tool_id)
 		if current_tool == False:
-			error = {"error": "tool does not exist"}
-			return HttpResponse(json.dumps(error), content_type="application/json", status=400)
+			error = {"error": "something went wrong, try refreshing"}
+			return HttpResponse(json.dumps(error), content_type="application/json", status=410)
 
 		#Validate user is owner of tool, or admin
 		current_user = User.get_user_by_username(request.session['user']['username'])
-		if ((current_user.is_admin==True) or (Tool.get_tool(tool_id).owner==current_user)):
+		if current_user == False:
+			error = {"error": "user doesn't exist"}
+			return HttpResponse(json.dumps(error), content_type="application/json", status=410)
+		if ((current_user.is_admin==True) or (current_tool.owner==current_user)):
 			# tool is being borrowed -- error 400
 			if not current_tool.is_available:
 				error = {"error": "tool is currently being borrowed, cannot delete"}
@@ -193,6 +200,10 @@ def user_tools(request):
 	#get user_id from the request object
 	if request.method == "GET":
 		user_id = request.session["user"]["id"]
+		current_user = User.get_user(user_id)
+		if current_user == False:
+			error = {"error": "user doesn't exist"}
+			return HttpResponse(json.dumps(error), content_type="application/json", status=410)
 		tool_list = Tool.get_tool_by_owner(user_id)
 		return_list = []
 		
