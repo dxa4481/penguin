@@ -253,9 +253,11 @@ def resolve_end_borrow_request(request, bt_id):
 		# make sure user logged in is tool owner -- error 401
 		current_user = User.get_user(request.session['user']['id'])
 		tool_owner = current_transaction.tool.owner
+
 		if current_user.username != tool_owner.username:
-			error = {"error": "access denied"}
-			return HttpResponse(json.dumps(error), content_type="application/json", status=401)
+			if not ((current_user.is_shed_coordinator) and (current_transaction.in_community_shed)):
+				error = {"error": "access denied"}
+				return HttpResponse(json.dumps(error), content_type="application/json", status=401)
 		bt = BorrowTransaction.end_borrow_transaction(bt_id)
 
 		# success
