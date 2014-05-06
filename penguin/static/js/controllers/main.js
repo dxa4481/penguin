@@ -146,7 +146,6 @@ angular.module('toolShareControllers', [])
                                 });
 
 		};
-		$scope.dateFromUTC = function(UTC){return new Date(UTC)};
 		$scope.now = new Date().getTime();
 		$scope.newTool = function(){
 			$location.path('/newTool');
@@ -360,7 +359,8 @@ var editToolModalController = function($scope, $modalInstance, tool){
 }
 
 var borrowModalController = function($scope, $modalInstance, tool){
-	$scope.tool = tool;		
+	$scope.tool = tool;	
+	$scope.message = "";	
 	$scope.tomorrow = function(){
 		$scope.dt = new Date(new Date().getTime() + 24 * 60 * 60 * 1000);
 		return $scope.dt;

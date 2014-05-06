@@ -8,7 +8,7 @@
 	         </div>
 		<form name="form" role="form" novalidate>
 	           <div class="form-group">
-                	<input ng-if="!tool.in_community_shed" type="text" class="form-control" placeholder="Leave a message for {{tool.owner}}" ng-model="message" name="message" required autofocus/><br />
+                	<input ng-if="!tool.in_community_shed" type="text" class="form-control" placeholder="Leave a message for {{tool.owner}}" ng-model="tool.borrower_message" name="message" required autofocus/><br />
         	   </div>
 		</form>
 
@@ -16,8 +16,8 @@
 	       <div class="col-md-4">
 		       <p class="text-primary">When would you like to return this {{tool.tool_type}}?</p>
 			<div ng-switch on=tool.in_community_shed>
-				<button class="btn btn-primary" ng-switch-when="true" ng-click="ok({date: dt.getTime(),borrower_message: message, toolId: tool.id})">Borrow</button>
-				<button class="btn btn-primary" ng-switch-when="false" ng-click="ok({date: dt.getTime(),borrower_message: message, toolId: tool.id})">Ask</button>
+				<button class="btn btn-primary" ng-switch-when="true" ng-click="ok({date: dt.getTime(),borrower_message: tool.borrower_message, toolId: tool.id})">Borrow</button>
+				<button class="btn btn-primary" ng-switch-when="false" ng-click="ok({date: dt.getTime(),borrower_message: tool.borrower_message, toolId: tool.id})">Ask</button>
 				<button class="btn btn-primary" ng-click="cancel()">Cancel</button>
 			</div>
 	       </div>
