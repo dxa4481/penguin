@@ -382,6 +382,7 @@ var borrowModalController = function($scope, $modalInstance, tool){
 
 	
 	$scope.ok = function (transaction) {
+		$scope.tool.tool_available = false;
 		if(!transaction.borrower_message){transaction.borrower_message="No Message"};
 		$modalInstance.close(transaction);
 	};
@@ -510,7 +511,7 @@ var setActive = function($rootScope, $timeout, $location, User, BorrowTransactio
                                         }
                                 });
 					
-			$rootScope.cronJob = $timeout(notifications, 1000);
+			$rootScope.cronJob = $timeout(notifications, 3000);
                 }
 		getUser($location, $rootScope, User, notifications);
 	}
