@@ -6,6 +6,7 @@ import datetime
 from .models import Tool
 from ...json_datetime import dt_to_milliseconds, milliseconds_to_dt
 from ..Users.models import User
+from ..Browse.models import BorrowTransaction 
 
 @csrf_exempt
 def update(request):
