@@ -217,6 +217,12 @@ def userById(request, user_id):
 				if BorrowTransaction.get_borrower_borrow_transactions(current_user.id):
 					error = {"error": "You are currently borrowing tools, you may not change your zip code.  Please contact an admin."}
 					return HttpResponse(json.dumps(error), content_type="application/json", status=403)
+
+			# check if first user to zip code
+				if not User.does_shed_coord_exist(put_data["zip_code"]):
+					user_id = current_user.id
+					User.promote_user_to_shed_coordinator(user_id)
+#					current_user = User.get_user(user_id)
 	
 			# default pickup arrangements field left blank -- error 400
 			if not put_data["default_pickup_arrangements"]:
