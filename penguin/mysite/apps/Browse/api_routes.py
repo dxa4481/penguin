@@ -199,7 +199,10 @@ def resolve_borrow_request(request):
 
 		# accept borrow request
 		if post_data["resolution"]:
-			approved_bt = BorrowTransaction.approve_borrow_transaction(bt.get_borrow_transaction_id())
+			own_msg = post_data["owner_message"]
+			if not own_msg:
+				own_msg = "No message"
+			approved_bt = BorrowTransaction.approve_borrow_transaction(bt.get_borrow_transaction_id(), own_msg)
 			return_bt = bt_to_json(approved_bt)
 			return HttpResponse(json.dumps(return_bt), content_type="application/json")
 

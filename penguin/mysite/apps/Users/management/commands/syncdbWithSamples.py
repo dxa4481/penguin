@@ -29,7 +29,7 @@ class Command(BaseCommand):
 		avail_date = timezone.now() + datetime.timedelta(days=20)
 		
 		for i in range(0, 150):
-			print("Inserting " + str(i) + " of 150 samples")
+			print("Inserting " + str(i+1) + " of 150 samples")
 			user_num = random.choice(range(1,5))
 			name1 = random.choice(['Antimatter ', 'Autodynamic ', 'Catalytic ', 'Covalent ', 'Energized ', 'Gyromorphic ',
 									'Maser ' ,'Neutronium ', 'Nuclear ','Subspace ' ,'Zero-point ', 'Ingenuitive ',
@@ -55,15 +55,15 @@ class Command(BaseCommand):
 			bt_choice = random.choice(range(10))
 			if (bt_choice >= 6):
 				t = Tool.get_tool(i)
-				if (t != False):
-					b = User.get_user(user_num)
+				b = User.get_user(user_num)
+				if (t != False and t.owner != b):
 					borrow_message = random.choice(['I want this tool please' , 'Can I borrow this?', 'I promise I will give it back soon', 'I really need this', 
 													'You are the best! Please let me use this?'])
 					bt = BorrowTransaction.create_new_borrow_transaction(b, t, borrow_message, avail_date)
 					if (bt_choice == 6):
 						BorrowTransaction.end_borrow_transaction(bt.id)
 					elif (bt_choice == 7):
-						BorrowTransaction.approve_borrow_transaction(bt.id)
+						BorrowTransaction.approve_borrow_transaction(bt.id, "I sanction this transaction!")
 					elif (bt_choice == 8):
 						BorrowTransaction.request_end_borrow_transaction(bt.id)
 		
@@ -76,11 +76,11 @@ class Command(BaseCommand):
 		#borrowing bt ID2
 		t = Tool.get_tool(dan_tool_list[1].id)
 		bt = BorrowTransaction.create_new_borrow_transaction(b, t, "I want tool.", avail_date)
-		BorrowTransaction.approve_borrow_transaction(bt.id)
+		BorrowTransaction.approve_borrow_transaction(bt.id, "Sure, go ahead I guess. I didn't want that tool anyway.")
 		#rejected bt ID3
 		t = Tool.get_tool(dan_tool_list[2].id)
 		bt = BorrowTransaction.create_new_borrow_transaction(b, t, "I wanta da tool.", avail_date)
-		BorrowTransaction.reject_borrow_transaction(bt.id, "screw you")
+		BorrowTransaction.reject_borrow_transaction(bt.id, "Forget youm you can't have it")
 		#return pending ID4
 		t = Tool.get_tool(dan_tool_list[3].id)
 		bt = BorrowTransaction.create_new_borrow_transaction(b, t, "All your tool are belong to us.", avail_date)

@@ -41,9 +41,9 @@ class BorrowTransaction(models.Model):
 	:returns the borrow transaction object
 	"""
 	@staticmethod
-	def approve_borrow_transaction(btID):
+	def approve_borrow_transaction(btID, own_msg):
 		bt = BorrowTransaction.get_borrow_transaction(btID)
-		bt.owner_message = "Transaction approved"
+		bt.owner_message = own_msg
 		bt.status = "borrowing"
 		bt.save()
 		return bt
