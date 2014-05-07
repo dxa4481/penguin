@@ -32,7 +32,10 @@
                                 <div ng-switch-when="borrow return pending">Awaiting return confirmation</td>
                         </td>
 			<td>{{borrowingTransaction.due_date | date:'short'}}</td>
-			<td>{{borrowingTransaction.tool.owner}}: "{{borrowingTransaction.owner_message}}"</td>                                           
+			<td ng-switch on="borrowingTransaction.owner_message">
+				<div ng-switch-when="">Owner hasn't seen it yet</div>
+				<div ng-switch-default>{{borrowingTransaction.tool.owner}}: "{{borrowingTransaction.owner_message}}"</div>
+			</td>
                 </tr>                                                   
         </tbody>
      </table>
