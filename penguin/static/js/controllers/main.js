@@ -430,7 +430,6 @@ var removeOwnTools = function(tools, username){
 	console.log(username)
 	console.log(tools)
 	for(var i=0; i<tools.length; i++){
-		console.log(tools[i].owner == username)
 		if(tools[i].owner != username){
 			return_list.push(tools[i]);
 		}

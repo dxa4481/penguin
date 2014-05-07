@@ -14,9 +14,12 @@
                 <tr ng-repeat="borrowingTransaction in borrowingTransactions | filter:searchText">      
                         <td>{{borrowingTransaction.tool.name}}</td>
                         <td>{{borrowingTransaction.tool.tool_type}}</td>
-                        <td>{{borrowingTransaction.tool.description}}</td>
+			<td>{{borrowingTransaction.tool.description}}</td>
                         <td>{{borrowingTransaction.tool.owner}}</td>
-                        <td>{{borrowingTransaction.tool.tool_pickup_arrangements}}</td>      
+			<td ng-switch on=borrowingTransaction.tool.in_community_shed>
+                                <div ng-switch-when="true">Come to the community shed and get it</div>
+                                <div ng-switch-when="false">{{borrowingTransaction.tool.tool_pickup_arrangements}}</div>
+                        </td>
                         <td ng-switch on=borrowingTransaction.tool.in_community_shed>           
                                 <div ng-switch-when="true">Community shed</div>
                                 <div ng-switch-when="false">{{borrowingTransaction.tool.owner}}'s shed</div>
