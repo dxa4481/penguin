@@ -48,7 +48,11 @@ To use the web application:
 
 
 Known bugs & issues:
-	-Community Statistics sometimes do not update properly until page refresh.
+	-When editing a tool or user and the task of saving is not successfully completed,
+		until you refresh the page, forms on the frontend might still be populated with edits
+		but	the edits do not carry over on the backend.
+	-If you create strings with a super long length in forms, it will change the formatting of the 
+		tables and make things ugly, but should not break anything.
 Features not included in this release:
 	-Administration
 	-Delete a user
