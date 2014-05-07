@@ -3,6 +3,8 @@
     <div ng-include src="'/static/sidebar.html'"></div>
   </div>
   <div class="col-xs-10">
+	<select ng-model="graphSelection" ng-change="changeData(graphSelection)" ng-options="selection for selection in graphSelections"></select>
+	<select ng-model="chartType" ng-options="type for type in chartTypes"></select>
 	<div style="height: 400px;width: 800px;" ac-chart="chartType" ac-data="data" ac-config="config" id='chart' class='chart'></div>
   </div>  
 </div>

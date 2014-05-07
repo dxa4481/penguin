@@ -321,24 +321,48 @@ angular.module('toolShareControllers', [])
 	})
 
         .controller('communityController', function($scope, $timeout, $rootScope, $location, User, Tool, BorrowTransaction){
+		$scope.borrower_data = {};
+		$scope.lender_data = {};
+		$scope.tool_data = {};
 		var cb = function(){
 			BorrowTransaction.getCommunityHistory($rootScope.user.zip_code).
 				success(function(data){
-					var borrowers = {};
+					borrowers = {};
+					lenders = {};
+					tools = {};
 					for(var i=0; i<data.length; i++){
 						if(data[i].borrower in borrowers){
-							borrowers[data[i].borrower]++
+							borrowers[data[i].borrower]++;
 						}else{
 							borrowers[data[i].borrower] = 1;
 						}
+						if(data[i].tool.owner in lenders){
+							lenders[data[i].tool.owner]++;
+						}else{
+							lenders[data[i].tool.owner] = 1;
+						}
+						if(data[i].tool.tool_type in tools){
+						        tools[data[i].tool.tool_type]++;
+                                                }else{
+                                                        tools[data[i].tool.tool_type] = 1;
+                                                }
 					}
-					var chart_data = {series: ['Borrows'], data: []};
+					$scope.borrower_data = {series: ['Borrows'], data: []};
 					for(key in borrowers){
-						chart_data.data.push({"x": key, "y": [borrowers[key]]})
+						$scope.borrower_data.data.push({"x": key, "y": [borrowers[key]]})
 					}
-					console.log(chart_data);
-					console.log("ass");
-					$scope.data = chart_data;
+					$scope.borrower_data.data = sortData($scope.borrower_data.data);
+					$scope.lender_data = {series: ['Lends'], data: []};
+                                        for(key in lenders){
+                                                $scope.lender_data.data.push({"x": key, "y": [lenders[key]]})
+                                        }
+					$scope.lender_data.data = sortData($scope.lender_data.data);
+					$scope.tool_data = {series: ['Borrows'], data: []};
+                                        for(key in tools){
+                                                $scope.tool_data.data.push({"x": key, "y": [tools[key]]})
+                                        }
+					$scope.tool_data.data = sortData($scope.tool_data.data);
+					$scope.data = $scope.borrower_data;
 				}).
 				error(function(data, status){
                         		if(typeof data === "object"){
@@ -351,6 +375,7 @@ angular.module('toolShareControllers', [])
 		}
 		if($rootScope.user == undefined){getUser($location, $rootScope, User, cb)}else{cb()};
 		setActive($rootScope, $timeout, $location, User, BorrowTransaction, "community");
+		$scope.chartTypes = ['bar', 'pie'];
 		$scope.chartType = 'bar';
 		$scope.config = {
 			title : '',
@@ -365,8 +390,24 @@ angular.module('toolShareControllers', [])
     				position: 'left'
   			}
 		}
+		$scope.graphSelections = ["Most active borrowers", "Most active lenders", "Most borrowed tools"];
+		$scope.graphSelection = "Most active borrowers";
+		$scope.changeData = function(graphSelection){
+			if(graphSelection == "Most active borrowers"){
+				$scope.data = $scope.borrower_data;
+			}else if(graphSelection == "Most active lenders"){
+				$scope.data = $scope.lender_data;
+			}else if(graphSelection == "Most borrowed tools"){
+				$scope.data = $scope.tool_data;
+			}
+		}
 		
 	})
+var sortData = function(sortable){
+	sortable.sort(function(a, b) {return a.y[1] - b.y[1]})
+	return sortable.slice(0, 5);
+}
+
 var getUser = function($location, rootScope, User, cb){
 	User.get().
 		success(function(data){
