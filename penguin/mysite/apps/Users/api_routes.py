@@ -300,7 +300,7 @@ def changePassword(request):
 				return_message = user_to_json(user)
 						
 			else:
-				return_message = {"error":"mismatch passwords"}
+				return_message = {"error":"passwords do not match"}
 				return HttpResponse(json.dumps(return_message), content_type="application/json", status=400)
 		else:
 			return_message = {"error":"incorrect old password"}
