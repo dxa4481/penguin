@@ -253,7 +253,7 @@ angular.module('toolShareControllers', [])
 		}
 
 	})
-	.controller('profileController', function($scope, $timeout, $rootScope, $location, User, Tool, BorrowTransaction){
+	.controller('profileController', function($scope, $modal, $timeout, $rootScope, $location, User, Tool, BorrowTransaction){
 		var cb = function(){$scope.user = $rootScope.user};
 		if($rootScope.user == undefined){getUser($location, $rootScope, User, cb)};
 		$scope.user = $rootScope.user;
@@ -264,7 +264,19 @@ angular.module('toolShareControllers', [])
 			User.update(user).
 				success(function(data){
 					$rootScope.user = data;
-					$location.path('/home');
+					console.log($rootScope.user);
+					if($rootScope.user.is_shed_coordinator){
+                                                var modalInstance = $modal.open({
+                                                        templateUrl: '/static/pages/communityShedModal.html',
+                                                        controller: shedCoordinatorModalController,
+                                                        resolve: {}
+                                                });
+                                                modalInstance.result.then(function(){
+                                                        $location.path('/home');
+                                                });
+                                        }else{
+                                                $location.path('/home');
+                                        }
 				}).
                                 error(function(data, status){
                                         if(typeof data === "object"){
