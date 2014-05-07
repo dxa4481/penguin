@@ -37,13 +37,15 @@ class BorrowTransactionTestCase(TestCase):
 			tooltype = "nail", 
 			toolshed = False, 
 			pickup_info = "Rip it out of the cage.",
+			tool_available = True
 			)
 		self.zilly = Tool.create_new_tool( "Warhammer of Zillyhoo", 
 			toolownerID = self.parrot.id, 
 			tooldescription = "Its majesty makes you weep.", 
 			tooltype = "hammer", 
 			toolshed = False, 
-			pickup_info = "Some time travel required."
+			pickup_info = "Some time travel required.",
+			tool_available = True
 			)
 		
 	def test_create_new_borrow_transaction(self):
@@ -78,7 +80,7 @@ class BorrowTransactionApiTestCase(TestCase):
 			'00000',
 			'polarbear@northpole.org',
 			'5555551234',
-			'Pick it up at the north pole',
+			'Pick it up at the north pole'
 			)
 		self.nail = Tool.create_new_tool( "Rusty Nail", 
 			toolownerID = self.parrot.id, 
@@ -86,13 +88,15 @@ class BorrowTransactionApiTestCase(TestCase):
 			tooltype = "nail", 
 			toolshed = False, 
 			pickup_info = "Rip it out of the cage.",
+			tool_available= True
 			)
 		self.zilly = Tool.create_new_tool( "Warhammer of Zillyhoo", 
 			toolownerID = self.parrot.id, 
 			tooldescription = "Its majesty makes you weep.", 
 			tooltype = "hammer", 
 			toolshed = False, 
-			pickup_info = "Some time travel required."
+			pickup_info = "Some time travel required.",
+			tool_available= True
 			)
 		self.scraper = Tool.create_new_tool( "Ice Scraper",
 			toolownerID = self.penguin.id,
@@ -100,6 +104,7 @@ class BorrowTransactionApiTestCase(TestCase):
 			tooltype = "ice scraper",
 			toolshed = False,
 			pickup_info = "Pick it up at the south pole.",
+			tool_available= True
 			)
 	
 	#cutting this out in case we lose points for that dumb runtime warning

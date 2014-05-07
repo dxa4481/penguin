@@ -286,8 +286,8 @@ class UserApiTestCase(TestCase):
 			self.john.phone_number)
 		self.assertNotEqual(response_data["default_pickup_arrangements"], 
 			self.john.default_pickup_arrangements)
-		self.assertEqual(response_data["is_shed_coordinator"],
-			self.john.is_shed_coordinator)
+		#self.assertEqual(response_data["is_shed_coordinator"],
+		#	self.john.is_shed_coordinator)
 		self.assertEqual(response_data["is_admin"], self.john.is_admin)
 	
 	@unittest.skip #not ready yet

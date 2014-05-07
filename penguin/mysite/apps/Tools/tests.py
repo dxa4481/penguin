@@ -43,6 +43,7 @@ class ToolTestCase(TestCase):
 			tool_pickup_arrangements =
 				"If you can lift it, you can have it.",
 			available_date = today,
+			is_available = True
 			)
 		self.sledge.save()
 	
@@ -55,6 +56,7 @@ class ToolTestCase(TestCase):
 			tooltype = "hammer", 
 			toolshed = False, 
 			pickup_info = "Some time travel required.",
+			tool_available = True
 			)
 		
 		# slight hack here: the create_new_tool() method doesn't allow 
@@ -209,6 +211,7 @@ class ToolApiTestCase(TestCase):
 			"tool_type" : "needle",
 			"in_community_shed" : True,
 			"tool_pickup_arrangements" : "Get it from the shed.",
+			"tool_available" : True
 			}
 			
 		# Mock session, where applicable
