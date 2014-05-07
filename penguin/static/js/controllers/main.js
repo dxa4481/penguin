@@ -260,7 +260,8 @@ angular.module('toolShareControllers', [])
 			$scope.user = $rootScope.user; 
 			tempCoordinator = $rootScope.user.is_shed_coordinator;
 		};
-		if($rootScope.user == undefined){getUser($location, $rootScope, User, cb)};
+		if($rootScope.user == undefined){getUser($location, $rootScope, User, cb)}
+		else{tempCoordinator = $rootScope.user.is_shed_coordinator;}
 		$scope.user = $rootScope.user;
 		$scope.changePassword = function(){
 			$location.path('/changePassword');
@@ -269,7 +270,9 @@ angular.module('toolShareControllers', [])
 			User.update(user).
 				success(function(data){
 					$rootScope.user = data;
-					console.log($rootScope.user);
+					console.log(tempCoordinator)
+					console.log(data)
+					console.log("FUCK YOU")
 					if(tempCoordinator != data.is_shed_coordinator){
                                                 var modalInstance = $modal.open({
                                                         templateUrl: '/static/pages/communityShedModal.html',
