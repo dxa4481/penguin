@@ -1,6 +1,5 @@
 // js/controllers/main.js
 //
-var polling = false;
 zip_code_regex = /(^\d{5}(-\d{4})?$)|(^[ABCEGHJKLMNPRSTVXY]{1}\d{1}[A-Z]{1} *\d{1}[A-Z]{1}\d{1}$)/;
 phone_number_regex = /^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/;
 
@@ -9,6 +8,7 @@ angular.module('toolShareControllers', [])
 	// inject the Todo service factory into our controller
 	.controller('mainController', function($scope, $rootScope, $modal, $timeout, $location, User) {
 		$scope.register = false;
+		$rootScope.polling = false;
 		$scope.tryLogin = function(user){
 			console.log(user)
 			User.login(user).
@@ -74,6 +74,7 @@ angular.module('toolShareControllers', [])
                 	success(function(data){
 				$timeout.cancel($rootScope.cronJob);
 				delete $rootScope.user;
+				$rootScope.polling = false;
                         	$location.path('/');
                         }).
                         error(function(data, status){
@@ -492,7 +493,7 @@ var removeOwnTools = function(tools, username){
 
 
 var setActive = function($rootScope, $timeout, $location, User, BorrowTransaction, activeThing){
-	if(!polling){
+	if(!$rootScope.polling){
 		$rootScope.resolveTransaction = function(resolution, transactionRequest){
 			if(!transactionRequest.owner_message){transactionRequest.owner_message = "No message"};
 			BorrowTransaction.resolveStartRequest({toolId: transactionRequest.tool.id, resolution: resolution, owner_message: transactionRequest.owner_message}).
@@ -535,7 +536,7 @@ var setActive = function($rootScope, $timeout, $location, User, BorrowTransactio
                                 });
 
 		}
-		polling = true;
+		$rootScope.polling = true;
 		$rootScope.messages = [];
 		$rootScope.transactionRequests = [];
 		$rootScope.endTransactionRequests = [];
@@ -596,7 +597,7 @@ var setActive = function($rootScope, $timeout, $location, User, BorrowTransactio
                                         }
                                 });
 					
-			$rootScope.cronJob = $timeout(notifications, 3000);
+			if($rootScope.polling){$rootScope.cronJob = $timeout(notifications, 3000);}
                 }
 		getUser($location, $rootScope, User, notifications);
 	}
