@@ -38,9 +38,9 @@ class Command(BaseCommand):
 						'Big O ', 'Cloud Based ', 'Cloud Service ', 'Service Oriented ', 'Reactive ', 'Net Neutral ', 'Agile ',
 						'Plug-n-play ', 'Open Source ', 'Location Aware '])
 			tool_type = random.choice(['Drill', 'Screwdriver', 'Hammer', 'Nailgun', 'Pliers', 'Wrench', 'Knife', 'Awl', 'Web Platform',
-							'3D Printer', 'Revolutionizer', 'Recursion', 'Middleware', 'Innovator', 'Synergizer', 'Data Aggregator',
-							'Cloud Software', 'Architecture', 'Service Oriented Architecture', 'Paradigm', 
-							'Utility Curve', 'Big Data Process', 'Data Warehouse'])
+							'3D Printer', 'Recursion', 'Middleware', 'Innovator', 'Synergizer',
+							'Cloud Software', 'Architecture', 'Paradigm', 
+							'Utility Curve'])
 			descrip = random.choice(['Red', 'Blue', 'Purple', 'Orange', 'Brown', 'Decrepit', 'Functional', 'Working', 'Broken', 'Bent', 'Shoddy'])
 			in_comm_shed = random.choice([True, False, False, False])
 			pickup_arrangement = random.choice(['send an email to me and wait for my reply', 'knock on my door three times, then once more', 
@@ -70,26 +70,35 @@ class Command(BaseCommand):
 						BorrowTransaction.request_end_borrow_transaction(bt.id)
 		
 		avail_date = timezone.now() + datetime.timedelta(days=20)
+		
+		Tool.create_new_tool("Bionic Mallet", 1, "A handy dandy bionic mallet", "Hammer", False, "Come pick it up!", True)
+		Tool.create_new_tool("Cosmic Sander", 1, "Sand things to spacedust", "Sander", False, "Call me!", True)
+		Tool.create_new_tool("Cybermeasure", 1, "Measures in lightyears", "Ruler", False, "Call me!", True)
+		Tool.create_new_tool("Dimensional Oscillolathe", 1, "Out of this world!", "Lathe", False, "Get it while it's hot", True)
+		Tool.create_new_tool("Techno Chisel", 1, "It's smarter than you", "Chisel", False, "Come get it", True)
+		
 		dan_tool_list = Tool.get_tool_by_owner(1)
+		list_length = len(dan_tool_list)
+		
 		#request pending bt ID1
 		b = User.get_user(2)
-		t = Tool.get_tool(dan_tool_list[0].id)
+		t = Tool.get_tool(dan_tool_list[list_length-1].id)
 		bt = BorrowTransaction.create_new_borrow_transaction(b, t, "Can I haz this tool?", avail_date)
 		#borrowing bt ID2
-		t = Tool.get_tool(dan_tool_list[1].id)
+		t = Tool.get_tool(dan_tool_list[list_length-2].id)
 		bt = BorrowTransaction.create_new_borrow_transaction(b, t, "I want tool.", avail_date)
 		BorrowTransaction.approve_borrow_transaction(bt.id, "Sure, go ahead I guess. I didn't want that tool anyway.")
 		#rejected bt ID3
-		t = Tool.get_tool(dan_tool_list[2].id)
+		t = Tool.get_tool(dan_tool_list[list_length-3].id)
 		bt = BorrowTransaction.create_new_borrow_transaction(b, t, "I wanta da tool.", avail_date)
 		BorrowTransaction.reject_borrow_transaction(bt.id, "Forget you, you can't have it")
 		#return pending ID4
-		t = Tool.get_tool(dan_tool_list[3].id)
+		t = Tool.get_tool(dan_tool_list[list_length-4].id)
 		bt = BorrowTransaction.create_new_borrow_transaction(b, t, "All your tool are belong to us.", avail_date)
 		BorrowTransaction.approve_borrow_transaction(bt.id, "Sure, go ahead I guess. I didn't want that tool anyway.")
 		BorrowTransaction.request_end_borrow_transaction(bt.id)
 		#returned transaction ID5
-		t = Tool.get_tool(dan_tool_list[4].id)
+		t = Tool.get_tool(dan_tool_list[list_length-5].id)
 		bt = BorrowTransaction.create_new_borrow_transaction(b, t, "All your tool are belong to us.", avail_date)
 		BorrowTransaction.approve_borrow_transaction(bt.id, "Sure, go ahead I guess. I didn't want that tool anyway.")
 		BorrowTransaction.end_borrow_transaction(bt.id)
