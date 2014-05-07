@@ -255,7 +255,7 @@ angular.module('toolShareControllers', [])
 
 	})
 	.controller('profileController', function($scope, $modal, $timeout, $rootScope, $location, User, Tool, BorrowTransaction){
-		var cb = function(){$scope.user = $rootScope.user};
+		var cb = function(){$scope.user = $rootScope.user; $scope.tempCoordinator = $scope.user.is_shed_coordinator;};
 		if($rootScope.user == undefined){getUser($location, $rootScope, User, cb)};
 		$scope.user = $rootScope.user;
 		$scope.changePassword = function(){
@@ -266,7 +266,7 @@ angular.module('toolShareControllers', [])
 				success(function(data){
 					$rootScope.user = data;
 					console.log($rootScope.user);
-					if($rootScope.user.is_shed_coordinator){
+					if($scope.tempCoordinator != $rootScope.user.is_shed_coordinator){
                                                 var modalInstance = $modal.open({
                                                         templateUrl: '/static/pages/communityShedModal.html',
                                                         controller: shedCoordinatorModalController,
