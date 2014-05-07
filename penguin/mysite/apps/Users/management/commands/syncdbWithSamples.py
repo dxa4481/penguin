@@ -24,12 +24,12 @@ class Command(BaseCommand):
 		#make Dan an admin
 		User.promote_user_to_admin(1)
 		#make Andrew a shed coordinator
-		User.promote_user_to_shed_coordinator(2)
+		User.promote_user_to_shed_coordinator(1)
 		
 		avail_date = timezone.now() + datetime.timedelta(days=20)
 		
 		for i in range(0, 150):
-			print("Inserting " + str(i+1) + " of 150 samples")
+			print("Inserting samples. " + str(round(((i+1)/150)*100, 2)) + " percent complete.")
 			user_num = random.choice(range(1,5))
 			name1 = random.choice(['Antimatter ', 'Autodynamic ', 'Catalytic ', 'Covalent ', 'Energized ', 'Gyromorphic ',
 									'Maser ' ,'Neutronium ', 'Nuclear ','Subspace ' ,'Zero-point ', 'Ingenuitive ',
@@ -39,7 +39,7 @@ class Command(BaseCommand):
 						'Plug-n-play ', 'Open Source ', 'Location Aware '])
 			tool_type = random.choice(['Drill', 'Screwdriver', 'Hammer', 'Nailgun', 'Pliers', 'Wrench', 'Knife', 'Awl', 'Web Platform',
 							'3D Printer', 'Revolutionizer', 'Recursion', 'Middleware', 'Innovator', 'Synergizer', 'Data Aggregator',
-							'Cloud Software', 'Architecture', 'Service Oriented Architecture', 'Paradigm', 'NoSQL Database', 
+							'Cloud Software', 'Architecture', 'Service Oriented Architecture', 'Paradigm', 
 							'Utility Curve', 'Big Data Process', 'Data Warehouse'])
 			descrip = random.choice(['Red', 'Blue', 'Purple', 'Orange', 'Brown', 'Decrepit', 'Functional', 'Working', 'Broken', 'Bent', 'Shoddy'])
 			in_comm_shed = random.choice([True, False, False, False])
@@ -61,10 +61,12 @@ class Command(BaseCommand):
 													'You are the best! Please let me use this?'])
 					bt = BorrowTransaction.create_new_borrow_transaction(b, t, borrow_message, avail_date)
 					if (bt_choice == 6):
+						BorrowTransaction.approve_borrow_transaction(bt.id, "I sanction this transaction!")
 						BorrowTransaction.end_borrow_transaction(bt.id)
 					elif (bt_choice == 7):
 						BorrowTransaction.approve_borrow_transaction(bt.id, "I sanction this transaction!")
 					elif (bt_choice == 8):
+						BorrowTransaction.approve_borrow_transaction(bt.id, "I sanction this transaction!")
 						BorrowTransaction.request_end_borrow_transaction(bt.id)
 		
 		avail_date = timezone.now() + datetime.timedelta(days=20)
@@ -80,14 +82,16 @@ class Command(BaseCommand):
 		#rejected bt ID3
 		t = Tool.get_tool(dan_tool_list[2].id)
 		bt = BorrowTransaction.create_new_borrow_transaction(b, t, "I wanta da tool.", avail_date)
-		BorrowTransaction.reject_borrow_transaction(bt.id, "Forget youm you can't have it")
+		BorrowTransaction.reject_borrow_transaction(bt.id, "Forget you, you can't have it")
 		#return pending ID4
 		t = Tool.get_tool(dan_tool_list[3].id)
 		bt = BorrowTransaction.create_new_borrow_transaction(b, t, "All your tool are belong to us.", avail_date)
+		BorrowTransaction.approve_borrow_transaction(bt.id, "Sure, go ahead I guess. I didn't want that tool anyway.")
 		BorrowTransaction.request_end_borrow_transaction(bt.id)
 		#returned transaction ID5
 		t = Tool.get_tool(dan_tool_list[4].id)
 		bt = BorrowTransaction.create_new_borrow_transaction(b, t, "All your tool are belong to us.", avail_date)
+		BorrowTransaction.approve_borrow_transaction(bt.id, "Sure, go ahead I guess. I didn't want that tool anyway.")
 		BorrowTransaction.end_borrow_transaction(bt.id)
 		
 
