@@ -267,7 +267,7 @@ def login(request):
 		return HttpResponse(json.dumps(return_user), content_type="application/json")
 
 def validate_phone_number( phone_number ):
-	regex_phone_number = re.compile("^[\s()+-]*([0-9][\s()+-]*){6,20}$")
+	regex_phone_number = re.compile("^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$")
 	return regex_phone_number.match(phone_number)
 def validate_zip_code(zip_code):
 	regex_zip_code = re.compile("(^\d{5}(-\d{4})?$)|(^[ABCEGHJKLMNPRSTVXY]{1}\d{1}[A-Z]{1} *\d{1}[A-Z]{1}\d{1}$)")
