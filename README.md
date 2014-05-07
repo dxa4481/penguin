@@ -6,6 +6,7 @@ A restful single page app tool sharing application. Uses python/django and sqlit
 ## Dependancies
 
     python3
+    python3-setuptools
 
 
 ## Installation
