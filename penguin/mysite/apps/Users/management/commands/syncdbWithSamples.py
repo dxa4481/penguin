@@ -36,11 +36,10 @@ class Command(BaseCommand):
 						'Multi-Platform ', 'NP-Complete ', 'Revolutionary ', 'Regression ', 'Recursive ', 'Crowd-Sourced ', 
 						'Thought Based ', 'Web 2.0 ', 'Middleware ', 'Innovative ', 'Beta ', 'Alpha ', 'Synergetic ', 'Aggregating ',
 						'Big O ', 'Cloud Based ', 'Cloud Service ', 'Service Oriented ', 'Reactive ', 'Net Neutral ', 'Agile ',
-						'Plug-n-play ', 'Open Source ', 'Location Aware '])
+						'Plug-n-play ', 'Open Source ', 'Location Aware ', 'Bionic ', 'Cosmic ', 'Ionic ', 'Quantum '])
 			tool_type = random.choice(['Drill', 'Screwdriver', 'Hammer', 'Nailgun', 'Pliers', 'Wrench', 'Knife', 'Awl', 'Web Platform',
-							'3D Printer', 'Recursion', 'Middleware', 'Innovator', 'Synergizer',
-							'Cloud Software', 'Architecture', 'Paradigm', 
-							'Utility Curve'])
+							'3D Printer', 'Recursion', 'Middleware', 'Innovator', 'Synergizer', 'Mallet', 'Sander', 'Lathe', 'Crowbar',
+							'Cloud Software', 'Architecture', 'Paradigm', 'Clamp', 'Utility Curve'])
 			descrip = random.choice(['Red', 'Blue', 'Purple', 'Orange', 'Brown', 'Decrepit', 'Functional', 'Working', 'Broken', 'Bent', 'Shoddy'])
 			in_comm_shed = random.choice([True, False, False, False])
 			pickup_arrangement = random.choice(['send an email to me and wait for my reply', 'knock on my door three times, then once more', 
