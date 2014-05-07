@@ -2,7 +2,7 @@
 //
 var polling = false;
 zip_code_regex = /(^\d{5}(-\d{4})?$)|(^[ABCEGHJKLMNPRSTVXY]{1}\d{1}[A-Z]{1} *\d{1}[A-Z]{1}\d{1}$)/;
-phone_number_regex = /^[\s()+-]*([0-9][\s()+-]*){6,20}$/;
+phone_number_regex = /^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/;
 
 
 angular.module('toolShareControllers', [])
